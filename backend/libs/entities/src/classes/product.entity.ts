@@ -1,4 +1,4 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToOne } from "typeorm";
 import Generic from "./generic.entity";
 import Size, { SizeValue } from "./size.entity";
 
@@ -16,6 +16,6 @@ export default class Product extends Generic {
     @Column({ type: "float", nullable: false })
     price: number;
 
-    @Column({ type: "enum", enum: Size, nullable: true })
+    @OneToOne(() => Size, (size) => size.products)
     size: Size;
 }

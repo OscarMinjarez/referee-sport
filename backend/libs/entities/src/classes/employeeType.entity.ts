@@ -7,6 +7,7 @@ export enum EmployeeTypeValue {
     Clerk = "clerk"
 }
 
+@Entity({ name: "employees_types" })
 export default class EmployeeType extends Generic {
     @Column({ type: "enum", enum: EmployeeTypeValue, nullable: false })
     type: EmployeeTypeValue;
