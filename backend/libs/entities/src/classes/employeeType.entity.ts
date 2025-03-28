@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
 export enum EmployeeTypeValue {

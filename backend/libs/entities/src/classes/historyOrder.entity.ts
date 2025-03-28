@@ -4,7 +4,7 @@ import Employee from "./employee.entity";
 import OrderEvent from "./orderEvent.entity";
 import Order from "./order.entity";
 
-@Entity()
+@Entity({ name: "histories_orders" })
 export default class HistoryOrder extends Generic {
   @ManyToOne(() => Order, order => order.historyOrders, { nullable: false })
   @JoinColumn({ name: "order_id" })

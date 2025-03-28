@@ -1,7 +1,7 @@
 import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
-@Entity()
+@Entity({ name: "addresses" })
 export default class Address extends Generic {
     @Column({ type: "varchar", length: 255, nullable: false })
     streetName: string;

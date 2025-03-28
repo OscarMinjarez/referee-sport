@@ -2,7 +2,7 @@ import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 import Size, { SizeValue } from "./size.entity";
 
-@Entity()
+@Entity({ name: "products" })
 export default class Product extends Generic {
     @Column({ type: "varchar", length: 50, nullable: false })
     name: string;

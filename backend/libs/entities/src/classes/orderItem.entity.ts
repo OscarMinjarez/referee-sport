@@ -3,7 +3,7 @@ import Generic from "./generic.entity";
 import Product from "./product.entity";
 import Order from "./order.entity";
 
-@Entity()
+@Entity({ name: "orders_items" })
 export default class OrderItem extends Generic {
   @ManyToOne(() => Order, order => order.orderItems, { nullable: false })
   @JoinColumn({ name: "order_id" })

@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, JoinColumn } from "typeorm";
 import Generic from "./generic.entity";
 import Order from "./order.entity"; // Assuming you have an Order entity
 
-@Entity()
+@Entity({ name: "payments" })
 export default class Payment extends Generic {
     @ManyToOne(() => Order, order => order.payments, { nullable: false })
     @JoinColumn({ name: "order_id" })

@@ -4,7 +4,7 @@ import Generic from "./generic.entity";
 import Address from "./address.entity";
 import Order from "./order.entity";
 
-@Entity()
+@Entity({ name: "customers "})
 export default class Customer extends Generic {
     @Column({ type: "varchar", length: 100, nullable: false })
     name: string;

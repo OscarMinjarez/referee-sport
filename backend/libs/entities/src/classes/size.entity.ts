@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
 export enum SizeValue {
@@ -9,6 +9,7 @@ export enum SizeValue {
     Other = "other"
 };
 
+@Entity({ name: "sizes" })
 export default class Size extends Generic {
 
     @Column({ type: "enum", enum: SizeValue, nullable: false })

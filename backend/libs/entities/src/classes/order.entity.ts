@@ -5,7 +5,7 @@ import Payment from "./payment.entity";
 import Customer from "./customer.entity";
 import HistoryOrder from "./historyOrder.entity";
 
-@Entity()
+@Entity({ name: "orders" })
 export default class Order extends Generic {
     @Column({ type: "int", nullable: false, unique: true })
     numberOrder: number;
