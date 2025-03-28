@@ -11,6 +11,8 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
+    "@app/entities": "<rootDir>/../libs/entities/src",
+    "@app/entities/(.*)": "<rootDir>/../libs/entities/src/$1",
     "@app/firebase": "<rootDir>/../libs/firebase/src",
     "@app/firebase/(.*)": "<rootDir>/../libs/firebase/src/$1"
   }

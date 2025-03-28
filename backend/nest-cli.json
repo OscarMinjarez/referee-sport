@@ -7,6 +7,15 @@
     "webpack": true
   },
   "projects": {
+    "entities": {
+      "type": "library",
+      "root": "libs/entities",
+      "entryFile": "index",
+      "sourceRoot": "libs/entities/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/entities/tsconfig.lib.json"
+      }
+    },
     "firebase": {
       "type": "library",
       "root": "libs/firebase",
