@@ -1,6 +1,8 @@
-import { Column } from "typeorm";
+import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
+import Size, { SizeValue } from "./size.entity";
 
+@Entity()
 export default class Product extends Generic {
     @Column({ type: "varchar", length: 50, nullable: false })
     name: string;
@@ -17,7 +19,6 @@ export default class Product extends Generic {
     @Column({ type: "enum", enum: Size, nullable: true })
     size: Size;
 
-    // Setters
     setName(name: string): void {
         this.name = name;
     }
@@ -38,7 +39,6 @@ export default class Product extends Generic {
         this.size = size;
     }
 
-    // Getters
     getName(): string {
         return this.name;
     }
@@ -59,24 +59,23 @@ export default class Product extends Generic {
         return this.size;
     }
 
-    // Product management methods
+        // Pa despues
     addProduct(): void {
-        // Placeholder for adding a product to the database
-        // In a real implementation, this would interact with a repository
+        // Pa despues
         console.log(`Adding product: ${this.name}`);
     }
 
     deleteProduct(): void {
-        // Placeholder for deleting a product from the database
+        // Pa despues
         console.log(`Deleting product: ${this.name}`);
     }
 
     updateProduct(): void {
-        // Placeholder for updating product details
+        // Pa despues
         console.log(`Updating product: ${this.name}`);
     }
 
-    // Stock management methods
+     
     increaseStock(quantity: number): void {
         if (quantity > 0) {
             this.stockQuantity += quantity;
