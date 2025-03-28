@@ -1,48 +1,60 @@
-
 import { Column, Entity, ManyToOne, JoinColumn } from "typeorm";
 import Generic from "./generic.entity";
 import Employee from "./employee.entity";
-import OrderEvent, { OrderEventValue } from "./orderEvent.entity";
+import OrderEvent from "./orderEvent.entity";
+import Order from "./order.entity";
 
 @Entity()
 export default class HistoryOrder extends Generic {
-    @ManyToOne(() => Employee, { nullable: false })
-    @JoinColumn({ name: "employee_id" })
-    employee: Employee;
+  @ManyToOne(() => Order, order => order.historyOrders, { nullable: false })
+  @JoinColumn({ name: "order_id" })
+  order: Order;
 
-    @ManyToOne(() => OrderEvent, { nullable: false })
-    @JoinColumn({ name: "order_event_id" })
-    event: OrderEvent;
+  @ManyToOne(() => Employee, { nullable: false })
+  @JoinColumn({ name: "employee_id" })
+  employee: Employee;
 
-    @Column({ type: "timestamp", nullable: false, default: () => "CURRENT_TIMESTAMP" })
-    date: Date;
+  @ManyToOne(() => OrderEvent, { nullable: false })
+  @JoinColumn({ name: "order_event_id" })
+  event: OrderEvent;
 
-    setEmployee(employee: Employee): void {
-        this.employee = employee;
-    }
+  @Column({ type: "timestamp", nullable: false, default: () => "CURRENT_TIMESTAMP" })
+  date: Date;
 
-    setEvent(event: OrderEvent): void {
-        this.event = event;
-    }
+  setOrder(order: Order): void {
+    this.order = order;
+  }
 
-    setDate(date: Date): void {
-        this.date = date;
-    }
+  setEmployee(employee: Employee): void {
+    this.employee = employee;
+  }
 
-    getEmployee(): Employee {
-        return this.employee;
-    }
+  setEvent(event: OrderEvent): void {
+    this.event = event;
+  }
 
-    getEvent(): OrderEvent {
-        return this.event;
-    }
+  setDate(date: Date): void {
+    this.date = date;
+  }
 
-    getDate(): Date {
-        return this.date;
-    }
+  // Getters
+  getOrder(): Order {
+    return this.order;
+  }
 
-    // aun nel
-    showHistoryOrder(): void {
-        console.log();
-    }
+  getEmployee(): Employee {
+    return this.employee;
+  }
+
+  getEvent(): OrderEvent {
+    return this.event;
+  }
+
+  getDate(): Date {
+    return this.date;
+  }
+
+  showHistoryOrder(): void {
+    console.log(`Historial: [${this.date}] - ${this.event} por ${this.employee}`);
+  }
 }
