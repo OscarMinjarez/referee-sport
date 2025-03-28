@@ -20,41 +20,4 @@ export default class HistoryOrder extends Generic {
 
   @Column({ type: "timestamp", nullable: false, default: () => "CURRENT_TIMESTAMP" })
   date: Date;
-
-  setOrder(order: Order): void {
-    this.order = order;
-  }
-
-  setEmployee(employee: Employee): void {
-    this.employee = employee;
-  }
-
-  setEvent(event: OrderEvent): void {
-    this.event = event;
-  }
-
-  setDate(date: Date): void {
-    this.date = date;
-  }
-
-  // Getters
-  getOrder(): Order {
-    return this.order;
-  }
-
-  getEmployee(): Employee {
-    return this.employee;
-  }
-
-  getEvent(): OrderEvent {
-    return this.event;
-  }
-
-  getDate(): Date {
-    return this.date;
-  }
-
-  showHistoryOrder(): void {
-    console.log(`Historial: [${this.date}] - ${this.event} por ${this.employee}`);
-  }
 }

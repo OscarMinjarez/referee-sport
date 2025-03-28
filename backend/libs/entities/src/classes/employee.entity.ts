@@ -6,12 +6,4 @@ import EmployeeType, { EmployeeTypeValue } from "./employeeType.entity";
 export default class Employee extends User {
     @Column({ type: "simple-json", nullable: false })
     type: EmployeeType;
-
-    setType(type: EmployeeType): void {
-        this.type = type;
-    }
-
-    getType(): EmployeeType {
-        return this.type;
-    }
 }

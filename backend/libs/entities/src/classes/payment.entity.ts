@@ -16,40 +16,4 @@ export default class Payment extends Generic {
 
     @Column({ type: "timestamp", nullable: false, default: () => "CURRENT_TIMESTAMP" })
     date: Date;
-
-    setOrder(order: Order): void {
-        this.order = order;
-    }
-
-    setTotal(total: number): void {
-        this.total = total;
-    }
-
-    setState(state: boolean): void {
-        this.paymentState = state;
-    }
-
-    setPaymentState(paymentState: boolean): void {
-        this.paymentState = paymentState;
-    }
-
-    setDate(date: Date): void {
-        this.date = date;
-    }
-
-    getOrder(): Order {
-        return this.order;
-    }
-
-    getTotal(): number {
-        return this.total;
-    }
-
-    getPaymentState(): boolean {
-        return this.paymentState;
-    }
-
-    getDate(): Date {
-        return this.date;
-    }
 }

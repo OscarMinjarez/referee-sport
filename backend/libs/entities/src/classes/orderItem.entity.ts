@@ -18,46 +18,4 @@ export default class OrderItem extends Generic {
 
   @Column({ type: "float", nullable: false })
   totalPrice: number;
-
-  // Setters
-  setOrder(order: Order): void {
-    this.order = order;
-  }
-
-  setProduct(product: Product): void {
-    this.product = product;
-  }
-
-  setQuantity(quantity: number): void {
-    this.quantity = quantity;
-  }
-
-  setTotalPrice(totalPrice: number): void {
-    this.totalPrice = totalPrice;
-  }
-
-  // Getters
-  getOrder(): Order {
-    return this.order;
-  }
-
-  getProduct(): Product {
-    return this.product;
-  }
-
-  getQuantity(): number {
-    return this.quantity;
-  }
-
-  getTotalPrice(): number {
-    return this.totalPrice;
-  }
-
-  // pal total
-  calculateTotalPrice(): number {
-    if (this.product && this.quantity) {
-      return this.product.price * this.quantity;
-    }
-    return 0;
-  }
 }
