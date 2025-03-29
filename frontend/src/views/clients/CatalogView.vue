@@ -1,3 +1,7 @@
 <template>
-  <h1>Catalog</h1>
+  <Navbar />
 </template>
+
+<script setup>
+import Navbar from '../../components/Navbar.vue';
+</script>
