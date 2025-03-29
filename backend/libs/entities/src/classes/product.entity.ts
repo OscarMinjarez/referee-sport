@@ -4,6 +4,7 @@ import Size, { SizeValue } from "./size.entity";
 
 @Entity({ name: "products" })
 export default class Product extends Generic {
+    
     @Column({ type: "varchar", length: 50, nullable: false })
     name: string;
 
