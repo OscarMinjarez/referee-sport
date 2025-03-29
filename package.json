@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:backend:employees": "cd backend && nest start --watch employees",
-    "dev:backend:clients": "cd backend && nest start --watch clients"
+    "dev:backend:clients": "cd backend && nest start --watch clients",
+    "dev:frontend": "cd frontend && npm run dev"
   },
   "repository": {
     "type": "git",
