@@ -24,6 +24,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "cloudinary": "^2.6.0",
     "firebase-admin": "^13.2.0",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",
@@ -78,6 +79,7 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
+      "^@app/cloudinary(|/.*)$": "<rootDir>/libs/cloudinary/src/$1",
       "^@app/entities(|/.*)$": "<rootDir>/libs/entities/src/$1",
       "^@app/firebase(|/.*)$": "<rootDir>/libs/firebase/src/$1"
     }

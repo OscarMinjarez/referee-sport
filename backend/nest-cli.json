@@ -17,6 +17,15 @@
         "tsConfigPath": "apps/clients/tsconfig.app.json"
       }
     },
+    "cloudinary": {
+      "type": "library",
+      "root": "libs/cloudinary",
+      "entryFile": "index",
+      "sourceRoot": "libs/cloudinary/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/cloudinary/tsconfig.lib.json"
+      }
+    },
     "employees": {
       "type": "application",
       "root": "apps/employees",

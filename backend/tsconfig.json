@@ -18,6 +18,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/cloudinary": [
+        "libs/cloudinary/src"
+      ],
+      "@app/cloudinary/*": [
+        "libs/cloudinary/src/*"
+      ],
       "@app/entities": [
         "libs/entities/src"
       ],
