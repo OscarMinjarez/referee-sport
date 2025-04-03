@@ -2,7 +2,7 @@
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary px-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
           <img
               id="logo"
               src="../assets/referee-logo.svg"
@@ -23,15 +23,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+              <a class="nav-link active" aria-current="page" href="/">Inicio</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Catálogo</a>
+              <a class="nav-link" href="/app/catalog">Catálogo</a>
+            </li>
+            <!-- Updated button to direct to Inventario -->
+            <li class="nav-item">
+              <a class="nav-link" href="/app/inventario">Inventario</a>
             </li>
           </ul>
 
           <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
             <button class="btn btn-outline-success" type="button">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>

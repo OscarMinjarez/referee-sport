@@ -1,6 +1,7 @@
 <template>
   <div class="card p-2">
-    <img src="../assets/test.jpg" class="card-img"/>
+    <!-- Dynamically bind the image source -->
+    <img :src="productImage" :alt="productName" class="card-img"/>
     <div class="card-body">
       <h5 class="card-title">{{ productName }}</h5>
       <div class="d-flex justify-content-between">
@@ -27,6 +28,11 @@ defineProps({
     type: Number,
     required: true,
     default: 0
+  },
+  productImage: { // New prop for dynamic image
+    type: String,
+    required: true,
+    default: "../assets/test.jpg" // Default to test image if no value provided
   }
 });
 </script>
@@ -34,5 +40,13 @@ defineProps({
 <style scoped>
 .card {
   max-width: 18rem;
+}
+
+.card-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover; /* Ensure proper image scaling */
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 </style>
