@@ -4,19 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/ListGroup.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/ListGroupItem.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/Sidebar.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" afterDir="false" />
+    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Pantalla de almacen creada con sidebar">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/HelloWorld.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Table.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Table.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +25,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "OscarMinjarez"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/OscarMinjarez/referee-sport.git",
+    "accountId": "998be778-a70e-4596-b06b-b3f2f0dc35ad"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -111,11 +114,24 @@
       <updated>1743203524858</updated>
       <workItem from="1743203526100" duration="3413000" />
       <workItem from="1743392053838" duration="4195000" />
-      <workItem from="1743883186674" duration="4283000" />
+      <workItem from="1743883186674" duration="7193000" />
     </task>
+    <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
+      <option name="closed" value="true" />
+      <created>1743889086762</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743889086762</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Pantalla de almacen creada con sidebar" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pantalla de almacen creada con sidebar" />
   </component>
 </project>

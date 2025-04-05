@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content d-flex h-full">
+  <div class="main-content d-flex">
     <Sidebar class="sidebar p-3 d-flex h-full flex-column gap-2 border justify-content-between">
       <div>
         <div class="card p-2">
@@ -28,6 +28,47 @@
         </ListGroup>
       </div>
     </Sidebar>
+
+    <div class="productos-content d-flex flex-column mx-auto mt-5 border rounded p-3">
+      <div class="d-flex justify-content-between gap-3">
+        <div class="input-group mb-3 w-50">
+          <span class="input-group-text" id="basic-addon1">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" class="form-control" placeholder="Buscar producto">
+        </div>
+
+        <div>
+          <button type="button" class="btn btn-primary">Registrar producto</button>
+        </div>
+      </div>
+
+      <Table class="text-center">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nombre del producto</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="align-middle">
+            <th scope="1">1</th>
+            <th>AC Milan</th>
+            <th>12</th>
+            <th class="d-flex gap-1 justify-content-center">
+              <button type="button" class="btn btn-success">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <button type="button" class="btn btn-danger">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            </th>
+          </tr>
+        </tbody>
+      </Table>
+    </div>
   </div>
 </template>
 
@@ -35,6 +76,7 @@
 import Sidebar from "../../components/Sidebar.vue";
 import ListGroup from "../../components/ListGroup.vue";
 import ListGroupItem from "../../components/ListGroupItem.vue";
+import Table from "../../components/Table.vue";
 </script>
 
 <style scoped>
@@ -59,5 +101,10 @@ import ListGroupItem from "../../components/ListGroupItem.vue";
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.productos-content {
+  width: 100%;
+  max-width: 900px;
 }
 </style>
