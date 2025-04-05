@@ -29,7 +29,7 @@
               <a class="nav-link" href="/app/catalog">Catálogo</a>
             </li>
             <!-- Updated button to direct to Inventario -->
-            <li class="nav-item">
+            <li class="nav-item" style="display: none;">
               <a class="nav-link" href="/app/inventario">Inventario</a>
             </li>
           </ul>

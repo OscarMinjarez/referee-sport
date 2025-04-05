@@ -54,59 +54,60 @@
 <script setup>
 import Navbar from '../../components/Navbar.vue';
 import ProductCard from "../../components/ProductCard.vue";
-import { reactive, ref, onMounted } from 'vue';
-import { ref as dbRef, onValue } from "firebase/database";
-import { db } from "../../firebaseConfig";
+import { reactive, ref } from 'vue';
 
-// Variables
+// Hardcoded Products
+const articulos = reactive([
+  {
+    id: "1",
+    nombre: "Playera Deportiva",
+    precio: 299.99,
+    cantidad: 20,
+    fotos: ["https://via.placeholder.com/150"],
+    equipo: "Equipo A",
+    tallas: ["S", "M", "L"]
+  },
+  {
+    id: "2",
+    nombre: "Balón de Fútbol",
+    precio: 499.99,
+    cantidad: 15,
+    fotos: ["https://via.placeholder.com/150"],
+    equipo: "Equipo B",
+    tallas: []
+  },
+  {
+    id: "3",
+    nombre: "Sudadera",
+    precio: 899.99,
+    cantidad: 10,
+    fotos: ["https://via.placeholder.com/150"],
+    equipo: "Equipo A",
+    tallas: ["M", "L", "XL"]
+  }
+]);
+
+const articulosFiltrados = ref([...articulos]);
 const filtroSeleccionado = ref(null);
-const articulos = reactive([]);
-const articulosFiltrados = ref([]);
-const equiposDisponibles = ref([]);
+const equiposDisponibles = [...new Set(articulos.map((articulo) => articulo.equipo))];
 const equiposSeleccionados = ref([]); // Multi-select for teams
 const tallasDisponibles = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 const showPriceDropdown = ref(false);
 const showSizeDropdown = ref(false);
 const tallasSeleccionadas = ref([]);
 
-// Fetch articles from Firebase
-const fetchArticulos = () => {
-  const dbRefArticulos = dbRef(db, "articulos");
-  onValue(dbRefArticulos, (snapshot) => {
-    const data = snapshot.val() || {};
-    const items = Object.entries(data).map(([id, item]) => ({
-      id,
-      nombre: item.nombre || "Sin Título",
-      precio: parseFloat(item.precio) || 0,
-      cantidad: item.cantidades
-        ? Object.values(item.cantidades).reduce((total, qty) => total + qty, 0)
-        : 0,
-        fotos: item.fotos || ["https://via.placeholder.com/150"], // Fallback to placeholder image if no images are available
-      equipo: item.equipo || "Sin Equipo",
-      tallas: item.tallas || [],
-    }));
-    articulos.splice(0, articulos.length, ...items);
-    equiposDisponibles.value = [...new Set(items.map((articulo) => articulo.equipo))];
-    articulosFiltrados.value = articulos;
-  });
-};
-
 // Multi-Select Team Filtering
 const filtrarPorEquipo = (team) => {
   if (equiposSeleccionados.value.includes(team)) {
-    // Remove the team from selection if already selected
     equiposSeleccionados.value = equiposSeleccionados.value.filter((selectedTeam) => selectedTeam !== team);
   } else {
-    // Add the team to selection if not already selected
     equiposSeleccionados.value.push(team);
   }
 
-  // Filter articles by selected teams
   articulosFiltrados.value = equiposSeleccionados.value.length === 0
-    ? articulos // Show all articles if no teams are selected
+    ? articulos
     : articulos.filter((articulo) => equiposSeleccionados.value.includes(articulo.equipo));
 };
-
 
 const filtrarPorTallas = () => {
   articulosFiltrados.value = tallasSeleccionadas.value.length === 0
@@ -115,18 +116,13 @@ const filtrarPorTallas = () => {
 };
 
 const ordenarArticulos = (order) => {
-  showPriceDropdown.value = false; // Close the dropdown
+  showPriceDropdown.value = false;
   filtroSeleccionado.value = order;
 
-  // Sort the filtered array directly to ensure changes are reactive
   articulosFiltrados.value = [...articulosFiltrados.value].sort((a, b) =>
     order === 'priceAsc' ? a.precio - b.precio : b.precio - a.precio
   );
-
-  console.log("Sorted articles:", articulosFiltrados.value); // Debug to confirm sorting
 };
-
-
 
 // Toggle dropdowns
 const togglePriceDropdown = () => {
@@ -136,10 +132,8 @@ const togglePriceDropdown = () => {
 const toggleSizeDropdown = () => {
   showSizeDropdown.value = !showSizeDropdown.value;
 };
-
-// Lifecycle hook
-onMounted(fetchArticulos);
 </script>
+
 
 <style scoped>
 .header {
