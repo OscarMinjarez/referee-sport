@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Pantalla de almacen creada con sidebar">
+    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Tabla de productos agregada">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Table.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Table.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/products/products.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/products.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/products/products.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/products.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/eslint.config.mjs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -114,7 +116,7 @@
       <updated>1743203524858</updated>
       <workItem from="1743203526100" duration="3413000" />
       <workItem from="1743392053838" duration="4195000" />
-      <workItem from="1743883186674" duration="7193000" />
+      <workItem from="1743883186674" duration="8766000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />
@@ -124,7 +126,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743889086762</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Tabla de productos agregada">
+      <option name="closed" value="true" />
+      <created>1743895204066</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743895204066</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,6 +142,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Pantalla de almacen creada con sidebar" />
-    <option name="LAST_COMMIT_MESSAGE" value="Pantalla de almacen creada con sidebar" />
+    <MESSAGE value="Tabla de productos agregada" />
+    <option name="LAST_COMMIT_MESSAGE" value="Tabla de productos agregada" />
   </component>
 </project>
