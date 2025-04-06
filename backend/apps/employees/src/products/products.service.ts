@@ -10,9 +10,10 @@ export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private productRepository: Repository<Product>,
+      
+        @InjectRepository(Size)
         private sizeRepository: Repository<Size>,
-    ) {}
-
+      ) {}
     async findAll(): Promise<Product[]> {
         return await this.productRepository.find({
             relations: ['size'],
