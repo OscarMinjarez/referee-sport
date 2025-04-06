@@ -17,6 +17,9 @@ export default class Product extends Generic {
     @Column({ type: "float", nullable: false })
     price: number;
 
+    @Column({ type: "varchar", length: 250, nullable: true })
+    imageUrl?: string;
+
     @OneToOne(() => Size, (size) => size.products)
     size: Size;
 }

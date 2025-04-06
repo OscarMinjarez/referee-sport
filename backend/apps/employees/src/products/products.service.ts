@@ -1,8 +1,9 @@
-import {Body, HttpException, HttpStatus, Injectable, Param} from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Product from "@app/entities/classes/product.entity";
-import {InjectRepository} from "@nestjs/typeorm";
-import {ILike, Repository} from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ILike, Repository } from "typeorm";
 import Size from "@app/entities/classes/size.entity";
+import { CloudinaryService } from "@app/cloudinary/cloudinary.service"; // Ajusta la ruta según tu estructura
 
 @Injectable()
 export class ProductsService {
@@ -13,7 +14,10 @@ export class ProductsService {
       
         @InjectRepository(Size)
         private sizeRepository: Repository<Size>,
+        
+        private readonly cloudinaryService: CloudinaryService, // Inyección del servicio Cloudinary
       ) {}
+
     async findAll(): Promise<Product[]> {
         return await this.productRepository.find({
             relations: ['size'],
@@ -62,10 +66,18 @@ export class ProductsService {
         }
     }
 
-    async create(@Body() productData: Partial<Product>): Promise<Product> {
+    // Se espera que productData pueda incluir una propiedad imagePath para subir la imagen
+    async create(@Body() productData: Partial<Product> & { imagePath?: string }): Promise<Product> {
         try {
-            const { size, ...productDetails } = productData;
+            const { size, imagePath, ...productDetails } = productData;
             const product = this.productRepository.create(productDetails);
+
+            // Si se envía imagePath, se sube la imagen y se asigna la URL al producto
+            if (imagePath) {
+                const uploadResult = await this.cloudinaryService.uploadImage(imagePath, product.name);
+                product.imageUrl = uploadResult?.url;
+            }
+
             if (size) {
                 let sizeEntity = await this.sizeRepository.findOne({
                     where: { size: size['size'] }
@@ -87,10 +99,10 @@ export class ProductsService {
 
     async update(
         id: string,
-        productData: Partial<Product>
+        productData: Partial<Product> & { imagePath?: string }
     ): Promise<Product> {
         try {
-            const { size, ...productDetails } = productData;
+            const { size, imagePath, ...productDetails } = productData;
             await this.productRepository.update({ uuid: id }, productDetails);
             const product = await this.productRepository.findOne({
                 where: { uuid: id },
@@ -98,6 +110,10 @@ export class ProductsService {
             });
             if (!product) {
                 throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
+            }
+            if (imagePath) {
+                const uploadResult = await this.cloudinaryService.uploadImage(imagePath, productData.name || product.name);
+                product.imageUrl = uploadResult?.url;
             }
             if (size) {
                 let sizeEntity = await this.sizeRepository.findOne({
