@@ -20,6 +20,10 @@ export default class Product extends Generic {
     @Column({ type: "varchar", length: 250, nullable: true })
     imageUrl?: string;
 
+    
+    @Column({ type: "simple-array", nullable: true })
+    tags: string[];
+    
     @OneToOne(() => Size, (size) => size.products)
     size: Size;
 }

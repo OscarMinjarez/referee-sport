@@ -5,10 +5,12 @@ import { ProductsModule } from './products.module';
 import { EntitiesService } from '@app/entities/entities.service';
 import Size, { SizeValue } from '@app/entities/classes/size.entity';
 import { DataSource } from 'typeorm';
+import Product from '@app/entities/classes/product.entity';
 
 describe('ProductsService', () => {
   let service: ProductsService;
   let dataSource: DataSource;
+  let createdProductIds: string[] = [];
 
   beforeAll(async () => {
     console.log('Iniciando configuración del test...');
@@ -48,8 +50,8 @@ describe('ProductsService', () => {
     console.log('Conexión cerrada');
   });
 
-  it('debería crear 3 productos, uno de ellos con imagen', async () => {
-    console.log('Iniciando test de creación de productos...');
+  it('debería crear 3 productos con etiquetas', async () => {
+    console.log('Iniciando test de creación de productos con etiquetas...');
 
     console.log('Buscando tamaño Medium...');
     const medium = await dataSource.getRepository(Size).findOneBy({ size: SizeValue.Medium });
@@ -75,6 +77,7 @@ describe('ProductsService', () => {
         stockQuantity: 50,
         price: 9.99,
         size: medium || undefined,
+        tags: ['ropa', 'algodón', 'básico', 'camiseta', 'blanco']
       },
       {
         name: 'Pantalón deportivo',
@@ -82,6 +85,7 @@ describe('ProductsService', () => {
         stockQuantity: 30,
         price: 19.99,
         size: large || undefined,
+        tags: ['ropa', 'deportivo', 'pantalón', 'running']
       },
       {
         name: 'Sudadera con capucha',
@@ -89,6 +93,7 @@ describe('ProductsService', () => {
         stockQuantity: 20,
         price: 29.99,
         size: xl || undefined,
+        tags: ['ropa', 'invierno', 'sudadera', 'capucha'],
         // Se incluye imagePath para probar la subida de imagen y asignación de imageUrl
         imagePath: 'C:/Users/JORGE/OneDrive/Documentos/GitHub/referee-sport/backend/futbol.jpg'
       },
@@ -101,8 +106,10 @@ describe('ProductsService', () => {
       try {
         const created = await service.create(productos[i]);
         console.log(`Producto ${i + 1} creado con UUID: ${created.uuid}`);
+        createdProductIds.push(created.uuid);
         expect(created).toHaveProperty('uuid');
         expect(created.name).toBe(productos[i].name);
+        expect(created.tags).toEqual(productos[i].tags);
         // Si se envió imagePath, se espera que imageUrl esté definida
         if (productos[i].imagePath) {
           expect(created.imageUrl).toBeDefined();
@@ -121,7 +128,13 @@ describe('ProductsService', () => {
     try {
       const allProducts = await service.findAll();
       console.log(`Total de productos encontrados: ${allProducts.length}`);
-      console.log('Productos:', allProducts.map(p => ({ uuid: p.uuid, name: p.name, size: p.size?.size, imageUrl: p.imageUrl })));
+      console.log('Productos:', allProducts.map(p => ({ 
+        uuid: p.uuid, 
+        name: p.name, 
+        size: p.size?.size, 
+        imageUrl: p.imageUrl,
+        tags: p.tags
+      })));
       expect(allProducts.length).toBeGreaterThanOrEqual(3);
     } catch (error) {
       console.error('Error al obtener todos los productos:', error);
@@ -136,11 +149,107 @@ describe('ProductsService', () => {
       console.log(`Buscando productos con término: "${searchTerm}"`);
       const results = await service.findByName(searchTerm);
       console.log(`Resultados encontrados: ${results.length}`);
-      console.log('Resultados:', results.map(p => ({ uuid: p.uuid, name: p.name, imageUrl: p.imageUrl })));
+      console.log('Resultados:', results.map(p => ({ 
+        uuid: p.uuid, 
+        name: p.name, 
+        imageUrl: p.imageUrl,
+        tags: p.tags 
+      })));
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toContain(searchTerm);
     } catch (error) {
       console.error('Error al buscar productos por nombre:', error);
+      throw error;
+    }
+  });
+
+  it('debería buscar productos por etiqueta', async () => {
+    console.log('Iniciando test de búsqueda por etiqueta...');
+    try {
+      const searchTag = 'deportivo';
+      console.log(`Buscando productos con etiqueta: "${searchTag}"`);
+      const results = await service.findByTag(searchTag);
+      console.log(`Resultados encontrados: ${results.length}`);
+      console.log('Resultados:', results.map(p => ({ 
+        uuid: p.uuid, 
+        name: p.name, 
+        tags: p.tags 
+      })));
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].tags).toContain(searchTag);
+    } catch (error) {
+      console.error('Error al buscar productos por etiqueta:', error);
+      throw error;
+    }
+  });
+
+  it('debería actualizar etiquetas de un producto', async () => {
+    if (createdProductIds.length === 0) {
+      console.log('No hay productos creados para actualizar');
+      return;
+    }
+
+    const productId = createdProductIds[0];
+    console.log(`Iniciando test de actualización de etiquetas para producto ${productId}...`);
+    
+    try {
+      const product = await service.findOne(productId);
+      console.log('Producto original:', {
+        uuid: product.uuid,
+        name: product.name,
+        tags: product.tags
+      });
+      
+      const newTags = [...(product.tags || []), 'oferta', 'nuevo'];
+      
+      const updated = await service.update(productId, {
+        tags: newTags
+      });
+      
+      console.log('Producto actualizado:', {
+        uuid: updated.uuid,
+        name: updated.name,
+        tags: updated.tags
+      });
+      
+      expect(updated.tags).toContain('oferta');
+      expect(updated.tags).toContain('nuevo');
+    } catch (error) {
+      console.error('Error al actualizar etiquetas del producto:', error);
+      throw error;
+    }
+  });
+
+  it('debería eliminar un producto', async () => {
+    if (createdProductIds.length === 0) {
+      console.log('No hay productos creados para eliminar');
+      return;
+    }
+
+    const productId = createdProductIds[createdProductIds.length - 1];
+    console.log(`Iniciando test de eliminación para producto ${productId}...`);
+    
+    try {
+      const product = await service.findOne(productId);
+      console.log('Producto a eliminar:', {
+        uuid: product.uuid,
+        name: product.name
+      });
+      
+      const result = await service.delete(productId);
+      console.log('Resultado de eliminación:', result);
+      
+      expect(result.message).toContain('eliminado correctamente');
+      
+      // Verificar que realmente se eliminó
+      try {
+        await service.findOne(productId);
+        fail('El producto debería haber sido eliminado');
+      } catch (error) {
+        console.log('Producto eliminado correctamente, error esperado:');
+      }
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
       throw error;
     }
   });

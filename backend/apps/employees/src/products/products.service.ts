@@ -66,6 +66,33 @@ export class ProductsService {
         }
     }
 
+    async findByTag(tag: string): Promise<Product[]> {
+        try {
+            const products = await this.productRepository.find({
+                relations: ['size'],
+            });
+
+            // Filter products that have the specified tag
+            const filteredProducts = products.filter(product => 
+                product.tags && product.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+            );
+
+            if (!filteredProducts || filteredProducts.length === 0) {
+                throw new HttpException('No se encontraron productos con esa etiqueta', HttpStatus.NOT_FOUND);
+            }
+            
+            return filteredProducts;
+        } catch (error: any) {
+            if (error?.status === HttpStatus.NOT_FOUND) {
+                throw error;
+            }
+            throw new HttpException(
+                'Error al buscar productos por etiqueta',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     // Se espera que productData pueda incluir una propiedad imagePath para subir la imagen
     async create(@Body() productData: Partial<Product> & { imagePath?: string }): Promise<Product> {
         try {
