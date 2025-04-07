@@ -1,90 +1,91 @@
 <template>
-  <form @submit.prevent="submitForm">
-    <div class="mb-3">
-      <label for="product-image" class="form-label">Inserte una imagen</label>
-      <input
-        class="form-control"
-        type="file"
-        id="product-image"
-        @change="handleImageUpload($event)"
-        accept="image/*"/>
-      <div v-if="imagePreview" class="mt-2">
-        <img :src="imagePreview" alt="Vista previa" class="img-thumbnail" style="max-height: 200px;">
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="product-name">Nombre del producto</label>
-      <input
-        type="text"
-        class="form-control"
-        id="product-name"
-        v-model="productData.name"
-        required/>
-    </div>
-
-    <div class="mb-3">
-      <label for="product-description">Descripción</label>
-      <textarea
-        class="form-control"
-        placeholder="Ingrese una descripción"
-        id="product-description"
-        rows="2"
-        v-model="productData.description"
-      ></textarea>
-    </div>
-
-    <div class="d-flex w-100">
+  <div class="main-content d-flex align-items-center justify-content-center">
+    <form @submit.prevent="submitForm">
       <div class="mb-3">
-        <label for="product-stock">Cantidad en stock</label>
+        <label for="product-image" class="form-label">Inserte una imagen</label>
         <input
-          type="number"
-          class="form-control"
-          id="product-stock"
-          v-model="productData.stock"
-          required/>
+            class="form-control"
+            type="file"
+            id="product-image"
+            @change="handleImageUpload($event)"
+            accept="image/*"/>
+        <div v-if="imagePreview" class="mt-2">
+          <img :src="imagePreview" alt="Vista previa" class="img-thumbnail" style="max-height: 200px;">
+        </div>
       </div>
+
       <div class="mb-3">
-        <label for="product-price">Precio</label>
-        <input
-          type="number"
-          class="form-control"
-          id="product-price"
-          v-model="productData.price"
-          required/>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="product-size" class="form-label">Seleccionar talla</label>
-      <select
-        id="product-size"
-        class="form-select"
-        v-model="productData.size.size">
-        <option value="s">Chica</option>
-        <option value="m">Mediana</option>
-        <option value="l">Grande</option>
-        <option value="xl">Extra grande</option>
-        <option value="other">Otra</option>
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label for="product-tags" class="form-label">Etiquetas (tags)</label>
-      <div class="input-group">
+        <label for="product-name">Nombre del producto</label>
         <input
             type="text"
             class="form-control"
-            id="product-tags"
-            v-model="tagInput"
-            @keydown.enter.prevent="addTag"
-            placeholder="Escribe una etiqueta y presiona Enter"
-        >
-        <button class="btn btn-outline-secondary" type="button" @click="addTag">
-          Agregar
-        </button>
+            id="product-name"
+            v-model="productData.name"
+            required/>
       </div>
-      <div class="tags-container mt-2">
+
+      <div class="mb-3">
+        <label for="product-description">Descripción</label>
+        <textarea
+            class="form-control"
+            placeholder="Ingrese una descripción"
+            id="product-description"
+            rows="2"
+            v-model="productData.description"
+        ></textarea>
+      </div>
+
+      <div class="d-flex w-100 product-price-stock">
+        <div class="mb-3">
+          <label for="product-stock">Cantidad en stock</label>
+          <input
+              type="number"
+              class="form-control"
+              id="product-stock"
+              v-model="productData.stock"
+              required/>
+        </div>
+        <div class="mb-3">
+          <label for="product-price">Precio</label>
+          <input
+              type="number"
+              class="form-control"
+              id="product-price"
+              v-model="productData.price"
+              required/>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="product-size" class="form-label">Seleccionar talla</label>
+        <select
+            id="product-size"
+            class="form-select"
+            v-model="productData.size.size">
+          <option value="s">Chica</option>
+          <option value="m">Mediana</option>
+          <option value="l">Grande</option>
+          <option value="xl">Extra grande</option>
+          <option value="other">Otra</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="product-tags" class="form-label">Etiquetas (tags)</label>
+        <div class="input-group">
+          <input
+              type="text"
+              class="form-control"
+              id="product-tags"
+              v-model="tagInput"
+              @keydown.enter.prevent="addTag"
+              placeholder="Escribe una etiqueta y presiona Enter"
+          >
+          <button class="btn btn-outline-secondary" type="button" @click="addTag">
+            Agregar
+          </button>
+        </div>
+        <div class="tags-container mt-2">
         <span
             v-for="(tag, index) in productData.tags"
             :key="index"
@@ -98,25 +99,33 @@
               aria-label="Remove"
           ></button>
         </span>
+        </div>
       </div>
-    </div>
 
-    <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-      {{ isSubmitting ? 'Enviando...' : 'Crear Producto' }}
-    </button>
+      <div class="d-flex w-100 justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" @click="goBack">
+          Cancelar
+        </button>
 
-    <div v-if="errorMessage" class="alert alert-danger mt-3">
-      {{ errorMessage }}
-    </div>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Enviando...' : 'Crear Producto' }}
+        </button>
+      </div>
 
-    <div v-if="successMessage" class="alert alert-success mt-3">
-      {{ successMessage }}
-    </div>
-  </form>
+      <div v-if="errorMessage" class="alert alert-danger mt-3">
+        {{ errorMessage }}
+      </div>
+
+      <div v-if="successMessage" class="alert alert-success mt-3">
+        {{ successMessage }}
+      </div>
+    </form>
+  </div>
 </template>
 
 <script setup>
 import {ref} from "vue";
+import {useRouter} from "vue-router";
 
 const productData = ref({
   name: '',
@@ -205,4 +214,31 @@ async function submitForm() {
     isSubmitting.value = false;
   }
 }
+
+const router = useRouter();
+
+function goBack() {
+  router.back();
+}
 </script>
+
+<style scoped>
+.main-content {
+  width: 100vw;
+  height: 100vh;
+}
+
+form {
+  width: 100%;
+  max-width: 600px;
+}
+
+.product-price-stock {
+  gap: 10px;
+}
+
+.product-price-stock > div {
+  flex: 1;
+  min-width: 0;
+}
+</style>
