@@ -3,7 +3,8 @@ import Product from "@app/entities/classes/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository } from "typeorm";
 import Size from "@app/entities/classes/size.entity";
-import { CloudinaryService } from "@app/cloudinary/cloudinary.service"; // Ajusta la ruta según tu estructura
+import { CloudinaryService } from "@app/cloudinary/cloudinary.service";
+import {CreateProductDto} from "./dto/CreateProduct.dto"; // Ajusta la ruta según tu estructura
 
 @Injectable()
 export class ProductsService {
@@ -93,32 +94,42 @@ export class ProductsService {
         }
     }
 
-    // Se espera que productData pueda incluir una propiedad imagePath para subir la imagen
-    async create(@Body() productData: Partial<Product> & { imagePath?: string }): Promise<Product> {
+    async create(createProductDto: CreateProductDto): Promise<Product> {
         try {
-            const { size, imagePath, ...productDetails } = productData;
-            const product = this.productRepository.create(productDetails);
-
-            // Si se envía imagePath, se sube la imagen y se asigna la URL al producto
-            if (imagePath) {
-                const uploadResult = await this.cloudinaryService.uploadImage(imagePath, product.name);
-                product.imageUrl = uploadResult?.url;
+            const product = this.productRepository.create({
+                name: createProductDto.name,
+                description: createProductDto.description,
+                price: createProductDto.price,
+                stockQuantity: createProductDto.stock,
+                tags: createProductDto.tags || [],
+            });
+            if (createProductDto.imagePath) {
+                const uploadResult = await this.cloudinaryService.uploadImage(
+                    createProductDto.imagePath,
+                    `product_${createProductDto.name.replace(/\s+/g, '_')}_${Date.now()}`
+                );
+                product.imageUrl = uploadResult.url;
             }
-
-            if (size) {
+            if (createProductDto.size?.size) {
                 let sizeEntity = await this.sizeRepository.findOne({
-                    where: { size: size['size'] }
+                    where: { size: createProductDto.size.size }
                 });
+
                 if (!sizeEntity) {
-                    sizeEntity = this.sizeRepository.create(size);
+                    sizeEntity = this.sizeRepository.create({ size: createProductDto.size.size });
                     await this.sizeRepository.save(sizeEntity);
                 }
                 product.size = sizeEntity;
             }
-            return this.productRepository.save(product);
-        } catch (error: any) {
+            const savedProduct = await this.productRepository.save(product);
+            return savedProduct;
+        } catch (error) {
+            console.error('Error al crear producto:', error);
+            if (error instanceof HttpException) {
+                throw error;
+            }
             throw new HttpException(
-                'Error al crear el producto',
+                error || 'Error al crear el producto',
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -139,8 +150,11 @@ export class ProductsService {
                 throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
             }
             if (imagePath) {
-                const uploadResult = await this.cloudinaryService.uploadImage(imagePath, productData.name || product.name);
-                product.imageUrl = uploadResult?.url;
+                const uploadResult = await this.cloudinaryService.uploadImage(
+                    imagePath,
+                    `product_${Date.now()}`
+                );
+                product.imageUrl = uploadResult.url;
             }
             if (size) {
                 let sizeEntity = await this.sizeRepository.findOne({

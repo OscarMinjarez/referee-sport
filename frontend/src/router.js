@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 import App from "./App.vue";
 import StorageView from "./views/storage/StorageView.vue";
+import UploadProductView from "./views/storage/UploadProductView.vue";
 
 const routes = [
     {
@@ -15,6 +16,11 @@ const routes = [
                 path: "storage",
                 name: "storage",
                 component: StorageView
+            },
+            {
+                path: "upload",
+                name: "upload",
+                component: UploadProductView
             }
         ]
     }

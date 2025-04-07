@@ -1,14 +1,15 @@
-import { 
-    Controller, 
-    Get, 
-    Post, 
-    Put, 
-    Delete, 
-    Body, 
-    Param
-  } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param, ValidationPipe
+} from '@nestjs/common';
   import Product from '@app/entities/classes/product.entity';
 import {ProductsService} from "./products.service";
+import {CreateProductDto} from "./dto/CreateProduct.dto";
   
 @Controller('products')
 export class ProductsController {
@@ -40,9 +41,9 @@ export class ProductsController {
   }
 
   @Post()
-  async create(@Body() productData: Partial<Product>): Promise<Product> {
+  async create(@Body(new ValidationPipe()) createProductDto: CreateProductDto): Promise<Product> {
     try {
-     return this.productsService.create(productData);
+     return this.productsService.create(createProductDto);
     } catch (error: any) {
       throw error;
     }

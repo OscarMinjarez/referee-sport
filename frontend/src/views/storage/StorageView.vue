@@ -39,7 +39,7 @@
         </div>
 
         <div>
-          <button type="button" class="btn btn-primary">Registrar producto</button>
+          <button type="button" class="btn btn-primary" @click="goToUploadProducto()">Registrar producto</button>
         </div>
       </div>
 
@@ -77,6 +77,18 @@ import Sidebar from "../../components/Sidebar.vue";
 import ListGroup from "../../components/ListGroup.vue";
 import ListGroupItem from "../../components/ListGroupItem.vue";
 import Table from "../../components/Table.vue";
+import {useRouter} from "vue-router";
+import router from "../../router.js";
+
+const route = useRouter();
+
+function goToUploadProducto() {
+  try {
+    router.push("upload")
+  } catch (e) {
+    console.log(e);
+  }
+}
 </script>
 
 <style scoped>

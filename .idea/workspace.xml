@@ -4,9 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="">
+    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Subir productos desde frontend">
+      <change afterPath="$PROJECT_DIR$/backend/apps/employees/src/employees.controller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/apps/employees/src/employees.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/apps/employees/src/employees.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/dto/CreateProduct.dto.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/products/products.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/products.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/products/products.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/products.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/libs/cloudinary/src/cloudinary.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/libs/cloudinary/src/cloudinary.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/libs/entities/src/entities.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/libs/entities/src/entities.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,24 +32,25 @@
       <list>
         <option value="JavaScript File" />
         <option value="Vue Composition API Component" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "OscarMinjarez"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;OscarMinjarez&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/OscarMinjarez/referee-sport.git",
-    "accountId": "998be778-a70e-4596-b06b-b3f2f0dc35ad"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/OscarMinjarez/referee-sport.git&quot;,
+    &quot;accountId&quot;: &quot;998be778-a70e-4596-b06b-b3f2f0dc35ad&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -56,6 +71,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "npm.dev:backend:clients.executor": "Run",
+    "npm.dev:backend:employees.executor": "Run",
     "npm.dev:frontend.executor": "Run",
     "prettierjs.PrettierConfiguration.Package": "C:\\Users\\minja\\Documents\\Gactus\\referee-sport\\backend\\node_modules\\prettier",
     "settings.editor.selected.configurable": "preferences.pluginManager",
@@ -68,12 +84,27 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected="npm.dev:frontend">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\minja\Documents\Gactus\referee-sport\backend\apps\employees\src" />
+    </key>
+  </component>
+  <component name="RunManager" selected="npm.dev:backend:employees">
     <configuration name="dev:backend:clients" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
       <scripts>
         <script value="dev:backend:clients" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="dev:backend:employees" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev:backend:employees" />
       </scripts>
       <node-interpreter value="project" />
       <envs />
@@ -91,6 +122,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.dev:backend:employees" />
         <item itemvalue="npm.dev:frontend" />
         <item itemvalue="npm.dev:backend:clients" />
       </list>
@@ -114,6 +146,7 @@
       <workItem from="1743203526100" duration="3413000" />
       <workItem from="1743392053838" duration="4195000" />
       <workItem from="1743883186674" duration="10431000" />
+      <workItem from="1743985769389" duration="8510000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />
@@ -140,6 +173,19 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Pantalla de almacen creada con sidebar" />
     <MESSAGE value="Tabla de productos agregada" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tabla de productos agregada" />
+    <MESSAGE value="Subir productos desde frontend" />
+    <option name="LAST_COMMIT_MESSAGE" value="Subir productos desde frontend" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/backend/libs/cloudinary/src/cloudinary.service.ts</url>
+          <line>16</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
