@@ -28,15 +28,16 @@
             <li class="nav-item">
               <a class="nav-link" href="/app/catalog">Catálogo</a>
             </li>
-            <!-- Updated button to direct to Inventario -->
-            <li class="nav-item" style="display: none;">
-              <a class="nav-link" href="/app/inventario">Inventario</a>
-            </li>
           </ul>
 
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
-            <button class="btn btn-outline-success" type="button">
+          <form class="d-flex" role="search" @submit.prevent="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Buscar"
+              aria-label="Buscar"
+              v-model="searchQuery">
+            <button class="btn btn-outline-success" type="button" @click="search">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </form>
@@ -47,6 +48,19 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+
+const searchQuery = ref("");
+
+const emit = defineEmits([
+    "searchProduct"
+]);
+
+function search() {
+  if (searchQuery.value.trim()) {
+    emit("searchProduct", searchQuery.value);
+  }
+}
 </script>
 
 <style scoped>

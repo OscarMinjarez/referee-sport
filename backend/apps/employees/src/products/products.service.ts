@@ -1,10 +1,10 @@
-import { Body, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import Product from "@app/entities/classes/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ILike, Repository } from "typeorm";
+import {ILike, Repository} from "typeorm";
 import Size from "@app/entities/classes/size.entity";
 import { CloudinaryService } from "@app/cloudinary/cloudinary.service";
-import {CreateProductDto} from "./dto/CreateProduct.dto"; // Ajusta la ruta según tu estructura
+import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class ProductsService {
         @InjectRepository(Size)
         private sizeRepository: Repository<Size>,
         
-        private readonly cloudinaryService: CloudinaryService, // Inyección del servicio Cloudinary
+        private readonly cloudinaryService: CloudinaryService,
       ) {}
 
     async findAll(): Promise<Product[]> {
@@ -48,24 +48,10 @@ export class ProductsService {
     }
 
     async findByName(name: string): Promise<Product[]> {
-        try {
-            const products = await this.productRepository.find({
-                where: { name: ILike(`%${name}%`) },
-                relations: ['size'],
-            });
-            if (!products || products.length === 0) {
-                throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
-            }
-            return products;
-        } catch (error: any) {
-            if (error?.status === HttpStatus.NOT_FOUND) {
-                throw error;
-            }
-            throw new HttpException(
-                'Error al buscar el producto',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
+        return await this.productRepository.find({
+            where: { name: ILike(`%${name}%`) },
+            relations: ['size'],
+        });
     }
 
     async findByTag(tag: string): Promise<Product[]> {
@@ -73,16 +59,12 @@ export class ProductsService {
             const products = await this.productRepository.find({
                 relations: ['size'],
             });
-
-            // Filter products that have the specified tag
             const filteredProducts = products.filter(product => 
                 product.tags && product.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
             );
-
             if (!filteredProducts || filteredProducts.length === 0) {
                 throw new HttpException('No se encontraron productos con esa etiqueta', HttpStatus.NOT_FOUND);
             }
-            
             return filteredProducts;
         } catch (error: any) {
             if (error?.status === HttpStatus.NOT_FOUND) {
@@ -154,12 +136,18 @@ export class ProductsService {
             if (updateProductDto.stockQuantity) product.stockQuantity = updateProductDto.stockQuantity;
             if (updateProductDto.tags) product.tags = updateProductDto.tags;
             if (updateProductDto.imagePath) {
-                const publicId = `product_${product.name}_${Date.now()}`.replace(/\s+/g, '_');
-                const uploadResult = await this.cloudinaryService.uploadImage(
-                    updateProductDto.imagePath,
-                    publicId
-                );
-                product.imageUrl = uploadResult.publicId;
+                const isUrl = /^https?:\/\//i.test(updateProductDto.imagePath);
+                if (!isUrl) {
+                    const publicId = `product_${product.name}_${Date.now()}`.replace(/\s+/g, '_');
+                    const uploadResult = await this.cloudinaryService.uploadImage(
+                        updateProductDto.imagePath,
+                        publicId
+                    );
+                    product.imageUrl = uploadResult.url || uploadResult.publicId;
+                } else {
+                    // Si es una URL, la usamos directamente
+                    product.imageUrl = updateProductDto.imagePath;
+                }
             }
             if (updateProductDto.size?.size) {
                 let sizeEntity = await this.sizeRepository.findOne({
@@ -171,8 +159,7 @@ export class ProductsService {
                 }
                 product.size = sizeEntity;
             }
-            const updatedProduct = await this.productRepository.save(product);
-            return updatedProduct;
+            return await this.productRepository.save(product);
         } catch (error) {
             console.error('Error al actualizar producto:', error);
             if (error instanceof HttpException) {

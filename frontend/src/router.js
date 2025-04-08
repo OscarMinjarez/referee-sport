@@ -1,7 +1,6 @@
 import { createWebHistory, createRouter } from "vue-router";
 
 import CatalogView from "./views/clients/CatalogView.vue";
-import StorageView from "./views/clients/StorageView.vue";
 import ProductDetails from './views/clients/ProductDetails.vue';
 import StorageView from "./views/storage/StorageView.vue";
 import UploadProductView from "./views/storage/UploadProductView.vue";

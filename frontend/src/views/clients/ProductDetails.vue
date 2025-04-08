@@ -51,8 +51,6 @@
   <script setup>
   import { ref, reactive, onMounted } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import { ref as dbRef, get } from "firebase/database";
-  import { db } from "../../firebaseConfig";
   
   const route = useRoute();
   const router = useRouter();
@@ -65,37 +63,37 @@
     descripcion: "",
   });
   
-  const activeImageIndex = ref(0); // Track selected gallery image
+//   const activeImageIndex = ref(0); // Track selected gallery image
   
-  // Fetch article details from Firebase
-  const fetchArticulo = async () => {
-  try {
-    const snapshot = await get(dbRef(db, `articulos/${articuloId}`));
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      articulo.nombre = data.nombre || "Sin Título";
-      articulo.precio = parseFloat(data.precio) || 0; // Parse precio as a float
-      articulo.fotos = data.fotos || [];
-      articulo.tallas = data.tallas || [];
-      articulo.descripcion = data.descripcion || "Sin descripción disponible.";
-    }
-  } catch (error) {
-    console.error("Error al obtener los datos del artículo:", error);
-  }
-};
+//   // Fetch article details from Firebase
+//   const fetchArticulo = async () => {
+//   try {
+//     const snapshot = await get(dbRef(db, `articulos/${articuloId}`));
+//     if (snapshot.exists()) {
+//       const data = snapshot.val();
+//       articulo.nombre = data.nombre || "Sin Título";
+//       articulo.precio = parseFloat(data.precio) || 0; // Parse precio as a float
+//       articulo.fotos = data.fotos || [];
+//       articulo.tallas = data.tallas || [];
+//       articulo.descripcion = data.descripcion || "Sin descripción disponible.";
+//     }
+//   } catch (error) {
+//     console.error("Error al obtener los datos del artículo:", error);
+//   }
+// };
 
   
-  // Change selected image in the gallery
-  const selectImage = (index) => {
-    activeImageIndex.value = index;
-  };
+//   // Change selected image in the gallery
+//   const selectImage = (index) => {
+//     activeImageIndex.value = index;
+//   };
   
-  // Navigate back to catalog
-  const goBack = () => {
-    router.push("/app/catalog");
-  };
+//   // Navigate back to catalog
+//   const goBack = () => {
+//     router.push("/app/catalog");
+//   };
   
-  onMounted(fetchArticulo);
+//   onMounted(fetchArticulo);
   </script>
   
   <style scoped>
