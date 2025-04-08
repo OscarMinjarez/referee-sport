@@ -4,6 +4,7 @@
     <div class="container-fluid d-flex flex-wrap gap-3 justify-content-center my-4">
       <ProductCard v-for="product in products"
         :key="product.uuid"
+        :productUuid="product.uuid"
         :productName="product.name"
         :productPrice="product.price"
         :productStock="product.stockQuantity"

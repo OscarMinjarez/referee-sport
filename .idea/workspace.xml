@@ -6,16 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Estilos corregidos">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/products/products.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/products/products.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/ProductCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ProductCard.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/firebaseConfig.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/CatalogView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/CatalogView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/EdicionArticulo.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/EdicionMateria.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetails.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetails.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/StorageView.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetails.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +139,7 @@
       <workItem from="1743883186674" duration="10431000" />
       <workItem from="1743985769389" duration="9144000" />
       <workItem from="1744048554718" duration="2845000" />
-      <workItem from="1744149965199" duration="2596000" />
+      <workItem from="1744149965199" duration="4849000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />
