@@ -255,7 +255,7 @@ async function getProduct() {
       size: {
         size: product.size.size
       },
-      // imagePath: product.imageUrl,
+      imagePath: product.imageUrl,
       tags: product.tags || []
     };
     imagePreview.value = product.imageUrl;
