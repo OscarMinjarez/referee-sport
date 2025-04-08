@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <div class="container-fluid my-5">
     <div
         v-if="product"
@@ -57,6 +58,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
+import Navbar from "../../components/Navbar.vue";
 
 const route = useRoute()
 const id = route.params.id

@@ -22,9 +22,9 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/">Inicio</a>
-            </li>
+<!--            <li class="nav-item">-->
+<!--              <a class="nav-link active" aria-current="page">Inicio</a>-->
+<!--            </li>-->
             <li class="nav-item">
               <a class="nav-link" href="/app/catalog">Catálogo</a>
             </li>
