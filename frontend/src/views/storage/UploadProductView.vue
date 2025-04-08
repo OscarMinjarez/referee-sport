@@ -104,11 +104,11 @@
 
       <div class="d-flex w-100 justify-content-between">
         <button type="button" class="btn btn-outline-secondary" @click="goBack">
-          Cancelar
+          Volver
         </button>
 
         <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Enviando...' : 'Crear Producto' }}
+          {{ isSubmitting ? 'Enviando...' : isEditing ? 'Actualizar Producto' : 'Crear Producto' }}
         </button>
       </div>
 
@@ -210,6 +210,7 @@ async function submitForm() {
     successMessage.value = isEditing.value 
       ? 'Producto actualizado exitosamente!' 
       : 'Producto creado exitosamente!';
+      console.log(payload);
     if (!isEditing.value) {
       setTimeout(() => {
         router.push({ name: 'products' });

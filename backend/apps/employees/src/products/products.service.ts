@@ -101,7 +101,7 @@ export class ProductsService {
                 name: createProductDto.name,
                 description: createProductDto.description,
                 price: createProductDto.price,
-                stockQuantity: createProductDto.stock,
+                stockQuantity: createProductDto.stockQuantity,
                 tags: createProductDto.tags || [],
             });
             if (createProductDto.imagePath) {
@@ -186,23 +186,11 @@ export class ProductsService {
     }
 
     async delete(id: string): Promise<{ message: string }> {
-        try {
-            const product = await this.productRepository.findOne({
-                where: { uuid: id }
-            });
-            if (!product) {
-                throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
-            }
-            await this.productRepository.delete({ uuid: id });
-            return { message: 'Producto eliminado correctamente' };
-        } catch (error: any) {
-            if (error?.status === HttpStatus.NOT_FOUND) {
-                throw error;
-            }
-            throw new HttpException(
-                'Error al eliminar el producto',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
+        const product = await this.productRepository.findOne({ where: { uuid: id } });
+        if (!product) {
+            throw new NotFoundException(`Producto con ID ${id} no encontrado`);
         }
+        await this.productRepository.delete(id);
+        return { message: 'Producto eliminado correctamente' };
     }
 }

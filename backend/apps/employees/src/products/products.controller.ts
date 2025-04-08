@@ -65,8 +65,8 @@ export class ProductsController {
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<{ message: string }> {
     try {
-      return this.productsService.delete(id);
-    } catch (error: any) {
+      return await this.productsService.delete(id);
+    } catch (error) {
       throw error;
     }
   }

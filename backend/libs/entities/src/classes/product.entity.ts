@@ -1,6 +1,6 @@
-import { Column, Entity, OneToOne } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import Generic from "./generic.entity";
-import Size, { SizeValue } from "./size.entity";
+import Size from "./size.entity";
 
 @Entity({ name: "products" })
 export default class Product extends Generic {
@@ -24,6 +24,6 @@ export default class Product extends Generic {
     @Column({ type: "simple-array", nullable: true })
     tags: string[];
     
-    @OneToOne(() => Size, (size) => size.products)
+    @ManyToOne(() => Size, (size) => size.products)
     size: Size;
 }

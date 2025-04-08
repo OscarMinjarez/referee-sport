@@ -60,7 +60,7 @@
             <td>{{ product.stockQuantity }}</td>
             <td>{{ product.price }}</td>
             <td class="d-flex gap-1 justify-content-center">
-              <button type="button" class="btn btn-danger">
+              <button type="button" class="btn btn-danger" @click="deleteProduct(product.uuid)">
                 <i class="fa-solid fa-trash"></i>
               </button>
               <button type="button" class="btn btn-success" @click="goToUpdateProduct(product.uuid)">
@@ -115,6 +115,29 @@ async function getProducts() {
     return await response.json();
   } catch (e) {
     console.error(e);
+  }
+}
+
+async function deleteProduct(productUuid) {
+  try {
+    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+      return;
+    }
+    const response = await fetch(`http://localhost:3001/api/products/${productUuid}`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'No se pudo eliminar el producto');
+    }
+    products.value = await getProducts();
+    alert('Producto eliminado correctamente');
+  } catch (e) {
+    console.error(e);
+    alert(e.message || 'Error al eliminar el producto');
   }
 }
 </script>

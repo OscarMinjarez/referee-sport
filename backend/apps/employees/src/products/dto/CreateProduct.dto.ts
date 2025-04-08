@@ -22,7 +22,7 @@ export class CreateProductDto {
     @IsNotEmpty()
     @IsNumber()
     @Min(0, { message: 'El stock no puede ser negativo' })
-    stock: number;
+    stockQuantity: number;
 
     @IsNotEmpty()
     @IsNumber()
