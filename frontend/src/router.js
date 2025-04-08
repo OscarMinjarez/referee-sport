@@ -18,7 +18,7 @@ const routes = [
                 component: StorageView
             },
             {
-                path: "upload",
+                path: "upload/:id?",
                 name: "upload",
                 component: UploadProductView
             }

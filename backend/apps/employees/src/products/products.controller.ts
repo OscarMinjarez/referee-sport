@@ -10,6 +10,7 @@ import {
   import Product from '@app/entities/classes/product.entity';
 import {ProductsService} from "./products.service";
 import {CreateProductDto} from "./dto/CreateProduct.dto";
+import { UpdateProductDto } from './dto/UpdateProduct.dto';
   
 @Controller('products')
 export class ProductsController {
@@ -52,10 +53,10 @@ export class ProductsController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() productData: Partial<Product>
+    @Body(new ValidationPipe()) updateProductDto: UpdateProductDto
   ): Promise<Product> {
     try {
-      return this.productsService.update(id, productData);
+      return this.productsService.update(id, updateProductDto);
     } catch (error: any) {
       throw error;
     }

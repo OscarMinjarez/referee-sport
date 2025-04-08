@@ -39,32 +39,34 @@
         </div>
 
         <div>
-          <button type="button" class="btn btn-primary" @click="goToUploadProducto()">Registrar producto</button>
+          <button type="button" class="btn btn-primary" @click="goToUploadProduct">Registrar producto</button>
         </div>
       </div>
 
-      <Table class="text-center">
+      <Table class="text-center border">
         <thead>
           <tr>
             <th scope="col">#</th>
             <th scope="col">Nombre del producto</th>
             <th scope="col">Stock</th>
+            <th scope="col">Precio</th>
             <th scope="col">Acción</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="align-middle">
-            <th scope="1">1</th>
-            <th>AC Milan</th>
-            <th>12</th>
-            <th class="d-flex gap-1 justify-content-center">
-              <button type="button" class="btn btn-success">
+          <tr class="align-middle" v-for="(product, index) in products" :key="product.uuid">
+            <td scope="1">{{ index + 1 }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.stockQuantity }}</td>
+            <td>{{ product.price }}</td>
+            <td class="d-flex gap-1 justify-content-center">
+              <button type="button" class="btn btn-danger">
                 <i class="fa-solid fa-trash"></i>
               </button>
-              <button type="button" class="btn btn-danger">
+              <button type="button" class="btn btn-success" @click="goToUpdateProduct(product.uuid)">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-            </th>
+            </td>
           </tr>
         </tbody>
       </Table>
@@ -77,16 +79,42 @@ import Sidebar from "../../components/Sidebar.vue";
 import ListGroup from "../../components/ListGroup.vue";
 import ListGroupItem from "../../components/ListGroupItem.vue";
 import Table from "../../components/Table.vue";
-import {useRouter} from "vue-router";
-import router from "../../router.js";
+import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
 
-const route = useRouter();
+const router = useRouter();
 
-function goToUploadProducto() {
+const products = ref([]);
+
+function goToUploadProduct() {
   try {
     router.push("upload")
   } catch (e) {
-    console.log(e);
+    console.error(e);
+  }
+}
+
+function goToUpdateProduct(productId) {
+  try {
+    router.push(`upload/${productId}`);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+onMounted(async function() {
+  products.value = await getProducts();
+});
+
+async function getProducts() {
+  try {
+    const response = await fetch("http://localhost:3001/api/products");
+    if (!response.ok) {
+      throw Error("Tuvismos problemas para conectarnos al server.");
+    }
+    return await response.json();
+  } catch (e) {
+    console.error(e);
   }
 }
 </script>

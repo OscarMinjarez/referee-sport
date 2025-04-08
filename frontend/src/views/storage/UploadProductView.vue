@@ -42,7 +42,7 @@
               type="number"
               class="form-control"
               id="product-stock"
-              v-model="productData.stock"
+              v-model="productData.stockQuantity"
               required/>
         </div>
         <div class="mb-3">
@@ -124,26 +124,20 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
-import {useRouter} from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const productData = ref({
   name: '',
   description: '',
   price: 0,
-  stock: 0,
+  stockQuantity: 0,
   size: {
     size: 'm'
   },
   imagePath: '',
   tags: []
 });
-
-const imagePreview = ref('');
-const isSubmitting = ref(false);
-const errorMessage = ref('');
-const successMessage = ref('');
-const tagInput = ref('');
 
 function handleImageUpload(event) {
   const file = event.target.files[0];
@@ -174,11 +168,11 @@ function removeTag(index) {
 }
 
 async function submitForm() {
-  if (!productData.value.name || !productData.value.price || !productData.value.stock) {
+  if (!productData.value.name || !productData.value.price || !productData.value.stockQuantity) {
     errorMessage.value = 'Nombre, precio y stock son requeridos';
     return;
   }
-  if (!productData.value.imagePath) {
+  if (!isEditing.value && !productData.value.imagePath) {
     errorMessage.value = 'Por favor, selecciona una imagen';
     return;
   }
@@ -186,40 +180,100 @@ async function submitForm() {
   errorMessage.value = '';
   successMessage.value = '';
   try {
-    const response = await fetch('http://localhost:3001/api/products', {
-      method: 'POST',
+    const payload = {
+      name: productData.value.name,
+      description: productData.value.description,
+      price: productData.value.price,
+      stockQuantity: productData.value.stockQuantity,
+      size: productData.value.size,
+      tags: productData.value.tags
+    };
+    console.log(payload);
+    if (productData.value.imagePath) {
+      payload.imagePath = productData.value.imagePath;
+    }
+    const url = isEditing.value 
+      ? `http://localhost:3001/api/products/${productId.value}`
+      : 'http://localhost:3001/api/products';
+    const method = isEditing.value ? 'PUT' : 'POST';
+    const response = await fetch(url, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(productData.value),
+      body: JSON.stringify(payload),
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || 'Error al crear el producto');
+      throw new Error(data.message || 'Error al guardar el producto');
     }
-    successMessage.value = 'Producto creado exitosamente!';
-    productData.value = {
-      name: '',
-      description: '',
-      price: 0,
-      stock: 0,
-      size: { size: 'm' },
-      imagePath: ''
-    };
-    imagePreview.value = '';
+    successMessage.value = isEditing.value 
+      ? 'Producto actualizado exitosamente!' 
+      : 'Producto creado exitosamente!';
+    if (!isEditing.value) {
+      setTimeout(() => {
+        router.push({ name: 'products' });
+      }, 1500);
+    }
   } catch (error) {
     console.error('Error:', error);
-    errorMessage.value = error.message || 'Error al crear el producto';
+    errorMessage.value = error.message || 'Error al guardar el producto';
   } finally {
     isSubmitting.value = false;
   }
 }
 
 const router = useRouter();
+const route = useRoute();
+
+const imagePreview = ref('');
+const isSubmitting = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+const tagInput = ref('');
+const isEditing = ref(false);
+
+const productId = ref(null);
 
 function goBack() {
   router.back();
 }
+
+async function getProduct() {
+  try {
+    const response = await fetch(`http://localhost:3001/api/products/${productId.value}`);
+    if (!response.ok) {
+      throw Error("El producto no existe.");
+    }
+    const product = await response.json();
+    productData.value = {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      stockQuantity: product.stockQuantity,
+      size: {
+        size: product.size.size
+      },
+      // imagePath: product.imageUrl,
+      tags: product.tags || []
+    };
+    imagePreview.value = product.imageUrl;
+  } catch (e) {
+    console.error(e);
+    errorMessage.value = "Error al cargar el producto";
+    setTimeout(() => {
+      router.push({ name: 'products' });
+    }, 1500);
+  }
+}
+
+onMounted(async function() {
+  productId.value = route.params?.id;
+  if (productId.value) {
+    isEditing.value = true;
+    await getProduct();
+  }
+});
 </script>
 
 <style scoped>

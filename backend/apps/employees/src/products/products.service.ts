@@ -1,10 +1,11 @@
-import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import Product from "@app/entities/classes/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository } from "typeorm";
 import Size from "@app/entities/classes/size.entity";
 import { CloudinaryService } from "@app/cloudinary/cloudinary.service";
 import {CreateProductDto} from "./dto/CreateProduct.dto"; // Ajusta la ruta según tu estructura
+import { UpdateProductDto } from './dto/UpdateProduct.dto';
 
 @Injectable()
 export class ProductsService {
@@ -137,43 +138,48 @@ export class ProductsService {
 
     async update(
         id: string,
-        productData: Partial<Product> & { imagePath?: string }
+        updateProductDto: UpdateProductDto
     ): Promise<Product> {
         try {
-            const { size, imagePath, ...productDetails } = productData;
-            await this.productRepository.update({ uuid: id }, productDetails);
             const product = await this.productRepository.findOne({
                 where: { uuid: id },
                 relations: ['size'],
             });
             if (!product) {
-                throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
+                throw new NotFoundException(`Producto con ID ${id} no encontrado`);
             }
-            if (imagePath) {
+            if (updateProductDto.name) product.name = updateProductDto.name;
+            if (updateProductDto.description) product.description = updateProductDto.description;
+            if (updateProductDto.price) product.price = updateProductDto.price;
+            if (updateProductDto.stockQuantity) product.stockQuantity = updateProductDto.stockQuantity;
+            if (updateProductDto.tags) product.tags = updateProductDto.tags;
+            if (updateProductDto.imagePath) {
+                const publicId = `product_${product.name}_${Date.now()}`.replace(/\s+/g, '_');
                 const uploadResult = await this.cloudinaryService.uploadImage(
-                    imagePath,
-                    `product_${Date.now()}`
+                    updateProductDto.imagePath,
+                    publicId
                 );
-                product.imageUrl = uploadResult.url;
+                product.imageUrl = uploadResult.publicId;
             }
-            if (size) {
+            if (updateProductDto.size?.size) {
                 let sizeEntity = await this.sizeRepository.findOne({
-                    where: { size: size['size'] }
+                    where: { size: updateProductDto.size.size }
                 });
                 if (!sizeEntity) {
-                    sizeEntity = this.sizeRepository.create(size);
+                    sizeEntity = this.sizeRepository.create({ size: updateProductDto.size.size });
                     await this.sizeRepository.save(sizeEntity);
                 }
                 product.size = sizeEntity;
-                await this.productRepository.save(product);
             }
-            return product;
-        } catch (error: any) {
-            if (error?.status === HttpStatus.NOT_FOUND) {
+            const updatedProduct = await this.productRepository.save(product);
+            return updatedProduct;
+        } catch (error) {
+            console.error('Error al actualizar producto:', error);
+            if (error instanceof HttpException) {
                 throw error;
             }
             throw new HttpException(
-                'Error al actualizar el producto',
+                error || 'Error al actualizar el producto',
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }

@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Subir productos desde frontend">
+    <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Estilos corregidos">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/StorageView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +75,7 @@
       <recent name="C:\Users\minja\Documents\Gactus\referee-sport\backend\apps\employees\src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev:frontend">
+  <component name="RunManager" selected="npm.dev:backend:employees">
     <configuration name="dev:backend:clients" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -108,8 +108,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev:frontend" />
         <item itemvalue="npm.dev:backend:employees" />
+        <item itemvalue="npm.dev:frontend" />
         <item itemvalue="npm.dev:backend:clients" />
       </list>
     </recent_temporary>
@@ -133,7 +133,7 @@
       <workItem from="1743392053838" duration="4195000" />
       <workItem from="1743883186674" duration="10431000" />
       <workItem from="1743985769389" duration="9144000" />
-      <workItem from="1744048554718" duration="1000000" />
+      <workItem from="1744048554718" duration="2845000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />
@@ -159,7 +159,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744007082120</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Estilos corregidos">
+      <option name="closed" value="true" />
+      <created>1744049628369</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1744049628369</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -169,7 +177,8 @@
     <MESSAGE value="Pantalla de almacen creada con sidebar" />
     <MESSAGE value="Tabla de productos agregada" />
     <MESSAGE value="Subir productos desde frontend" />
-    <option name="LAST_COMMIT_MESSAGE" value="Subir productos desde frontend" />
+    <MESSAGE value="Estilos corregidos" />
+    <option name="LAST_COMMIT_MESSAGE" value="Estilos corregidos" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
