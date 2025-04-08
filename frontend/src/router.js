@@ -1,10 +1,10 @@
 import { createWebHistory, createRouter } from "vue-router";
 
 import CatalogView from "./views/clients/CatalogView.vue";
-import StorageView from "./views/clients/StorageView.vue"; // Importa correctamente StorageView
-import EdicionArticulo from "./views/clients/EdicionArticulo.vue"; // Importa correctamente EdicionArticulo
-import EdicionMaterial from "./views/clients/EdicionMateria.vue"; // Importa correctamente EdicionMaterial
+import StorageView from "./views/clients/StorageView.vue";
 import ProductDetails from './views/clients/ProductDetails.vue';
+import StorageView from "./views/storage/StorageView.vue";
+import UploadProductView from "./views/storage/UploadProductView.vue";
 
 import App from "./App.vue";
 
@@ -23,28 +23,20 @@ const routes = [
                 component: CatalogView,
             },
             {
-                path: "inventario", // Ruta para la pantalla de inventario
-                name: "inventario",
-                component: StorageView, // Usa StorageView como componente
-            },
-            {
-                path: "editar-articulo/:id", // Ruta para editar un artículo específico
-                name: "editar-articulo",
-                component: EdicionArticulo,
-            },
-            {
-                path: "editar-material/:id", // Route for editing materials
-                name: "editar-material",
-                component: EdicionMaterial, // Ensure this points to the correct component
-            },
-            {
-                path: "/detalles/:id",
-                name: "detalles",
+                path: "details/:id",
+                name: "details",
                 component: ProductDetails,
-              }
-              
-            
-            
+            },
+            {
+                path: "storage",
+                name: "storage",
+                component: StorageView
+            },
+            {
+                path: "upload/:id?",
+                name: "upload",
+                component: UploadProductView
+            }
         ],
     },
 ];

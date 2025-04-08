@@ -1,0 +1,21 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+      "outDir": "../../dist/out-tsc",
+      "module": "commonjs",
+      "target": "es2017",
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "sourceMap": true,
+      "incremental": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "baseUrl": "."
+    },
+    "include": [
+      "**/*.ts"
+    ],
+    "exclude": [
+      "**/*.spec.ts"
+    ]
+  }
