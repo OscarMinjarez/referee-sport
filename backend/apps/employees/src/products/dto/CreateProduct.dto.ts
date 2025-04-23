@@ -1,12 +1,6 @@
-import {IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested} from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SizeValue } from '@app/entities/classes/size.entity';
-
-class SizeDto {
-    @IsNotEmpty()
-    @IsString()
-    size: SizeValue;
-}
+import { VariantDto } from './variant.dto';
 
 export class CreateProductDto {
     @IsNotEmpty()
@@ -21,11 +15,6 @@ export class CreateProductDto {
 
     @IsNotEmpty()
     @IsNumber()
-    @Min(0, { message: 'El stock no puede ser negativo' })
-    stockQuantity: number;
-
-    @IsNotEmpty()
-    @IsNumber()
     @Min(0.01, { message: 'El precio debe ser mayor a 0' })
     price: number;
 
@@ -34,9 +23,10 @@ export class CreateProductDto {
     imagePath?: string;
 
     @IsOptional()
-    @ValidateNested()
-    @Type(() => SizeDto)
-    size?: SizeDto;
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => VariantDto)
+    variants?: VariantDto[];
 
     @IsOptional()
     @IsArray()

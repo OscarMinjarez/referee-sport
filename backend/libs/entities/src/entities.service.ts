@@ -11,6 +11,7 @@ import User from './classes/user.entity';
 import OrderItem from './classes/orderItem.entity';
 import HistoryOrder from './classes/historyOrder.entity';
 import OrderEvent from './classes/orderEvent.entity';
+import Variant from './classes/variant.entity';
 
 @Injectable()
 export class EntitiesService implements TypeOrmOptionsFactory {
@@ -19,15 +20,15 @@ export class EntitiesService implements TypeOrmOptionsFactory {
         return {
             type: 'postgres',
             host: 'localhost',
-            port: 5432,
+            port: 3000,
             username: 'postgres',
             password: '1234',
             database: 'referee_sport',
             synchronize: true,
             entities: [
                 Product, Address, Customer, Employee, Order,
-                Payment, Size, User, OrderItem, HistoryOrder,
-                OrderEvent
+                Payment, Variant,Size, User, OrderItem, HistoryOrder,
+                OrderEvent,
             ],
         };
     }

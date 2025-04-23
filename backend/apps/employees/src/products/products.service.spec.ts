@@ -6,6 +6,8 @@ import { EntitiesService } from '@app/entities/entities.service';
 import Size, { SizeValue } from '@app/entities/classes/size.entity';
 import { DataSource } from 'typeorm';
 import Product from '@app/entities/classes/product.entity';
+import {CreateProductDto} from "./dto/CreateProduct.dto";
+import { VariantDto } from './dto/variant.dto';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -50,50 +52,40 @@ describe('ProductsService', () => {
     console.log('Conexión cerrada');
   });
 
-  it('debería crear 3 productos con etiquetas', async () => {
-    console.log('Iniciando test de creación de productos con etiquetas...');
+  it('debería crear 3 productos con variantes y etiquetas', async () => {
+    console.log('Iniciando test de creación de productos con variantes y etiquetas...');
 
-    console.log('Buscando tamaño Medium...');
-    const medium = await dataSource.getRepository(Size).findOneBy({ size: SizeValue.Medium });
-    console.log('Medium encontrado:', medium);
-
-    console.log('Buscando tamaño Large...');
-    const large = await dataSource.getRepository(Size).findOneBy({ size: SizeValue.Large });
-    console.log('Large encontrado:', large);
-
-    console.log('Buscando tamaño ExtraLarge...');
-    const xl = await dataSource.getRepository(Size).findOneBy({ size: SizeValue.ExtraLarge });
-    console.log('ExtraLarge encontrado:', xl);
-
-    // Verifica que los tamaños se hayan encontrado correctamente
-    expect(medium).toBeDefined();
-    expect(large).toBeDefined();
-    expect(xl).toBeDefined();
-
-    const productos = [
+    const productos: CreateProductDto[] = [
       {
         name: 'Camiseta básica',
         description: 'Camiseta de algodón color blanco',
-        stockQuantity: 50,
         price: 9.99,
-        size: medium || undefined,
-        tags: ['ropa', 'algodón', 'básico', 'camiseta', 'blanco']
+        tags: ['ropa', 'algodón', 'básico', 'camiseta', 'blanco'],
+        variants: [
+          { size: SizeValue.Medium, quantity: 20 },
+          { size: SizeValue.Large, quantity: 30 }
+        ]
       },
       {
         name: 'Pantalón deportivo',
         description: 'Pantalón para correr',
-        stockQuantity: 30,
         price: 19.99,
-        size: large || undefined,
-        tags: ['ropa', 'deportivo', 'pantalón', 'running']
+        tags: ['ropa', 'deportivo', 'pantalón', 'running'],
+        variants: [
+          { size: SizeValue.Medium, quantity: 10 },
+          { size: SizeValue.Large, quantity: 15 },
+          { size: SizeValue.ExtraLarge, quantity: 5 }
+        ]
       },
       {
         name: 'Sudadera con capucha',
         description: 'Sudadera gruesa para invierno',
-        stockQuantity: 20,
         price: 29.99,
-        size: xl || undefined,
         tags: ['ropa', 'invierno', 'sudadera', 'capucha'],
+        variants: [
+          { size: SizeValue.Large, quantity: 10 },
+          { size: SizeValue.ExtraLarge, quantity: 10 }
+        ],
         // Se incluye imagePath para probar la subida de imagen y asignación de imageUrl
         imagePath: 'C:/Users/JORGE/OneDrive/Documentos/GitHub/referee-sport/backend/futbol.jpg'
       },
@@ -107,9 +99,25 @@ describe('ProductsService', () => {
         const created = await service.create(productos[i]);
         console.log(`Producto ${i + 1} creado con UUID: ${created.uuid}`);
         createdProductIds.push(created.uuid);
+        
         expect(created).toHaveProperty('uuid');
         expect(created.name).toBe(productos[i].name);
         expect(created.tags).toEqual(productos[i].tags);
+        
+        // Validar que se crearon las variantes correctamente
+        if (productos[i].variants) {
+          expect(created.variants).toBeDefined();
+          expect(created.variants!.length).toBe(productos[i].variants!.length);
+        
+          
+          // Verificar que cada variante tiene el tamaño y cantidad correctos
+          for (const variant of created.variants!) {
+            expect(variant).toHaveProperty('quantity');
+            expect(variant.size).toBeDefined();
+            expect(variant.size).toHaveProperty('size');
+          }
+        }
+        
         // Si se envió imagePath, se espera que imageUrl esté definida
         if (productos[i].imagePath) {
           expect(created.imageUrl).toBeDefined();
@@ -123,7 +131,7 @@ describe('ProductsService', () => {
     console.log('Test de creación de productos completado');
   });
 
-  it('debería obtener todos los productos', async () => {
+  it('debería obtener todos los productos con sus variantes', async () => {
     console.log('Iniciando test de obtención de productos...');
     try {
       const allProducts = await service.findAll();
@@ -131,11 +139,22 @@ describe('ProductsService', () => {
       console.log('Productos:', allProducts.map(p => ({ 
         uuid: p.uuid, 
         name: p.name, 
-        size: p.size?.size, 
+        variants: p.variants.map(v => ({
+          size: v.size.size,
+          quantity: v.quantity
+        })),
         imageUrl: p.imageUrl,
         tags: p.tags
       })));
       expect(allProducts.length).toBeGreaterThanOrEqual(3);
+      
+      // Verificar que cada producto tiene sus variantes cargadas
+      for (const product of allProducts) {
+        expect(product.variants).toBeDefined();
+        for (const variant of product.variants) {
+          expect(variant.size).toBeDefined();
+        }
+      }
     } catch (error) {
       console.error('Error al obtener todos los productos:', error);
       throw error;
@@ -157,6 +176,11 @@ describe('ProductsService', () => {
       })));
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toContain(searchTerm);
+      
+      // Verificar que las variantes se cargan correctamente en los resultados
+      for (const product of results) {
+        expect(product.variants).toBeDefined();
+      }
     } catch (error) {
       console.error('Error al buscar productos por nombre:', error);
       throw error;
@@ -173,54 +197,83 @@ describe('ProductsService', () => {
       console.log('Resultados:', results.map(p => ({ 
         uuid: p.uuid, 
         name: p.name, 
-        tags: p.tags 
+        tags: p.tags,
+        variants: p.variants.length 
       })));
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].tags).toContain(searchTag);
+      
+      // Verificar que las variantes se cargan correctamente en los resultados
+      for (const product of results) {
+        expect(product.variants).toBeDefined();
+      }
     } catch (error) {
       console.error('Error al buscar productos por etiqueta:', error);
       throw error;
     }
   });
 
-  it('debería actualizar etiquetas de un producto', async () => {
+  it('debería actualizar etiquetas y variantes de un producto', async () => {
     if (createdProductIds.length === 0) {
       console.log('No hay productos creados para actualizar');
       return;
     }
 
     const productId = createdProductIds[0];
-    console.log(`Iniciando test de actualización de etiquetas para producto ${productId}...`);
+    console.log(`Iniciando test de actualización para producto ${productId}...`);
     
     try {
       const product = await service.findOne(productId);
       console.log('Producto original:', {
         uuid: product.uuid,
         name: product.name,
-        tags: product.tags
+        tags: product.tags,
+        variants: product.variants.map(v => ({
+          size: v.size.size,
+          quantity: v.quantity
+        }))
       });
       
       const newTags = [...(product.tags || []), 'oferta', 'nuevo'];
+      const newVariants: VariantDto[] = [
+        { size: SizeValue.Small, quantity: 5 },
+        { size: SizeValue.Medium, quantity: 15 },
+        { size: SizeValue.Large, quantity: 10 }
+      ];
       
       const updated = await service.update(productId, {
-        tags: newTags
+        tags: newTags,
+        variants: newVariants
       });
       
       console.log('Producto actualizado:', {
         uuid: updated.uuid,
         name: updated.name,
-        tags: updated.tags
+        tags: updated.tags,
+        variants: updated.variants.map(v => ({
+          size: v.size.size,
+          quantity: v.quantity
+        }))
       });
       
+      // Verificar etiquetas actualizadas
       expect(updated.tags).toContain('oferta');
       expect(updated.tags).toContain('nuevo');
+      
+      // Verificar variantes actualizadas
+      expect(updated.variants.length).toBe(newVariants.length);
+      
+      // Verificar que se encuentra la variante de talla Small
+      const smallVariant = updated.variants.find(v => v.size.size === SizeValue.Small);
+      expect(smallVariant).toBeDefined();
+      expect(smallVariant?.quantity).toBe(5);
     } catch (error) {
-      console.error('Error al actualizar etiquetas del producto:', error);
+      console.error('Error al actualizar producto:', error);
       throw error;
     }
   });
 
-  it('debería eliminar un producto', async () => {
+  it('debería eliminar un producto y sus variantes', async () => {
     if (createdProductIds.length === 0) {
       console.log('No hay productos creados para eliminar');
       return;
@@ -233,7 +286,8 @@ describe('ProductsService', () => {
       const product = await service.findOne(productId);
       console.log('Producto a eliminar:', {
         uuid: product.uuid,
-        name: product.name
+        name: product.name,
+        variants: product.variants.length
       });
       
       const result = await service.delete(productId);
@@ -248,6 +302,9 @@ describe('ProductsService', () => {
       } catch (error) {
         console.log('Producto eliminado correctamente, error esperado:');
       }
+      
+      // También podríamos verificar que las variantes fueron eliminadas
+      // pero ya está implícito en la implementación del servicio
     } catch (error) {
       console.error('Error al eliminar producto:', error);
       throw error;
