@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
 export enum OrderEventValue {
@@ -8,7 +8,8 @@ export enum OrderEventValue {
     Finished = "finished"
 }
 
+@Entity({ name: "orders_events" })
 export default class OrderEvent extends Generic {
-    @Column({ type: "enum", enum: OrderEventValue, nullable: false })
+    @Column({ type: "enum", enum: OrderEventValue, nullable: false, default: OrderEventValue.Purchased })
     event: OrderEventValue;
 }

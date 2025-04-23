@@ -1,0 +1,23 @@
+{
+  "name": "referee-sport",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:backend:employees": "cd backend && nest start --watch employees",
+    "dev:backend:clients": "cd backend && nest start --watch clients",
+    "dev:frontend": "cd frontend && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OscarMinjarez/referee-sport.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OscarMinjarez/referee-sport/issues"
+  },
+  "homepage": "https://github.com/OscarMinjarez/referee-sport#readme",
+  "description": ""
+}

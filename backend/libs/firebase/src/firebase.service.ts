@@ -13,7 +13,7 @@ export class FirebaseService {
 
     constructor() {
         const serviceAccountPath = path.resolve(
-            'libs/firebase/src/configs/referee-sport-firebase-adminsdk-fbsvc-8cc22fc67e.json'
+            'libs/firebase/src/configs/firebase.json'
         );
         const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
         this._app = initializeApp({
