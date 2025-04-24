@@ -1,11 +1,12 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Product from "@app/entities/classes/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import {ILike, Repository} from "typeorm";
+import { ILike, Repository } from "typeorm";
 import Size from "@app/entities/classes/size.entity";
 import Variant from "@app/entities/classes/variant.entity";
+import Tag from "@app/entities/classes/tag.entity";
 import { CloudinaryService } from "@app/cloudinary/cloudinary.service";
-import {CreateProductDto} from "./dto/CreateProduct.dto";
+import { CreateProductDto } from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 
 @Injectable()
@@ -20,12 +21,15 @@ export class ProductsService {
         @InjectRepository(Variant)
         private variantRepository: Repository<Variant>,
         
+        @InjectRepository(Tag)
+        private tagRepository: Repository<Tag>,
+        
         private readonly cloudinaryService: CloudinaryService,
     ) {}
 
     async findAll(): Promise<Product[]> {
         return await this.productRepository.find({
-            relations: ['variants', 'variants.size'],
+            relations: ['variants', 'variants.size', 'tags'],
         });
     }
 
@@ -33,7 +37,7 @@ export class ProductsService {
         try {
             const product = await this.productRepository.findOne({
                 where: { uuid: id },
-                relations: ['variants', 'variants.size'],
+                relations: ['variants', 'variants.size', 'tags'],
             });
             if (!product) {
                 throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
@@ -53,22 +57,24 @@ export class ProductsService {
     async findByName(name: string): Promise<Product[]> {
         return await this.productRepository.find({
             where: { name: ILike(`%${name}%`) },
-            relations: ['variants', 'variants.size'],
+            relations: ['variants', 'variants.size', 'tags'],
         });
     }
 
-    async findByTag(tag: string): Promise<Product[]> {
+    async findByTag(tagName: string): Promise<Product[]> {
         try {
-            const products = await this.productRepository.find({
-                relations: ['variants', 'variants.size'],
-            });
-            const filteredProducts = products.filter(product => 
-                product.tags && product.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
-            );
-            if (!filteredProducts || filteredProducts.length === 0) {
+            const products = await this.productRepository
+                .createQueryBuilder('product')
+                .leftJoinAndSelect('product.variants', 'variant')
+                .leftJoinAndSelect('variant.size', 'size')
+                .leftJoinAndSelect('product.tags', 'tag')
+                .where('LOWER(tag.name) LIKE LOWER(:tagName)', { tagName: `%${tagName}%` })
+                .getMany();
+
+            if (!products || products.length === 0) {
                 throw new HttpException('No se encontraron productos con esa etiqueta', HttpStatus.NOT_FOUND);
             }
-            return filteredProducts;
+            return products;
         } catch (error: any) {
             if (error?.status === HttpStatus.NOT_FOUND) {
                 throw error;
@@ -80,14 +86,37 @@ export class ProductsService {
         }
     }
 
+    private async getOrCreateTags(tagNames: string[]): Promise<Tag[]> {
+        const tags: Tag[] = [];
+        
+        for (const name of tagNames) {
+            let tag = await this.tagRepository.findOne({
+                where: { name: ILike(name.trim()) }
+            });
+            
+            if (!tag) {
+                tag = this.tagRepository.create({ name: name.trim() });
+                await this.tagRepository.save(tag);
+            }
+            
+            tags.push(tag);
+        }
+        
+        return tags;
+    }
+
     async create(createProductDto: CreateProductDto): Promise<Product> {
         try {
             const product = this.productRepository.create({
                 name: createProductDto.name,
                 description: createProductDto.description,
-                price: createProductDto.price,
-                tags: createProductDto.tags || [],
+                price: createProductDto.price
             });
+
+            // Manejar tags
+            if (createProductDto.tagNames && createProductDto.tagNames.length > 0) {
+                product.tags = await this.getOrCreateTags(createProductDto.tagNames);
+            }
 
             if (createProductDto.imagePath) {
                 const uploadResult = await this.cloudinaryService.uploadImage(
@@ -155,7 +184,11 @@ export class ProductsService {
             if (updateProductDto.name) product.name = updateProductDto.name;
             if (updateProductDto.description) product.description = updateProductDto.description;
             if (updateProductDto.price) product.price = updateProductDto.price;
-            if (updateProductDto.tags) product.tags = updateProductDto.tags;
+            
+            // Actualizar tags si se proporcionan
+            if (updateProductDto.tagNames) {
+                product.tags = await this.getOrCreateTags(updateProductDto.tagNames);
+            }
 
             // Manejar la imagen si se proporciona
             if (updateProductDto.imagePath) {

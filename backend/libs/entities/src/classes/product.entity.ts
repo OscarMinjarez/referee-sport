@@ -1,6 +1,7 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import Generic from "./generic.entity";
 import Variant from "./variant.entity";
+import Tag from "./tag.entity";
 
 @Entity({ name: "products" })
 export default class Product extends Generic {
@@ -16,8 +17,13 @@ export default class Product extends Generic {
     @Column({ type: "varchar", length: 250, nullable: true })
     imageUrl?: string;
     
-    @Column({ type: "simple-array", nullable: true })
-    tags: string[];
+    @ManyToMany(() => Tag, tag => tag.products, { cascade: true, eager: true })
+    @JoinTable({
+      name: "product_tags",
+      joinColumn: { name: "product_id", referencedColumnName: "uuid" },
+      inverseJoinColumn: { name: "tag_id", referencedColumnName: "uuid" },
+    })
+    tags: Tag[];
     
     @OneToMany(() => Variant, (variant) => variant.product, { cascade: true })
     variants: Variant[];
