@@ -10,49 +10,64 @@ import Employee                from '@app/entities/classes/employee.entity';
 import { EmployeeTypeValue }   from '@app/entities/classes/employeeType.entity';
 import OrderEvent, { OrderEventValue } from '@app/entities/classes/orderEvent.entity';
 
-describe('OrdersService', () => {
+describe('OrdersService (Integration)', () => {
   let service: OrdersService;
-  let ds: DataSource;
+  let dataSource: DataSource;
 
   let testCustomer: Customer;
   let testProduct:  Product;
   let testEmployee: Employee;
-
   let createdOrderId: string;
 
   beforeAll(async () => {
-    const mod: TestingModule = await Test.createTestingModule({
+    console.log('Inicializando módulo de pruebas...');
+    const module: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({ useClass: EntitiesService }),
         OrdersModule,
       ],
     }).compile();
 
-    service = mod.get<OrdersService>(OrdersService);
-    ds      = mod.get<DataSource>(DataSource);
+    service = module.get<OrdersService>(OrdersService);
+    dataSource = module.get<DataSource>(DataSource);
+    console.log('Conexión a base de datos:', dataSource.isInitialized ? '✔︎ Inicializada' : '✘ Fallo');
 
-    // seed guest entities
-    const custRepo = ds.getRepository(Customer);
+    // Aseguramos que las tablas estén sincronizadas con las entidades
+    await dataSource.synchronize(true);
+    console.log('Esquema sincronizado en la base de datos.');
+
+    // Seeding de datos base
+    const custRepo = dataSource.getRepository(Customer);
     testCustomer = await custRepo.save({
-      name: 'Pepito', lastName: 'Pérez', phoneNumber: '555000111',
+      name: 'Pepito',
+      lastName: 'Pérez',
+      phoneNumber: '555000111',
     });
+    console.log('Cliente de prueba creado:', testCustomer.uuid);
 
-    const prodRepo = ds.getRepository(Product);
-    testProduct   = await prodRepo.save({
-      name: 'Test Prod', description: 'Desc', price: 10.5, tags: [],
+    const prodRepo = dataSource.getRepository(Product);
+    testProduct = await prodRepo.save({
+      name: 'Test Prod',
+      description: 'Desc',
+      price: 10.5,
+      tags: [],
     });
+    console.log('Producto de prueba creado:', testProduct.uuid);
 
-    const empRepo = ds.getRepository(Employee);
+    const empRepo = dataSource.getRepository(Employee);
     testEmployee = await empRepo.save({
       username: 'emp1',
-      email:    'e@e.com',
+      email: 'e@e.com',
       password: 'x',
-      type:     EmployeeTypeValue.Sales,
+      type: EmployeeTypeValue.Sales,
     });
+    console.log('Empleado de prueba creado:', testEmployee.uuid);
   });
 
   afterAll(async () => {
-    await ds.destroy();
+    console.log('Cerrando conexión a la base de datos...');
+    await dataSource.destroy();
+    console.log('Conexión cerrada.');
   });
 
   it('debería crear una orden con ítems y pagos', async () => {
@@ -65,6 +80,7 @@ describe('OrdersService', () => {
       orderItems:     [{ productId: testProduct.uuid, quantity: 2, totalPrice: 21 }],
       payments:       [{ total: 21, paymentState: true }],
     };
+
     const ord = await service.create(dto);
     createdOrderId = ord.uuid;
 
