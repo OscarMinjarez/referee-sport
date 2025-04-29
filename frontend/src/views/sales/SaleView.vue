@@ -3,14 +3,14 @@
         <Sidebar class="sidebar p-3 d-flex h-full flex-column gap-2 border justify-content-between">
             <div>
                 <div class="card p-2">
-                <div class="img-circle-container">
-                    <img
-                        class="img-circle"
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/TWICE_Jeongyeon_VETERAN_2_September_2024.jpg/640px-TWICE_Jeongyeon_VETERAN_2_September_2024.jpg"/>
-                </div>
-                <div class="card-body text-center fw-bold">
-                    <p class="card-text">Oscar Minjarez</p>
-                </div>
+                    <div class="img-circle-container">
+                        <img
+                            class="img-circle"
+                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/TWICE_Jeongyeon_VETERAN_2_September_2024.jpg/640px-TWICE_Jeongyeon_VETERAN_2_September_2024.jpg"/>
+                    </div>
+                    <div class="card-body text-center fw-bold">
+                        <p class="card-text">Oscar Minjarez</p>
+                    </div>
                 </div>
 
                 <div class="mt-5">
@@ -39,7 +39,7 @@
                 </div>
 
                 <div>
-                    <button type="button" class="btn btn-primary" @click="goToUploadProduct">Registrar nueva orden</button>
+                    <button type="button" class="btn btn-primary" @click="goToCreateOrder">Registrar nueva orden</button>
                 </div>
             </div>
 
@@ -100,6 +100,10 @@ async function getOrders() {
     } catch (e) {
         console.error(e);
     }
+}
+
+async function goToCreateOrder() {
+    await router.push("create")
 }
 </script>
 

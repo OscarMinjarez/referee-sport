@@ -45,7 +45,7 @@
                 <button type="button" class="btn btn-primary me-2" @click="openCustomerModal">
                     Buscar cliente
                 </button>
-                <button type="button" class="btn btn-secondary" @click="registerCustomer">
+                <button type="button" class="btn btn-secondary" @click="registerCustomer(customer)">
                     Registrar cliente
                 </button>
             </div>
@@ -59,14 +59,27 @@
                     <th>Producto</th>
                     <th>Detalle</th>
                     <th>Costo</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, index) in orderItems" :key="index">
-                    <td>{{ item.quantity }}</td>
+                    <td>
+                        <input 
+                            v-model="item.quantity" 
+                            type="number" 
+                            min="1" 
+                            :max="getMaxQuantity(item.product)"
+                            @input="updateQuantity(item)"
+                            class="form-control form-control-sm"
+                        />
+                    </td>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.product.description }}</td>
                     <td>${{ item.totalPrice.toFixed(2) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @click="removeItem(index)">Eliminar</button> <!-- Botón para eliminar -->
+                    </td>
                 </tr>
             </tbody>
         </Table>
@@ -107,28 +120,146 @@
 
     <BaseModal :show="showProductModal" @close="showProductModal = false">
         <h5>Buscar Producto</h5>
-        <!-- Lista de productos, input de cantidad, etc -->
-        <button class="btn btn-primary mt-2" @click="handleProductSelect({ name: 'Producto A', description: 'Detalle', quantity: 1, totalPrice: 200 })">
-            Agregar Producto A
-        </button>
+        <Table>
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Talla</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="product in products" :key="product.id">
+                    <td>
+                        <img :src="product.imageUrl" alt="Imagen" style="width: 60px; height: 60px; object-fit: cover;" />
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>
+                        <select
+                            v-model="selectedVariants[product.uuid]"
+                            class="form-select form-select-sm"
+                        >
+                            <option value="" disabled selected>Seleccionar talla</option>
+                            <option
+                                v-for="variant in product.variants"
+                                :key="variant.uuid"
+                                :value="variant.uuid"
+                                >
+                                {{ variant.size.size.toUpperCase() }} ({{ variant.quantity }} disponibles)
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <input
+                            v-model="selectedQuantities[product.uuid]"
+                            type="number"
+                            min="1"
+                            :max="getMaxQuantity(product)"
+                            class="form-control form-control-sm"
+                            placeholder="Cantidad"
+                        />
+                    </td>
+                    <td>
+                        <button
+                            class="btn btn-sm btn-success"
+                            @click="addProduct(product, selectedVariants[product.uuid], selectedQuantities[product.uuid])">
+                            Agregar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </Table>
     </BaseModal>
 
     <BaseModal :show="showEmployeeModal" @close="showEmployeeModal = false">
         <h5>Buscar Empleado</h5>
-        <button class="btn btn-primary mt-2" @click="handleEmployeeSelect({ username: 'LuisRam', email: 'luis@gactus.mx' })">
-            Seleccionar LuisRam
-        </button>
+        <Table>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="employee in employees" :key="employee.uuid">
+                    <td>{{ employee.username }}</td>
+                    <td>{{ employee.email }}</td>
+                    <td>
+                        <button
+                            class="btn btn-sm btn-primary"
+                            @click="handleEmployeeSelect(employee)">
+                            Seleccionar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </Table>
     </BaseModal>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
 
 const showCustomerModal = ref(false);
 const showProductModal = ref(false);
 const showEmployeeModal = ref(false);
+
+const selectedVariants = ref({});
+const selectedQuantities = ref({});
+
+function getMaxQuantity(product) {
+    const selectedVariantUuid = selectedVariants.value[product.uuid];
+    const selectedVariant = product.variants.find(v => v.uuid === selectedVariantUuid);
+    return selectedVariant ? selectedVariant.quantity : 0;
+}
+
+function addProduct(product, variantUuid, quantity) {
+    if (quantity <= 0) return;
+    let selectedPrice = product.price;
+    let selectedVariant = null;
+    if (product.variants.length > 0 && variantUuid) {
+        selectedVariant = product.variants.find(v => v.uuid === variantUuid);
+        if (selectedVariant) {
+            selectedPrice = selectedVariant.price || product.price;
+        }
+    }
+    const totalPrice = selectedPrice * quantity;
+    const item = {
+        product,
+        variant: selectedVariant,
+        quantity,
+        totalPrice
+    };
+    const existingItemIndex = orderItems.value.findIndex(item => item.product.uuid === product.uuid && item.variant?.uuid === variantUuid);
+    if (existingItemIndex >= 0) {
+        orderItems.value[existingItemIndex].quantity += quantity;
+        orderItems.value[existingItemIndex].totalPrice = orderItems.value[existingItemIndex].quantity * selectedPrice;
+    } else {
+        orderItems.value.push(item);
+    }
+}
+
+function handleEmployeeSelect(selectedEmployee) {
+    employee.value = {
+        uuid: selectedEmployee.uuid,
+        username: selectedEmployee.username,
+        email: selectedEmployee.email
+    };
+    showEmployeeModal.value = false;
+}
+
+function updateQuantity(item) {
+    if (item.quantity < 1) item.quantity = 1;
+    item.totalPrice = item.quantity * (item.variant?.price || item.product.price);
+}
+
+function removeItem(index) {
+    orderItems.value.splice(index, 1);
+}
 
 const customer = ref({
   name: '',
@@ -150,6 +281,9 @@ const employee = ref({
   uuid: ''
 });
 
+const products = ref([]);
+const employees = ref([]);
+
 const orderItems = ref([]);
 
 function openCustomerModal() {
@@ -164,19 +298,67 @@ function openEmployeeModal() {
     showEmployeeModal.value = true;
 }
 
-function registerCustomer() {
-  // POST al endpoint de clientes si no existe
+function extractSize(name) {
+    const parts = name.trim().split(' ');
+    return parts[parts.length - 1];
+};
+
+onMounted(async function() {
+    products.value = await getProducts();
+    employees.value = await getEmployees();
+});
+
+async function registerCustomer(customer) {
+    try {
+        const response = await fetch("http://localhost:3001/api/customers", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(customer)
+        });
+        if (!response.ok) {
+            throw new Error("Error al guardar el cliente");
+        }
+        return await response.json();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function getProducts() {
+    try {
+        const response = await fetch("http://localhost:3001/api/products");
+        if (!response.ok) {
+            throw new Error("Error en el servidor");
+        }
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function getEmployees() {
+    try {
+        const response = await fetch("http://localhost:3001/api/employees");
+        if (!response.ok) {
+            throw new Error("Error en el servidor");
+        }
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 function submitOrder() {
-  const orderPayload = {
-    customer: customer.value,
-    employee: employee.value,
-    orderItems: orderItems.value,
-    total: orderItems.value.reduce((sum, item) => sum + item.totalPrice, 0)
-  };
-
-  console.log("Payload para registrar:", orderPayload);
-  // Aquí haces el POST a tu endpoint de órdenes
+    const orderPayload = {
+        customer: customer.value,
+        employee: employee.value,
+        orderItems: orderItems.value,
+        total: orderItems.value.reduce((sum, item) => sum + item.totalPrice, 0)
+    };
+    console.log("Payload para registrar:", orderPayload);
 }
 </script>
