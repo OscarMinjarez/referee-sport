@@ -102,7 +102,8 @@ export class OrdersService {
       );
 
       return this.findOne(saved.uuid);
-    } catch {
+    } catch (error) {
+      console.error('Error al crear orden:', error); // 👈 imprime el error real
       throw new HttpException('Error al crear orden', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
