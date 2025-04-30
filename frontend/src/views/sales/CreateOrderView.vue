@@ -111,11 +111,35 @@
 
     <BaseModal :show="showCustomerModal" @close="showCustomerModal = false">
         <h5>Buscar Cliente</h5>
-        <!-- Aquí va tu buscador de clientes -->
-        <!-- Simulamos con un botón -->
-        <button class="btn btn-primary mt-2" @click="handleCustomerSelect({ name: 'Laura', lastName: 'González' })">
-            Seleccionar a Laura González
-        </button>
+        <Table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="customerItem in customers" :key="customerItem.uuid">
+                    <td>{{ customerItem.name }}</td>
+                    <td>{{ customerItem.lastName }}</td>
+                    <td>{{ customerItem.phoneNumber }}</td>
+                    <td>
+                        {{ customerItem.addresses.streetName }} #{{ customerItem.addresses.number }}, 
+                        {{ customerItem.addresses.neighborhood }}, {{ customerItem.addresses.city }}
+                    </td>
+                    <td>
+                        <button
+                            class="btn btn-sm btn-primary"
+                            @click="handleCustomerSelect(customerItem)">
+                            Seleccionar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </Table>
     </BaseModal>
 
     <BaseModal :show="showProductModal" @close="showProductModal = false">
@@ -140,11 +164,10 @@
                             v-model="selectedVariants[product.uuid]"
                             class="form-select form-select-sm"
                         >
-                            <option value="" disabled selected>Seleccionar talla</option>
                             <option
-                                v-for="variant in product.variants"
-                                :key="variant.uuid"
-                                :value="variant.uuid"
+                                    v-for="variant in product.variants"
+                                    :key="variant.uuid"
+                                    :value="variant.uuid"
                                 >
                                 {{ variant.size.size.toUpperCase() }} ({{ variant.quantity }} disponibles)
                             </option>
@@ -157,7 +180,6 @@
                             min="1"
                             :max="getMaxQuantity(product)"
                             class="form-control form-control-sm"
-                            placeholder="Cantidad"
                         />
                     </td>
                     <td>
@@ -200,9 +222,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
+import { useRouter } from 'vue-router';
 
 const showCustomerModal = ref(false);
 const showProductModal = ref(false);
@@ -210,6 +233,8 @@ const showEmployeeModal = ref(false);
 
 const selectedVariants = ref({});
 const selectedQuantities = ref({});
+
+const router = useRouter();
 
 function getMaxQuantity(product) {
     const selectedVariantUuid = selectedVariants.value[product.uuid];
@@ -241,6 +266,24 @@ function addProduct(product, variantUuid, quantity) {
     } else {
         orderItems.value.push(item);
     }
+}
+
+function handleCustomerSelect(selectedCustomer) {
+    customer.value = {
+        uuid: selectedCustomer.uuid,
+        name: selectedCustomer.name,
+        lastName: selectedCustomer.lastName,
+        phoneNumber: selectedCustomer.phoneNumber,
+        address: {
+            streetName: selectedCustomer.addresses.streetName,
+            number: selectedCustomer.addresses.number,
+            zipCode: selectedCustomer.addresses.zipCode,
+            neighborhood: selectedCustomer.addresses.neighborhood,
+            city: selectedCustomer.addresses.city,
+            state: selectedCustomer.addresses.state
+        }
+    };
+    showCustomerModal.value = false;
 }
 
 function handleEmployeeSelect(selectedEmployee) {
@@ -283,30 +326,24 @@ const employee = ref({
 
 const products = ref([]);
 const employees = ref([]);
+const customers = ref([]);
 
 const orderItems = ref([]);
 
-function openCustomerModal() {
+async function openCustomerModal() {
     showCustomerModal.value = true;
+    await getCustomers();
 }
 
-function openProductModal() {
+async function openProductModal() {
     showProductModal.value = true;
+    await getProducts();
 }
 
-function openEmployeeModal() {
+async function openEmployeeModal() {
     showEmployeeModal.value = true;
+    await getEmployees();
 }
-
-function extractSize(name) {
-    const parts = name.trim().split(' ');
-    return parts[parts.length - 1];
-};
-
-onMounted(async function() {
-    products.value = await getProducts();
-    employees.value = await getEmployees();
-});
 
 async function registerCustomer(customer) {
     try {
@@ -332,8 +369,7 @@ async function getProducts() {
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
-        const data = await response.json();
-        return data;
+        products.value = await response.json();
     } catch (e) {
         console.error(e);
     }
@@ -345,20 +381,82 @@ async function getEmployees() {
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
-        const data = await response.json();
-        return data;
+        employees.value = await response.json();
     } catch (e) {
         console.error(e);
     }
 }
 
-function submitOrder() {
-    const orderPayload = {
-        customer: customer.value,
-        employee: employee.value,
-        orderItems: orderItems.value,
-        total: orderItems.value.reduce((sum, item) => sum + item.totalPrice, 0)
-    };
-    console.log("Payload para registrar:", orderPayload);
+async function getCustomers() {
+    try {
+        const response = await fetch("http://localhost:3001/api/customers");
+        if (!response.ok) {
+            throw new Error("Error en el servidor");
+        }
+        customers.value = await response.json();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function calculateTotal() {
+    return orderItems.value.reduce((sum, item) => sum + item.totalPrice, 0);
+}
+
+function generateOrderNumber() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+async function goToSales() {
+    await router.push("sales");
+}
+
+async function submitOrder() {
+    try {
+        if (!customer.value.uuid) {
+            alert('Por favor selecciona un cliente');
+            return;
+        }
+        if (orderItems.value.length === 0) {
+            alert('Debes agregar al menos un producto a la orden');
+            return;
+        }
+        if (!employee.value.uuid) {
+            alert('Por favor selecciona un empleado');
+            return;
+        }
+        const orderPayload = {
+            numberOrder: generateOrderNumber(),
+            total: calculateTotal(),
+            specifications: "Sin especificaciones",
+            date: new Date().toISOString(),
+            customerId: customer.value.uuid,
+            employeeId: employee.value.uuid,
+            orderItems: orderItems.value.map(item => ({
+                productId: item.product.uuid,
+                variantId: item.variant?.uuid || null,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            })),
+            payments: [{
+                total: calculateTotal(),
+                paymentState: true
+            }]
+        };
+        const response = await fetch("http://localhost:3001/api/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderPayload)
+        });
+        if (response) {
+            alert('Orden registrada exitosamente');
+            goToSales();
+        }
+    } catch (error) {
+        console.error('Error al registrar la orden:', error);
+        alert('Ocurrió un error al registrar la orden');
+    }
 }
 </script>
