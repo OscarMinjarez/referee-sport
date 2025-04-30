@@ -70,7 +70,6 @@ export class CustomersService {
 
       return await this.customerRepository.save(customer);
     } catch (error) {
-      console.error('Error al crear cliente:', error);
       throw new HttpException(
         'Error al crear el cliente',
         HttpStatus.INTERNAL_SERVER_ERROR,
