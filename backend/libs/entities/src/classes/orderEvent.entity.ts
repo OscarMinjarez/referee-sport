@@ -5,6 +5,7 @@ export enum OrderEventValue {
     Purchased = "purchased",
     Updated = "updated", 
     Deleted = "deleted",
+    Canceled = "canceled",
     Finished = "finished"
 }
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'; 
 import { EmployeesController } from './employees.controller';
-import { EmployeesService } from './employees.service';
+import { EmployeesService } from './employees/employees.service';
 import Employee from '@app/entities/classes/employee.entity';
 import { EmployeeTypeValue } from '@app/entities/classes/employeeType.entity'; // Asegúrate de que la ruta sea correcta
 

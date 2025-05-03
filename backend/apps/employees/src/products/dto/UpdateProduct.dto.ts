@@ -1,32 +1,18 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SizeValue } from '@app/entities/classes/size.entity';
-
-class SizeDto {
-    @IsOptional()
-    @IsString()
-    size?: SizeValue;
-}
+import { VariantDto } from './variant.dto';
 
 export class UpdateProductDto {
     @IsOptional()
     @IsString()
-    @MaxLength(50, { message: 'El nombre no puede exceder los 50 caracteres' })
     name?: string;
 
     @IsOptional()
     @IsString()
-    @MaxLength(250, { message: 'La descripción no puede exceder los 250 caracteres' })
     description?: string;
 
     @IsOptional()
     @IsNumber()
-    @Min(0, { message: 'El stock no puede ser negativo' })
-    stockQuantity?: number;
-
-    @IsOptional()
-    @IsNumber()
-    @Min(0.01, { message: 'El precio debe ser mayor a 0' })
     price?: number;
 
     @IsOptional()
@@ -34,13 +20,13 @@ export class UpdateProductDto {
     imagePath?: string;
 
     @IsOptional()
-    @ValidateNested()
-    @Type(() => SizeDto)
-    size?: SizeDto;
+    @IsArray()
+    @IsString({ each: true })
+    tagNames?: string[];
 
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
-    @MaxLength(20, { each: true, message: 'Cada etiqueta no puede exceder 20 caracteres' })
-    tags?: string[];
+    @ValidateNested({ each: true })
+    @Type(() => VariantDto)
+    variants?: VariantDto[];
 }

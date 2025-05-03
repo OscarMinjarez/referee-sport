@@ -11,6 +11,8 @@ import User from './classes/user.entity';
 import OrderItem from './classes/orderItem.entity';
 import HistoryOrder from './classes/historyOrder.entity';
 import OrderEvent from './classes/orderEvent.entity';
+import Variant from './classes/variant.entity';
+import Tag from './classes/tag.entity';
 
 @Injectable()
 export class EntitiesService implements TypeOrmOptionsFactory {
@@ -26,8 +28,8 @@ export class EntitiesService implements TypeOrmOptionsFactory {
             synchronize: true,
             entities: [
                 Product, Address, Customer, Employee, Order,
-                Payment, Size, User, OrderItem, HistoryOrder,
-                OrderEvent
+                Payment, Variant,Size, User, OrderItem, HistoryOrder,
+                OrderEvent,Tag,
             ],
         };
     }

@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Get,
@@ -7,8 +8,8 @@ import {
   Body,
   Param, ValidationPipe
 } from '@nestjs/common';
-  import Product from '@app/entities/classes/product.entity';
-import {ProductsService} from "./products.service";
+import Product from '@app/entities/classes/product.entity';
+import { ProductsService } from "./products.service";
 import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
   
@@ -36,6 +37,15 @@ export class ProductsController {
   async findByName(@Param('name') name: string): Promise<Product[]> {
     try {
       return this.productsService.findByName(name);
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Get('tag/:tag')
+  async findByTag(@Param('tag') tag: string): Promise<Product[]> {
+    try {
+      return this.productsService.findByTag(tag);
     } catch (error: any) {
       throw error;
     }
