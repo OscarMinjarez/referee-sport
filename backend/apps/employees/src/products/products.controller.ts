@@ -12,7 +12,8 @@ import Product from '@app/entities/classes/product.entity';
 import { ProductsService } from "./products.service";
 import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
-  
+import Tag from '@app/entities/classes/tag.entity';
+
 @Controller('products')
 export class ProductsController {
   constructor(
@@ -32,6 +33,11 @@ export class ProductsController {
       throw error;
     }
   }
+  
+  @Get('tags')
+  async findAllTags(): Promise<Tag[]> {
+    return this.productsService.findAllTags();
+  }
 
   @Get('search/:name')
   async findByName(@Param('name') name: string): Promise<Product[]> {
@@ -50,6 +56,8 @@ export class ProductsController {
       throw error;
     }
   }
+
+ 
 
   @Post()
   async create(@Body(new ValidationPipe()) createProductDto: CreateProductDto): Promise<Product> {

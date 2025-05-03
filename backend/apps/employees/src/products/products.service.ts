@@ -32,6 +32,10 @@ export class ProductsService {
             relations: ['variants', 'variants.size', 'tags'],
         });
     }
+    
+    async findAllTags(): Promise<Tag[]> {
+        return await this.tagRepository.find();
+      }
 
     async findOne(id: string): Promise<Product> {
         try {
