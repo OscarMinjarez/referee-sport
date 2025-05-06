@@ -48,7 +48,7 @@
                     <tr>
                         <th scope="col">No. Orden</th>
                         <th scope="col">Cliente</th>
-                        <th scope="col">Estado</th>
+<!--                        <th scope="col">Estado</th>-->
                         <th scope="col">Acción</th>
                     </tr>
                 </thead>
@@ -56,15 +56,15 @@
                     <tr class="align-middle" v-for="(order, index) in orders" :key="order.uuid">
                         <td>{{ order.numberOrder }}</td>
                         <td>{{ order.customer.name }} {{ order.customer.lastName }}</td>
-                        <td>
-                            <span :class="order.payments[0]?.paymentState ? 'text-success fw-bold' : 'text-danger fw-bold'">
-                                {{ order.payments[0]?.paymentState ? 'Pagado' : 'Pendiente' }}
-                            </span>
-                        </td>
-                        <td class="d-flex gap-1 justify-content-center">
-                            <button type="button" class="btn btn-success" @click="goToUpdateOrder(order.uuid)">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
+<!--                        <td>-->
+<!--                            <span :class="order.payments[0]?.paymentState ? 'text-success fw-bold' : 'text-danger fw-bold'">-->
+<!--                                {{ order.payments[0]?.paymentState ? 'Pagado' : 'Pendiente' }}-->
+<!--                            </span>-->
+<!--                        </td>-->
+                        <td class="text-center align-middle">
+                          <button type="button" class="btn btn-success" @click="goToUpdateOrder(order.uuid)">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
                         </td>
                     </tr>
                 </tbody>
@@ -82,8 +82,11 @@ import { useRouter } from 'vue-router';
 import Table from '../../components/Table.vue';
 
 const router = useRouter();
-
 const orders = ref([]);
+
+async function goToUpdateOrder(orderUuid) {
+  await router.push(`create/${orderUuid}`);
+}
 
 onMounted(async function() {
     orders.value = await getOrders();

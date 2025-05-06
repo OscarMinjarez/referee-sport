@@ -34,6 +34,7 @@ export class OrdersService {
         'orderItems', 'orderItems.product',
         'payments',
         'customer',
+        'customer.addresses',
         'historyOrders', 'historyOrders.event', 'historyOrders.employee',
       ],
       order: { date: 'DESC' },
@@ -47,6 +48,7 @@ export class OrdersService {
         'orderItems', 'orderItems.product',
         'payments',
         'customer',
+        'customer.addresses',
         'historyOrders', 'historyOrders.event', 'historyOrders.employee',
       ],
     });

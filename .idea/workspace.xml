@@ -6,8 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Estilos corregidos">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/orders/orders.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/orders/orders.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/sales/CreateOrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/sales/CreateOrderView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/sales/SaleView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/sales/SaleView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,31 +48,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "development",
-    "last_opened_file_path": "C:/Users/minja/Documents/Gactus/referee-sport",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "npm.dev:backend:clients.executor": "Run",
-    "npm.dev:backend:employees.executor": "Run",
-    "npm.dev:frontend.executor": "Run",
-    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\minja\\Documents\\Gactus\\referee-sport\\backend\\node_modules\\prettier",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Users\\minja\\Documents\\Gactus\\referee-sport\\backend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;development&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/minja/Documents/Gactus/referee-sport&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.dev:backend:clients.executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev:backend:employees.executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev:frontend.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\minja\\Documents\\Gactus\\referee-sport\\backend\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\minja\\Documents\\Gactus\\referee-sport\\backend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "vue.recent.templates": [
-      "Vue Composition API Component"
+  &quot;keyToStringList&quot;: {
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Composition API Component&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\minja\Documents\Gactus\referee-sport\backend\apps\employees\src" />
@@ -136,7 +138,8 @@
       <workItem from="1743985769389" duration="9144000" />
       <workItem from="1744048554718" duration="2845000" />
       <workItem from="1744149965199" duration="5232000" />
-      <workItem from="1746554042384" duration="2078000" />
+      <workItem from="1746554042384" duration="2578000" />
+      <workItem from="1746570385880" duration="2127000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />

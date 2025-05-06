@@ -44,10 +44,10 @@ const routes = [
                 component: SaleView
             },
             {
-                path: "create",
+                path: "create/:id?",
                 name: "create",
                 component: CreateOrderView
-            }
+            },
         ],
     },
 ];
