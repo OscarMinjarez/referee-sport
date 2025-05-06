@@ -2,17 +2,17 @@
   <Navbar />
   <div class="container-fluid my-5">
     <div
-        v-if="product"
-        class="card mx-auto rounded-4 p-4 bg-white border-0"
-        style="max-width: 1200px;"
+      v-if="product"
+      class="card mx-auto rounded-4 p-4 bg-white border-0"
+      style="max-width: 1200px;"
     >
       <div class="row g-4">
         <div class="col-md-6 d-flex align-items-center justify-content-center">
           <img
-              :src="product.imageUrl"
-              :alt="product.name"
-              class="img-fluid rounded border"
-              style="max-height: 500px; width: 100%; object-fit: contain;"
+            :src="product.imageUrl"
+            :alt="product.name"
+            class="img-fluid rounded border"
+            style="max-height: 500px; width: 100%; object-fit: contain;"
           />
         </div>
 
@@ -29,16 +29,26 @@
                 <strong>Disponibles:</strong> {{ product.stockQuantity }} unidades
               </li>
               <li class="list-group-item bg-transparent border-0 px-0">
-                <strong>Talla:</strong> {{ product.size.size.toUpperCase() }}
+                <strong>Tallas disponibles:</strong>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                  <span
+                    v-for="variant in product.variants"
+                    :key="variant.uuid"
+                    class="badge bg-light text-dark border py-2 px-3"
+                  >
+                    <span class="fw-bold">{{ variant.size.size.toUpperCase() }}</span>:
+                    {{ variant.quantity }} unid.
+                  </span>
+                </div>
               </li>
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Etiquetas:</strong>
                 <span
-                    v-for="(tag, index) in product.tags"
-                    :key="index"
-                    class="badge bg-secondary me-1"
+                  v-for="(tag, index) in product.tags"
+                  :key="index"
+                  class="badge bg-secondary me-1"
                 >
-                  {{ tag }}
+                  {{ tag.name }}
                 </span>
               </li>
             </ul>

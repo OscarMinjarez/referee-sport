@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Estilos corregidos">
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/storage/UploadProductView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +50,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feat-catalog-page",
+    "git-widget-placeholder": "development",
     "last_opened_file_path": "C:/Users/minja/Documents/Gactus/referee-sport",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -135,6 +136,7 @@
       <workItem from="1743985769389" duration="9144000" />
       <workItem from="1744048554718" duration="2845000" />
       <workItem from="1744149965199" duration="5232000" />
+      <workItem from="1746554042384" duration="2078000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />
