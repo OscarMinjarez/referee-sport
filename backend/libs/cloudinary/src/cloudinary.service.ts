@@ -64,8 +64,6 @@ export class CloudinaryService {
                         fetch_format: 'auto',
                     },
                     {
-                        width: 600,
-                        height: 600,
                         crop: 'fill',
                         gravity: 'auto',
                     },

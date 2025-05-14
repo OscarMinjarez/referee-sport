@@ -25,9 +25,9 @@
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Precio:</strong> ${{ product.price }}
               </li>
-              <li class="list-group-item bg-transparent border-0 px-0">
-                <strong>Disponibles:</strong> {{ product.stockQuantity }} unidades
-              </li>
+<!--              <li class="list-group-item bg-transparent border-0 px-0">-->
+<!--                <strong>Disponibles:</strong> {{ product.stockQuantity }} unidades-->
+<!--              </li>-->
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Tallas disponibles:</strong>
                 <div class="d-flex flex-wrap gap-2 mt-2">

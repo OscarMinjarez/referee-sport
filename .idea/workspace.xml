@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0498f4c5-1507-4892-959c-67cd4de5e548" name="Changes" comment="Estilos corregidos">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/apps/employees/src/orders/orders.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps/employees/src/orders/orders.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/sales/CreateOrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/sales/CreateOrderView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/sales/SaleView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/sales/SaleView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/libs/cloudinary/src/cloudinary.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/libs/cloudinary/src/cloudinary.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ProductDetailsView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +137,8 @@
       <workItem from="1744048554718" duration="2845000" />
       <workItem from="1744149965199" duration="5232000" />
       <workItem from="1746554042384" duration="2578000" />
-      <workItem from="1746570385880" duration="2127000" />
+      <workItem from="1746570385880" duration="2768000" />
+      <workItem from="1747069823244" duration="2480000" />
     </task>
     <task id="LOCAL-00001" summary="Pantalla de almacen creada con sidebar">
       <option name="closed" value="true" />

@@ -50,6 +50,17 @@
                 </button>
             </div>
         </form>
+
+        <h4 class="mt-5">Especificaciones</h4>
+        <div class="mb-3">
+            <label class="form-label">Notas adicionales</label>
+            <textarea 
+                v-model="specifications" 
+                class="form-control" 
+                rows="3"
+                placeholder="Ingrese cualquier especificación especial para la orden..."
+            ></textarea>
+        </div>
     
         <h4 class="mt-5">Productos</h4>
         <Table class="table table-bordered mt-3">
@@ -244,6 +255,8 @@ const router = useRouter();
 const isEditMode = ref(false);
 const orderUuid = ref('');
 
+const specifications = ref("");
+
 function getMaxQuantity(product) {
     const selectedVariantUuid = selectedVariants.value[product.uuid];
     const selectedVariant = product.variants.find(v => v.uuid === selectedVariantUuid);
@@ -344,8 +357,18 @@ async function openCustomerModal() {
 }
 
 async function openProductModal() {
-    showProductModal.value = true;
     await getProducts();
+    selectedVariants.value = {};
+    selectedQuantities.value = {};
+    if (isEditMode.value) {
+        orderItems.value.forEach(item => {
+            if (item.variant) {
+                selectedVariants.value[item.product.uuid] = item.variant.uuid;
+            }
+            selectedQuantities.value[item.product.uuid] = item.quantity;
+        });
+    }
+    showProductModal.value = true;
 }
 
 async function openEmployeeModal() {
@@ -436,7 +459,7 @@ async function submitOrder() {
         const orderPayload = {
             numberOrder: generateOrderNumber(),
             total: calculateTotal(),
-            specifications: "Sin especificaciones",
+            specifications: specifications.value || "Sin especificaciones",
             date: new Date().toISOString(),
             customerId: customer.value.uuid,
             employeeId: employee.value.uuid,
@@ -475,6 +498,7 @@ async function loadOrderData() {
       throw new Error("Error al cargar la orden");
     }
     const orderData = await response.json();
+    specifications.value = orderData.specifications;
     customer.value = {
       uuid: orderData.customer.uuid,
       name: orderData.customer.name,
@@ -540,7 +564,7 @@ async function updateOrder() {
     const orderPayload = {
       numberOrder: generateOrderNumber(),
       total: calculateTotal(),
-      specifications: "Sin especificaciones",
+      specifications: specifications.value,
       date: new Date().toISOString(),
       customerId: customer.value.uuid,
       employeeId: employee.value.uuid,
