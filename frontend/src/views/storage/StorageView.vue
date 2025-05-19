@@ -57,7 +57,7 @@
           <tr class="align-middle" v-for="(product, index) in products" :key="product.uuid">
             <td scope="1">{{ index + 1 }}</td>
             <td>{{ product.name }}</td>
-            <td>{{ product.stockQuantity }}</td>
+            <td>{{ getStockQuantity(product) }}</td>
             <td>{{ product.price }}</td>
             <td class="d-flex gap-1 justify-content-center">
               <button type="button" class="btn btn-danger" @click="deleteProduct(product.uuid)">
@@ -85,6 +85,7 @@ import { onMounted, ref } from "vue";
 const router = useRouter();
 
 const products = ref([]);
+const stockQuantity = ref(0);
 
 function goToUploadProduct() {
   try {
@@ -100,6 +101,17 @@ function goToUpdateProduct(productId) {
   } catch (e) {
     console.error(e);
   }
+}
+
+function getStockQuantity(product) {
+  if (!product.variants || !Array.isArray(product.variants) || product.variants.length === 0) {
+    return "Sin stock";
+  }
+  const totalStock = product.variants.reduce((sum, variant) => {
+    const quantity = Number(variant.quantity);
+    return sum + (isNaN(quantity) ? 0 : quantity);
+  }, 0);
+  return totalStock > 0 ? totalStock : "Sin stock";
 }
 
 onMounted(async function() {
