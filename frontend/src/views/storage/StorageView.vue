@@ -98,38 +98,40 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(order, idx) in orders" :key="order.uuid">
-                    <td>{{ idx + 1 }}</td>
-                    <td>{{ order.numberOrder }}</td>
-                    <td>{{ order.customer?.name }} {{ order.customer?.lastName }}</td>
-                    <td>{{ formatDate(order.date) }}</td>
-                    <td>${{ order.total }}</td>
-                    <td>
-                      <button class="btn btn-sm btn-info" @click="toggleOrderDetails(idx)">
-                        {{ expandedOrder === idx ? 'Ocultar' : 'Ver' }}
-                      </button>
-                    </td>
-                  </tr>
-                  <tr v-if="expandedOrder === idx">
-                    <td colspan="6">
-                      <div>
-                        <strong>Productos:</strong>
-                        <ul>
-                          <li v-for="item in order.orderItems" :key="item.uuid">
-                            {{ item.product?.name }} ({{ item.quantity }} unid.) - ${{ item.totalPrice }}
-                          </li>
-                        </ul>
-                        <strong>Pagos:</strong>
-                        <ul>
-                          <li v-for="payment in order.payments" :key="payment.uuid">
-                            ${{ payment.total }} - {{ payment.paymentState ? 'Pagado' : 'Pendiente' }}
-                          </li>
-                        </ul>
-                        <strong>Especificaciones:</strong>
-                        <div>{{ order.specifications }}</div>
-                      </div>
-                    </td>
-                  </tr>
+                  <template v-for="(order, idx) in orders" :key="order.uuid">
+                    <tr>
+                      <td>{{ idx + 1 }}</td>
+                      <td>{{ order.numberOrder }}</td>
+                      <td>{{ order.customer?.name }} {{ order.customer?.lastName }}</td>
+                      <td>{{ formatDate(order.date) }}</td>
+                      <td>${{ order.total }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-info" @click="toggleOrderDetails(idx)">
+                          {{ expandedOrder === idx ? 'Ocultar' : 'Ver' }}
+                        </button>
+                      </td>
+                    </tr>
+                    <tr v-if="expandedOrder === idx" :key="order.uuid + '-details'">
+                      <td colspan="6">
+                        <div>
+                          <strong>Productos:</strong>
+                          <ul>
+                            <li v-for="item in order.orderItems" :key="item.uuid">
+                              {{ item.product?.name }} ({{ item.quantity }} unid.) - ${{ item.totalPrice }}
+                            </li>
+                          </ul>
+                          <strong>Pagos:</strong>
+                          <ul>
+                            <li v-for="payment in order.payments" :key="payment.uuid">
+                              ${{ payment.total }} - {{ payment.paymentState ? 'Pagado' : 'Pendiente' }}
+                            </li>
+                          </ul>
+                          <strong>Especificaciones:</strong>
+                          <div>{{ order.specifications }}</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
                 </tbody>
               </table>
             </div>
