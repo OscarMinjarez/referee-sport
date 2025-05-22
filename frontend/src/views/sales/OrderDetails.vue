@@ -113,44 +113,58 @@
         <h4 class="mb-0">Historial de Cambios</h4>
       </div>
       <div class="card-body">
-        <ul class="timeline">
-          <li v-for="history in sortedHistory" :key="history.uuid" class="mb-3">
-            <div class="d-flex justify-content-between">
-              <div>
-                <strong>{{ translateStatus(history.event.event) }}</strong>
-                <p class="mb-0 small text-muted">
-                  Por: {{ history.employee.username }} ({{ history.employee.email }})
-                </p>
-              </div>
-              <div class="text-end">
-                <small class="text-muted">{{ history.date }}</small>
-              </div>
-            </div>
-            <div class="mt-2" v-if="shouldShowDetails(history.event.event)">
-              <p class="mb-0 small">Se realizaron modificaciones en la orden</p>
-            </div>
-          </li>
-        </ul>
+        <div class="table-responsive">
+          <Table>
+            <thead>
+              <tr>
+                <th width="40px"></th>
+                <th>Evento</th>
+                <th>Responsable</th>
+                <th>Fecha</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="history in sortedHistory" :key="history.uuid">
+                <td class="text-center">
+                  <i :class="[getEventIcon(history.event.event)]"></i>
+                </td>
+                <td>{{ translateStatus(history.event.event) }}</td>
+                <td>
+                  {{ history.employee.username }}<br>
+                  <small class="text-muted">{{ history.employee.email }}</small>
+                </td>
+                <td>{{ formatDate(history.date) }}</td>
+                <td>
+                  <span v-if="history.event.event === 'updated'" class="badge bg-info">
+                    Modificaciones realizadas
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </div>
       </div>
     </div>
 
-    <!-- Botones de acciones -->
-    <div class="mt-4 d-flex justify-content-end">
+    <div class="mt-4 d-flex justify-content-between">
       <button class="btn btn-outline-secondary me-2" @click="goBack">
         <i class="bi bi-arrow-left"></i> Volver
       </button>
-      <button v-if="canEdit" class="btn btn-primary me-2" @click="editOrder">
-        <i class="bi bi-pencil"></i> Editar
+      <div>
+        <button v-if="canEdit" class="btn btn-primary me-2" @click="editOrder">
+          <i class="bi bi-pencil"></i> Editar
+        </button>
+        <button v-if="canCancel" class="btn btn-danger" @click="cancelOrder">
+          <i class="bi bi-x-circle"></i> Cancelar
       </button>
-      <button v-if="canCancel" class="btn btn-danger" @click="cancelOrder">
-        <i class="bi bi-x-circle"></i> Cancelar
-      </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Table from '../../components/Table.vue';
 
@@ -178,8 +192,48 @@ const order = ref({
   },
   historyOrders: []
 });
+
+function canEdit() {
+  const currentStatus = this.getCurrentStatus();
+  return currentStatus !== 'canceled' && currentStatus !== 'finished';
+}
+
+function canCancel() {
+  const currentStatus = this.getCurrentStatus();
+  return currentStatus !== 'canceled' && currentStatus !== 'finished';
+}
+
 const loading = ref(false);
 const error = ref(null);
+
+function translateStatus(status) {
+  const statusMap = {
+    'purchased': 'Comprado',
+    'finished': 'Finalizado',
+    'updated': 'Actualizado',
+    'cancelled': 'Cancelado',
+  };
+  return statusMap[status] || status;
+}
+
+const sortedHistory = computed(() => {
+  if (!order.value.historyOrders) return [];
+  return [...order.value.historyOrders].sort((a, b) => 
+    new Date(b.date) - new Date(a.date)
+  );
+});
+
+function formatDate(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleString('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
 
 async function fetchOrder() {
   const id = route.params.id;
@@ -197,10 +251,17 @@ async function fetchOrder() {
   }
 }
 
-function getCurrentStatus() {
-  if (this.order.historyOrders.length === 0) return 'purchased';
-  const lastEvent = this.sortedHistory[0].event.event;
-  return lastEvent;
+function getEventIcon(event) {
+  const icons = {
+    'purchased': 'fa-solid fa-cart-plus',
+    'finished': 'fa-solid fa-circle-check',
+    'updated': 'fa-solid fa-pen',
+    'cancelled': 'fa-solid fa-circle-xmark',
+    'payment_received': 'fa-solid fa-money-bill-wave',
+    'shipped': 'fa-solid fa-truck',
+    'delivered': 'fa-solid fa-box-open'
+  };
+  return icons[event] || 'fa-solid fa-circle-info';
 }
 
 onMounted(async function() {
@@ -220,34 +281,52 @@ onMounted(async function() {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 20px;
+  left: 30px;
   width: 2px;
   background: #dee2e6;
-  margin-left: -1.5px;
 }
 
 .timeline > li {
   position: relative;
-  padding-left: 3rem;
+  padding-left: 60px;
+  margin-bottom: 20px;
 }
 
-.timeline > li:before {
-  content: '';
+.timeline-badge {
   position: absolute;
   left: 0;
-  top: 0;
-  width: 20px;
-  height: 20px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: #6c757d;
-  margin-left: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
 }
 
-.card-header h2, .card-header h4 {
-  font-weight: 600;
+.timeline-panel {
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
 
-.img-thumbnail {
-  border-radius: 4px;
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+.bg-info-subtle {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1);
 }
 </style>
