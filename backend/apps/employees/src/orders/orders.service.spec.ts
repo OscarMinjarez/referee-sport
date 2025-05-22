@@ -15,6 +15,7 @@ import Order, { OrderStateValue }       from '@app/entities/classes/order.entity
 import OrderItem                        from '@app/entities/classes/orderItem.entity';
 import Payment                          from '@app/entities/classes/payment.entity';
 import HistoryOrder                     from '@app/entities/classes/historyOrder.entity';
+
 describe('OrdersService (Integration)', () => {
   let service: OrdersService;
   let dataSource: DataSource;
@@ -97,16 +98,26 @@ describe('OrdersService (Integration)', () => {
   });
 
   it('completar orden al alcanzar total y registrar Finished', async () => {
-    const updDto = {
-      employeeId: testEmployee.uuid,
-      payments:   [{ total: 179, paymentState: true }],
-    };
-    const updated = await service.update(createdOrderId, updDto);
+    // Opción 1: Usar el nuevo método addPayment (recomendado)
+    const updated = await service.addPayment(createdOrderId, testEmployee.uuid, {
+      total: 179,
+      paymentState: true
+    });
+    
     console.log('Orden tras pago adicional:', updated);
 
     expect(updated.state).toBe(OrderStateValue.Finished);
     const events = updated.historyOrders.map(h => h.event.event);
     expect(events).toContain(OrderEventValue.Finished);
+    
+    // Verificar que los pagos se sumaron correctamente
+    const totalPagos = updated.payments
+      .filter(p => p.paymentState)
+      .reduce((sum, p) => sum + p.total, 0);
+    expect(totalPagos).toBeGreaterThanOrEqual(updated.total);
+    
+    // Verificar que ahora tiene 2 pagos
+    expect(updated.payments.length).toBe(2);
   });
 
   it('buscar orden por nombre de cliente', async () => {
@@ -123,6 +134,9 @@ describe('OrdersService (Integration)', () => {
       total:          999,
       specifications: 'Actualizada',
       orderItems:     [{ productId: testProduct.uuid, quantity: 5, totalPrice: 52 }],
+      // Para reemplazar pagos completamente, usa replacePayments: true
+      replacePayments: true,
+      payments:       [{ total: 500, paymentState: true }],
     };
     const updated = await service.update(createdOrderId, updDto);
     console.log('Orden tras actualización general:', updated);
@@ -130,6 +144,10 @@ describe('OrdersService (Integration)', () => {
     expect(updated.total).toBe(999);
     expect(updated.orderItems[0].quantity).toBe(5);
     expect(updated.historyOrders.some(h => h.event.event === OrderEventValue.Updated)).toBeTruthy();
+    
+    // Verificar que los pagos fueron reemplazados (solo debe haber 1)
+    expect(updated.payments.length).toBe(1);
+    expect(updated.payments[0].total).toBe(500);
   });
 
   it('cancelar orden y registrar Canceled', async () => {
@@ -146,5 +164,43 @@ describe('OrdersService (Integration)', () => {
 
     expect(res.message).toContain('eliminada correctamente');
     await expect(service.findOne(createdOrderId)).rejects.toThrow();
+  });
+
+  // Prueba adicional para verificar el comportamiento por defecto de agregar pagos
+  it('agregar pago sin reemplazar los existentes (comportamiento por defecto)', async () => {
+    // Crear una nueva orden para esta prueba
+    const dto = {
+      customerId:     testCustomer.uuid,
+      employeeId:     testEmployee.uuid,
+      numberOrder:    1002,
+      total:          100,
+      specifications: 'Para prueba de pagos',
+      orderItems:     [{ productId: testProduct.uuid, quantity: 1, totalPrice: 100 }],
+      payments:       [{ total: 30, paymentState: true }],
+    };
+
+    const newOrder = await service.create(dto);
+    
+    // Agregar un pago adicional usando update (sin replacePayments)
+    const updDto = {
+      employeeId: testEmployee.uuid,
+      payments:   [{ total: 70, paymentState: true }],
+      // replacePayments no está definido, por lo que será false por defecto
+    };
+    
+    const updated = await service.update(newOrder.uuid, updDto);
+    
+    // Verificar que ahora tiene 2 pagos
+    expect(updated.payments.length).toBe(2);
+    
+    // Verificar que la suma es correcta y la orden está finalizada
+    const totalPagos = updated.payments
+      .filter(p => p.paymentState)
+      .reduce((sum, p) => sum + p.total, 0);
+    expect(totalPagos).toBe(100);
+    expect(updated.state).toBe(OrderStateValue.Finished);
+    
+    // Limpiar
+    await service.delete(updated.uuid);
   });
 });

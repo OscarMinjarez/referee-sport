@@ -35,11 +35,18 @@ export class OrdersService {
   }
 
   private async updateOrderState(order: Order, employeeId: string) {
-    const sumPayments = order.payments.reduce((sum, p) => sum + p.total, 0);
+    // Calcular suma de pagos que estén confirmados (paymentState = true)
+    const sumPayments = order.payments
+      .filter(p => p.paymentState) // Solo contar pagos confirmados
+      .reduce((sum, p) => sum + p.total, 0);
+    
+    console.log(`Suma de pagos: ${sumPayments}, Total orden: ${order.total}, Estado actual: ${order.state}`);
+    
     if (sumPayments >= order.total && order.state !== OrderStateValue.Finished) {
       order.state = OrderStateValue.Finished;
       await this.orderRepo.save(order);
       await this.recordHistory(order, employeeId, OrderEventValue.Finished);
+      console.log('Orden marcada como FINISHED');
     }
   }
 
@@ -140,15 +147,35 @@ export class OrdersService {
       );
     }
 
+    // CORRECCIÓN: Si solo se proporcionan payments, agregarlos a los existentes
+    // en lugar de reemplazarlos completamente
     if (data.payments) {
-      await this.payRepo.remove(o.payments);
-      o.payments = data.payments.map((p: any) =>
-        this.payRepo.create({
-          order:        o,
-          total:        p.total,
-          paymentState: p.paymentState,
-        })
-      );
+      // Si se proporciona replacePayments: true, reemplazar completamente
+      if (data.replacePayments) {
+        await this.payRepo.remove(o.payments);
+        o.payments = data.payments.map((p: any) =>
+          this.payRepo.create({
+            order:        o,
+            total:        p.total,
+            paymentState: p.paymentState,
+          })
+        );
+      } else {
+        // Por defecto, agregar los nuevos pagos a los existentes
+        const newPayments = data.payments.map((p: any) =>
+          this.payRepo.create({
+            order:        o,
+            total:        p.total,
+            paymentState: p.paymentState,
+          })
+        );
+        
+        // Guardar los nuevos pagos
+        const savedPayments = await this.payRepo.save(newPayments);
+        
+        // Agregar al array existente
+        o.payments = [...o.payments, ...savedPayments];
+      }
     }
 
     // Guardamos cambios en Order
@@ -157,13 +184,36 @@ export class OrdersService {
     // Historial de actualización
     await this.recordHistory(o, data.employeeId, OrderEventValue.Updated);
 
-    // Revisar si pasa a Finished
-    await this.updateOrderState(o, data.employeeId);
+    // Revisar si pasa a Finished - IMPORTANTE: Recargar la orden para obtener los pagos actualizados
+    const reloadedOrder = await this.findOne(id);
+    await this.updateOrderState(reloadedOrder, data.employeeId);
 
     return this.findOne(id);
   }
 
-  /** Marca la orden como “canceled” */
+  // Método auxiliar para agregar un pago específicamente
+  async addPayment(orderId: string, employeeId: string, paymentData: { total: number; paymentState: boolean }): Promise<Order> {
+    const order = await this.findOne(orderId);
+    
+    const newPayment = this.payRepo.create({
+      order: order,
+      total: paymentData.total,
+      paymentState: paymentData.paymentState,
+    });
+    
+    await this.payRepo.save(newPayment);
+    
+    // Registrar en historial
+    await this.recordHistory(order, employeeId, OrderEventValue.Updated);
+    
+    // Verificar si la orden debe cambiar a Finished
+    const updatedOrder = await this.findOne(orderId);
+    await this.updateOrderState(updatedOrder, employeeId);
+    
+    return this.findOne(orderId);
+  }
+
+  /** Marca la orden como "canceled" */
   async cancelOrder(id: string, employeeId: string): Promise<Order> {
     const o = await this.findOne(id);
 
