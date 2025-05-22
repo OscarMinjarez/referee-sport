@@ -61,9 +61,12 @@
 <!--                                {{ order.payments[0]?.paymentState ? 'Pagado' : 'Pendiente' }}-->
 <!--                            </span>-->
 <!--                        </td>-->
-                        <td class="text-center align-middle">
+                        <td class="text-center align-middle d-flex gap-1 justify-content-center">
                           <button type="button" class="btn btn-success" @click="goToUpdateOrder(order.uuid)">
                             <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button type="button" class="btn btn-secondary" @click="goToOrderDetails(order.uuid)">
+                            <i class="fa-solid fa-eye"></i>
                           </button>
                         </td>
                     </tr>
@@ -86,6 +89,10 @@ const orders = ref([]);
 
 async function goToUpdateOrder(orderUuid) {
   await router.push(`create/${orderUuid}`);
+}
+
+async function goToOrderDetails(orderUuid) {
+  await router.push(`sales/order/${orderUuid}`);
 }
 
 onMounted(async function() {
