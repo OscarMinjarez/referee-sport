@@ -5,6 +5,7 @@ import Order                                     from '@app/entities/classes/ord
 import OrderItem                                 from '@app/entities/classes/orderItem.entity';
 import Payment                                   from '@app/entities/classes/payment.entity';
 import OrderEvent, { OrderEventValue }           from '@app/entities/classes/orderEvent.entity';
+import { OrderStateValue }                       from '@app/entities/classes/order.entity';
 import HistoryOrder                              from '@app/entities/classes/historyOrder.entity';
 import Customer                                  from '@app/entities/classes/customer.entity';
 import Employee                                  from '@app/entities/classes/employee.entity';
@@ -12,21 +13,35 @@ import Employee                                  from '@app/entities/classes/emp
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectRepository(Order)
-    private orderRepo: Repository<Order>,
-    @InjectRepository(OrderItem)
-    private itemRepo:  Repository<OrderItem>,
-    @InjectRepository(Payment)
-    private payRepo:   Repository<Payment>,
-    @InjectRepository(OrderEvent)
-    private evRepo:    Repository<OrderEvent>,
-    @InjectRepository(HistoryOrder)
-    private histRepo:  Repository<HistoryOrder>,
-    @InjectRepository(Customer)
-    private custRepo:  Repository<Customer>,
-    @InjectRepository(Employee)
-    private empRepo:   Repository<Employee>,
+    @InjectRepository(Order)       private orderRepo: Repository<Order>,
+    @InjectRepository(OrderItem)   private itemRepo:  Repository<OrderItem>,
+    @InjectRepository(Payment)     private payRepo:   Repository<Payment>,
+    @InjectRepository(OrderEvent)  private evRepo:    Repository<OrderEvent>,
+    @InjectRepository(HistoryOrder)private histRepo:  Repository<HistoryOrder>,
+    @InjectRepository(Customer)    private custRepo:  Repository<Customer>,
+    @InjectRepository(Employee)    private empRepo:   Repository<Employee>,
   ) {}
+
+  private async recordHistory(order: Order, employeeId: string, eventValue: OrderEventValue) {
+    const ev = await this.evRepo.findOne({ where: { event: eventValue } })
+               ?? await this.evRepo.save({ event: eventValue });
+    await this.histRepo.save(
+      this.histRepo.create({
+        order,
+        employee: { uuid: employeeId } as Employee,
+        event:    ev,
+      })
+    );
+  }
+
+  private async updateOrderState(order: Order, employeeId: string) {
+    const sumPayments = order.payments.reduce((sum, p) => sum + p.total, 0);
+    if (sumPayments >= order.total && order.state !== OrderStateValue.Finished) {
+      order.state = OrderStateValue.Finished;
+      await this.orderRepo.save(order);
+      await this.recordHistory(order, employeeId, OrderEventValue.Finished);
+    }
+  }
 
   findAll(): Promise<Order[]> {
     return this.orderRepo.find({
@@ -88,24 +103,20 @@ export class OrdersService {
                            total:       p.total,
                            paymentState:p.paymentState,
                          })) as any[],
+        // state queda por defecto en Pending
       });
 
       const saved = await this.orderRepo.save(order);
 
-      // registro inicial “purchased”
-      const evPurchased = await this.evRepo.findOne({ where: { event: OrderEventValue.Purchased } })
-                            ?? await this.evRepo.save({ event: OrderEventValue.Purchased });
-      await this.histRepo.save(
-        this.histRepo.create({
-          order:    saved,
-          employee: { uuid: data.employeeId } as Employee,
-          event:    evPurchased,
-        })
-      );
+      // Historial inicial: Purchased
+      await this.recordHistory(saved, data.employeeId, OrderEventValue.Purchased);
+
+      // Si el pago inicial cubre el total, cambiar a Finished
+      await this.updateOrderState(saved, data.employeeId);
 
       return this.findOne(saved.uuid);
     } catch (error) {
-      console.error('Error al crear orden:', error); // 👈 imprime el error real
+      console.error('Error al crear orden:', error);
       throw new HttpException('Error al crear orden', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -119,7 +130,7 @@ export class OrdersService {
 
     if (data.orderItems) {
       await this.itemRepo.remove(o.orderItems);
-      o.orderItems = (data.orderItems || []).map((i: any) =>
+      o.orderItems = data.orderItems.map((i: any) =>
         this.itemRepo.create({
           order:       o,
           product:     { uuid: i.productId } as any,
@@ -131,7 +142,7 @@ export class OrdersService {
 
     if (data.payments) {
       await this.payRepo.remove(o.payments);
-      o.payments = (data.payments || []).map((p: any) =>
+      o.payments = data.payments.map((p: any) =>
         this.payRepo.create({
           order:        o,
           total:        p.total,
@@ -140,36 +151,29 @@ export class OrdersService {
       );
     }
 
-    // 1) Guardamos los cambios en la orden
+    // Guardamos cambios en Order
     await this.orderRepo.save(o);
 
-    // 2) Registramos el evento "updated" en el historial
-    const evUpdated = await this.evRepo.findOne({ where: { event: OrderEventValue.Updated } })
-                         ?? await this.evRepo.save({ event: OrderEventValue.Updated });
-    await this.histRepo.save(
-      this.histRepo.create({
-        order:    o,
-        employee: { uuid: data.employeeId } as Employee,
-        event:    evUpdated,
-      })
-    );
+    // Historial de actualización
+    await this.recordHistory(o, data.employeeId, OrderEventValue.Updated);
 
-    // 3) Ahora sí devolvemos la orden **ya con** el nuevo HistoryOrder cargado
+    // Revisar si pasa a Finished
+    await this.updateOrderState(o, data.employeeId);
+
     return this.findOne(id);
   }
 
   /** Marca la orden como “canceled” */
   async cancelOrder(id: string, employeeId: string): Promise<Order> {
     const o = await this.findOne(id);
-    const evCanceled = await this.evRepo.findOne({ where: { event: OrderEventValue.Canceled } })
-                          ?? await this.evRepo.save({ event: OrderEventValue.Canceled });
-    await this.histRepo.save(
-      this.histRepo.create({
-        order:    o,
-        employee: { uuid: employeeId } as Employee,
-        event:    evCanceled,
-      })
-    );
+
+    // Cambiar estado
+    o.state = OrderStateValue.Canceled;
+    await this.orderRepo.save(o);
+
+    // Historial Canceled
+    await this.recordHistory(o, employeeId, OrderEventValue.Canceled);
+
     return this.findOne(id);
   }
 
