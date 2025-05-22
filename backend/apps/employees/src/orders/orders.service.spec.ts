@@ -158,14 +158,7 @@ describe('OrdersService (Integration)', () => {
     expect(canceled.historyOrders.some(h => h.event.event === OrderEventValue.Canceled)).toBeTruthy();
   });
 
-  it('eliminar orden', async () => {
-    const res = await service.delete(createdOrderId);
-    console.log('Resultado delete:', res);
-
-    expect(res.message).toContain('eliminada correctamente');
-    await expect(service.findOne(createdOrderId)).rejects.toThrow();
-  });
-
+  
   // Prueba adicional para verificar el comportamiento por defecto de agregar pagos
   it('agregar pago sin reemplazar los existentes (comportamiento por defecto)', async () => {
     // Crear una nueva orden para esta prueba

@@ -51,48 +51,56 @@ export class OrdersService {
   }
 
   findAll(): Promise<Order[]> {
-    return this.orderRepo.find({
-      relations: [
-        'orderItems', 'orderItems.product',
-        'payments',
-        'customer',
-        'customer.addresses',
-        'historyOrders', 'historyOrders.event', 'historyOrders.employee',
-      ],
-      order: { date: 'DESC' },
-    });
-  }
+  return this.orderRepo.find({
+    relations: [
+      'orderItems', 
+      'orderItems.product',
+      'payments',
+      'customer',
+      'customer.addresses',
+      'historyOrders', 
+      'historyOrders.event', 
+      'historyOrders.employee',
+    ],
+    order: { date: 'DESC' },
+  });
+}
 
-  async findOne(id: string): Promise<Order> {
-    const o = await this.orderRepo.findOne({
-      where: { uuid: id },
-      relations: [
-        'orderItems', 'orderItems.product',
-        'payments',
-        'customer',
-        'customer.addresses',
-        'historyOrders', 'historyOrders.event', 'historyOrders.employee',
-      ],
-    });
-    if (!o) throw new HttpException('Orden no encontrada', HttpStatus.NOT_FOUND);
-    return o;
-  }
+ async findOne(id: string): Promise<Order> {
+  const o = await this.orderRepo.findOne({
+    where: { uuid: id },
+    relations: [
+      'orderItems', 
+      'orderItems.product',
+      'payments',
+      'customer',
+      'customer.addresses',
+      'historyOrders', 
+      'historyOrders.event',     // ✅ Ya estaba
+      'historyOrders.employee',  // ✅ Ya estaba
+    ],
+  });
+  if (!o) throw new HttpException('Orden no encontrada', HttpStatus.NOT_FOUND);
+  return o;
+}
 
   findByCustomerName(term: string): Promise<Order[]> {
-    return this.orderRepo.find({
-      where: [
-        { customer: { name:     ILike(`%${term}%`) } },
-        { customer: { lastName: ILike(`%${term}%`) } },
-      ],
-      relations: [
-        'orderItems', 'orderItems.product',
-        'payments',
-        'customer',
-        'historyOrders', 'historyOrders.event', 'historyOrders.employee',
-      ],
-    });
-  }
-
+  return this.orderRepo.find({
+    where: [
+      { customer: { name:     ILike(`%${term}%`) } },
+      { customer: { lastName: ILike(`%${term}%`) } },
+    ],
+    relations: [
+      'orderItems', 
+      'orderItems.product',
+      'payments',
+      'customer',
+      'historyOrders', 
+      'historyOrders.event', 
+      'historyOrders.employee',
+    ],
+  });
+}
   async create(data: any): Promise<Order> {
     try {
       const order = this.orderRepo.create({

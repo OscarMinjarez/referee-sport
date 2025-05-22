@@ -10,11 +10,11 @@ export default class HistoryOrder extends Generic {
   @JoinColumn({ name: "order_id" })
   order: Order;
 
-  @ManyToOne(() => Employee, { nullable: false })
+  @ManyToOne(() => Employee, { nullable: false, eager: true }) 
   @JoinColumn({ name: "employee_id" })
   employee: Employee;
 
-  @ManyToOne(() => OrderEvent, { nullable: false })
+  @ManyToOne(() => OrderEvent, { nullable: false, eager: true }) 
   @JoinColumn({ name: "order_event_id" })
   event: OrderEvent;
 
