@@ -35,13 +35,16 @@ export class OrdersService {
   }
 
   private async updateOrderState(order: Order, employeeId: string) {
-    const sumPayments = order.payments
-      .filter(p => p.state === PaymentState.Completed)
-      .reduce((sum, p) => sum + p.total, 0);
-    if (sumPayments >= order.total && order.state !== OrderStateValue.Finished) {
+    const totalPaid = order.payments
+      .filter(p => p.state === PaymentState.Completed || p.state === PaymentState.Partial)
+      .reduce((sum, p) => sum + p.amountPaid, 0);
+    if (totalPaid >= order.total && order.state !== OrderStateValue.Finished) {
       order.state = OrderStateValue.Finished;
       await this.orderRepo.save(order);
       await this.recordHistory(order, employeeId, OrderEventValue.Finished);
+    } else if (totalPaid < order.total && order.state === OrderStateValue.Finished) {
+      order.state = OrderStateValue.Pending;
+      await this.orderRepo.save(order);
     }
   }
 
@@ -192,22 +195,58 @@ export class OrdersService {
     orderId: string, 
     employeeId: string, 
     paymentData: { 
-      total: number; 
-      state?: PaymentState;
+      amount: number;
+      total?: number;
       date?: Date;
     }
   ): Promise<Order> {
     const order = await this.findOne(orderId);
+    const paymentTotal = paymentData.total || paymentData.amount;
+    const isPartialPayment = paymentData.amount < paymentTotal;
     const newPayment = this.payRepo.create({
       order: order,
-      total: paymentData.total,
-      state: paymentData.state || PaymentState.Pending,
+      total: paymentTotal,
+      amountPaid: paymentData.amount,
+      state: isPartialPayment ? PaymentState.Partial : PaymentState.Completed,
       date: paymentData.date || new Date()
     });
     await this.payRepo.save(newPayment);
-    await this.recordHistory(order, employeeId, OrderEventValue.Updated);
+    await this.recordHistory(
+      order, 
+      employeeId, 
+      isPartialPayment ? OrderEventValue.PartialPayment : OrderEventValue.PaymentAdded
+    );
     await this.updateOrderState(order, employeeId);
     return this.findOne(orderId);
+  }
+  
+  async completePayment(
+    paymentId: string,
+    amount: number,
+    employeeId: string
+  ): Promise<Order> {
+    const payment = await this.payRepo.findOne({ 
+      where: { uuid: paymentId },
+      relations: ['order']
+    });
+    if (!payment) {
+      throw new HttpException('Pago no encontrado', HttpStatus.NOT_FOUND);
+    }
+    if (payment.state !== PaymentState.Partial) {
+      throw new HttpException('Solo se pueden completar pagos parciales', HttpStatus.BAD_REQUEST);
+    }
+    const remaining = payment.total - payment.amountPaid;
+    if (amount > remaining) {
+      throw new HttpException(`El monto no puede exceder $${remaining}`, HttpStatus.BAD_REQUEST);
+    }
+    payment.amountPaid += amount;
+    if (payment.amountPaid >= payment.total) {
+      payment.state = PaymentState.Completed;
+    }
+    await this.payRepo.save(payment);
+    await this.recordHistory(payment.order, employeeId, OrderEventValue.PaymentCompleted);
+    await this.updateOrderState(payment.order, employeeId);
+    return this.findOne(payment.order.uuid);
   }
 
   /** Marca la orden como "canceled" */

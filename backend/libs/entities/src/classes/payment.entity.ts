@@ -3,10 +3,11 @@ import Generic from "./generic.entity";
 import Order from "./order.entity";
 
 export enum PaymentState {
-    Pending   = "pending",
+    Pending = "pending",
     Completed = "completed",
-    Canceled  = "canceled",
-    Adjusted  = "adjusted"
+    Canceled = "canceled",
+    Adjusted = "adjusted",
+    Partial = "partial"
 }
 
 @Entity({ name: "payments" })
@@ -17,6 +18,9 @@ export default class Payment extends Generic {
 
     @Column({ type: "float", nullable: false })
     total: number;
+
+    @Column({ type: "float", nullable: false, default: 0 })
+    amountPaid: number;
 
     @Column({ 
         type: "enum", 
