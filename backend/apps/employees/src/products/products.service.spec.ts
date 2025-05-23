@@ -83,6 +83,27 @@ describe('ProductsService', () => {
           { size: SizeValue.ExtraLarge, quantity: 10 }
         ],
         // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
+      },{
+        name: 'Chones ajustados',
+        description: 'Sudadera gruesa para invierno',
+        price: 29.99,
+        tagNames: ['ropa', 'invierno', 'sudadera', 'capucha','sexy'],
+        variants: [
+          { size: SizeValue.Large, quantity: 10 },
+          { size: SizeValue.ExtraLarge, quantity: 10 }
+        ],
+        // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
+      },
+      {
+        name: 'panties ajustados',
+        description: 'Sudadera gruesa para invierno',
+        price: 29.99,
+        tagNames: ['ropa', 'invierno', 'sudadera', 'vulgar','sexy'],
+        variants: [
+          { size: SizeValue.Large, quantity: 10 },
+          { size: SizeValue.ExtraLarge, quantity: 10 }
+        ],
+        // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
       },
     ];
 
@@ -203,7 +224,7 @@ describe('ProductsService', () => {
   it('debería crear productos adicionales sin imagen y verificar tags compartidos', async () => {
     console.log('Iniciando test de productos adicionales...');
     const adicionales: CreateProductDto[] = [
-      { name: 'Gorra de verano', description: 'Gorra ligera para el sol', price: 12.5, tagNames: ['ropa', 'verano', 'gorro', 'común'], variants: [{ size: SizeValue.Medium, quantity: 25 }] },
+      { name: 'Gorra de verano', description: 'Gorra ligera para el sol', price: 12.5, tagNames: ['ropa','huawei', 'verano', 'gorro', 'común'], variants: [{ size: SizeValue.Medium, quantity: 25 }] },
       { name: 'Calcetines deportivos', description: 'Calcetines transpirables', price: 5.5, tagNames: ['ropa', 'deportivo', 'calcetines', 'común'], variants: [{ size: SizeValue.Large, quantity: 40 }] }
     ];
     const tagRepo = dataSource.getRepository(Tag);
@@ -284,5 +305,19 @@ describe('ProductsService', () => {
       console.error('Error en prueba de eliminación:', error);
       throw error;
     }
+  });
+  it('debería listar todos los tags únicos', async () => {
+    console.log('🧪 Iniciando test de findAllTags...');
+    const tags = await service.findAllTags();
+  
+    // Mostrar los tags encontrados
+    console.log('Tags encontrados:', tags.map(t => t.name));
+  
+    // Validaciones
+    expect(Array.isArray(tags)).toBe(true);
+    expect(tags.every(t => typeof t.name === 'string' && t.name.length > 0)).toBeTruthy();
+  
+    const lowerNames = tags.map(t => t.name.toLowerCase());
+    expect(new Set(lowerNames).size).toBe(lowerNames.length);
   });
 });

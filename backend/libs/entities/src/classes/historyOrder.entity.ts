@@ -6,15 +6,15 @@ import Order from "./order.entity";
 
 @Entity({ name: "histories_orders" })
 export default class HistoryOrder extends Generic {
-  @ManyToOne(() => Order, order => order.historyOrders, { nullable: false })
+  @ManyToOne(() => Order, order => order.historyOrders, { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({ name: "order_id" })
   order: Order;
 
-  @ManyToOne(() => Employee, { nullable: false })
+  @ManyToOne(() => Employee, { nullable: false, eager: true }) 
   @JoinColumn({ name: "employee_id" })
   employee: Employee;
 
-  @ManyToOne(() => OrderEvent, { nullable: false })
+  @ManyToOne(() => OrderEvent, { nullable: false, eager: true }) 
   @JoinColumn({ name: "order_event_id" })
   event: OrderEvent;
 

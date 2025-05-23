@@ -48,7 +48,7 @@
                     <tr>
                         <th scope="col">No. Orden</th>
                         <th scope="col">Cliente</th>
-                        <th scope="col">Estado</th>
+                       <th scope="col">Estado</th>
                         <th scope="col">Acción</th>
                     </tr>
                 </thead>
@@ -57,14 +57,22 @@
                         <td>{{ order.numberOrder }}</td>
                         <td>{{ order.customer.name }} {{ order.customer.lastName }}</td>
                         <td>
-                            <span :class="order.payments[0]?.paymentState ? 'text-success fw-bold' : 'text-danger fw-bold'">
-                                {{ order.payments[0]?.paymentState ? 'Pagado' : 'Pendiente' }}
+                            <span>
+                                {{
+                                    order.state === 'pending' ? 'Pendiente' :
+                                    order.state === 'canceled' ? 'Cancelada' :
+                                    order.state === 'finished' ? 'Finalizada' :
+                                    order.state
+                                }}
                             </span>
                         </td>
-                        <td class="d-flex gap-1 justify-content-center">
-                            <button type="button" class="btn btn-success" @click="goToUpdateOrder(order.uuid)">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
+                        <td class="text-center align-middle d-flex gap-1 justify-content-center">
+                          <button type="button" class="btn btn-success" @click="goToUpdateOrder(order.uuid)">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button type="button" class="btn btn-secondary" @click="goToOrderDetails(order.uuid)">
+                            <i class="fa-solid fa-eye"></i>
+                          </button>
                         </td>
                     </tr>
                 </tbody>
@@ -82,8 +90,15 @@ import { useRouter } from 'vue-router';
 import Table from '../../components/Table.vue';
 
 const router = useRouter();
-
 const orders = ref([]);
+
+async function goToUpdateOrder(orderUuid) {
+  await router.push(`create/${orderUuid}`);
+}
+
+async function goToOrderDetails(orderUuid) {
+  await router.push(`sales/order/${orderUuid}`);
+}
 
 onMounted(async function() {
     orders.value = await getOrders();

@@ -9,13 +9,14 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {EntitiesService} from "@app/entities";
 import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './costumers/costumer.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
             useClass: EntitiesService,
         }),
-        ProductsModule, UserModule, Employees, SizeModule, OrdersModule, CustomersModule
+        ProductsModule, UserModule, Employees, SizeModule, OrdersModule, CustomersModule, PaymentsModule
     ],
     controllers: [EmployeesController],
     providers: [EmployeesService],

@@ -8,6 +8,7 @@ import UploadProductView from "./views/storage/UploadProductView.vue";
 import App from "./App.vue";
 import SaleView from "./views/sales/SaleView.vue";
 import CreateOrderView from "./views/sales/CreateOrderView.vue";
+import OrderDetails from "./views/sales/OrderDetails.vue";
 
 const routes = [
     {
@@ -44,10 +45,15 @@ const routes = [
                 component: SaleView
             },
             {
-                path: "create",
+                path: "sales/order/:id",
+                name: "order",
+                component: OrderDetails
+            },
+            {
+                path: "create/:id?",
                 name: "create",
                 component: CreateOrderView
-            }
+            },
         ],
     },
 ];

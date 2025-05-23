@@ -2,11 +2,13 @@ import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
 export enum OrderEventValue {
-    Purchased = "purchased",
-    Updated = "updated", 
-    Deleted = "deleted",
-    Canceled = "canceled",
-    Finished = "finished"
+    Purchased = 'purchased',
+    Updated = 'updated',
+    Canceled = 'canceled',
+    Finished = 'finished',
+    PaymentAdded = 'payment_added',
+    PartialPayment = 'partial_payment',
+    PaymentCompleted = 'payment_completed'
 }
 
 @Entity({ name: "orders_events" })
