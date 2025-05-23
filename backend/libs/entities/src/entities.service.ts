@@ -21,7 +21,7 @@ export class EntitiesService implements TypeOrmOptionsFactory {
         return {
             type: 'postgres',
             host: 'localhost',
-            port: 5432,
+            port: 3000,
             username: 'postgres',
             password: '1234',
             database: 'referee_sport',

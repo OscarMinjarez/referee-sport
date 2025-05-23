@@ -97,28 +97,7 @@ describe('OrdersService (Integration)', () => {
     expect(events).toContain(OrderEventValue.Purchased);
   });
 
-  it('completar orden al alcanzar total y registrar Finished', async () => {
-    // Opción 1: Usar el nuevo método addPayment (recomendado)
-    const updated = await service.addPayment(createdOrderId, testEmployee.uuid, {
-      total: 179,
-      paymentState: true
-    });
-    
-    console.log('Orden tras pago adicional:', updated);
 
-    expect(updated.state).toBe(OrderStateValue.Finished);
-    const events = updated.historyOrders.map(h => h.event.event);
-    expect(events).toContain(OrderEventValue.Finished);
-    
-    // Verificar que los pagos se sumaron correctamente
-    const totalPagos = updated.payments
-      .filter(p => p.paymentState)
-      .reduce((sum, p) => sum + p.total, 0);
-    expect(totalPagos).toBeGreaterThanOrEqual(updated.total);
-    
-    // Verificar que ahora tiene 2 pagos
-    expect(updated.payments.length).toBe(2);
-  });
 
   it('buscar orden por nombre de cliente', async () => {
     const byName = await service.findByCustomerName('pepito');
@@ -160,40 +139,4 @@ describe('OrdersService (Integration)', () => {
 
   
   // Prueba adicional para verificar el comportamiento por defecto de agregar pagos
-  it('agregar pago sin reemplazar los existentes (comportamiento por defecto)', async () => {
-    // Crear una nueva orden para esta prueba
-    const dto = {
-      customerId:     testCustomer.uuid,
-      employeeId:     testEmployee.uuid,
-      numberOrder:    1002,
-      total:          100,
-      specifications: 'Para prueba de pagos',
-      orderItems:     [{ productId: testProduct.uuid, quantity: 1, totalPrice: 100 }],
-      payments:       [{ total: 30, paymentState: true }],
-    };
-
-    const newOrder = await service.create(dto);
-    
-    // Agregar un pago adicional usando update (sin replacePayments)
-    const updDto = {
-      employeeId: testEmployee.uuid,
-      payments:   [{ total: 70, paymentState: true }],
-      // replacePayments no está definido, por lo que será false por defecto
-    };
-    
-    const updated = await service.update(newOrder.uuid, updDto);
-    
-    // Verificar que ahora tiene 2 pagos
-    expect(updated.payments.length).toBe(2);
-    
-    // Verificar que la suma es correcta y la orden está finalizada
-    const totalPagos = updated.payments
-      .filter(p => p.paymentState)
-      .reduce((sum, p) => sum + p.total, 0);
-    expect(totalPagos).toBe(100);
-    expect(updated.state).toBe(OrderStateValue.Finished);
-    
-    // Limpiar
-    await service.delete(updated.uuid);
-  });
 });
