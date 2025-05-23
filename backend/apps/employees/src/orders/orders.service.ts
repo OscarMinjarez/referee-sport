@@ -3,7 +3,7 @@ import { InjectRepository }                      from '@nestjs/typeorm';
 import { Repository, ILike }                     from 'typeorm';
 import Order                                     from '@app/entities/classes/order.entity';
 import OrderItem                                 from '@app/entities/classes/orderItem.entity';
-import Payment                                   from '@app/entities/classes/payment.entity';
+import Payment, { PaymentState }                                   from '@app/entities/classes/payment.entity';
 import OrderEvent, { OrderEventValue }           from '@app/entities/classes/orderEvent.entity';
 import { OrderStateValue }                       from '@app/entities/classes/order.entity';
 import HistoryOrder                              from '@app/entities/classes/historyOrder.entity';
@@ -27,7 +27,7 @@ export class OrdersService {
                ?? await this.evRepo.save({ event: eventValue });
     await this.histRepo.save(
       this.histRepo.create({
-        order,
+        order: { uuid: order.uuid } as Order,
         employee: { uuid: employeeId } as Employee,
         event:    ev,
       })
@@ -35,18 +35,13 @@ export class OrdersService {
   }
 
   private async updateOrderState(order: Order, employeeId: string) {
-    // Calcular suma de pagos que estén confirmados (paymentState = true)
     const sumPayments = order.payments
-      .filter(p => p.paymentState) // Solo contar pagos confirmados
+      .filter(p => p.state === PaymentState.Completed)
       .reduce((sum, p) => sum + p.total, 0);
-    
-    console.log(`Suma de pagos: ${sumPayments}, Total orden: ${order.total}, Estado actual: ${order.state}`);
-    
     if (sumPayments >= order.total && order.state !== OrderStateValue.Finished) {
       order.state = OrderStateValue.Finished;
       await this.orderRepo.save(order);
       await this.recordHistory(order, employeeId, OrderEventValue.Finished);
-      console.log('Orden marcada como FINISHED');
     }
   }
 
@@ -85,50 +80,44 @@ export class OrdersService {
 }
 
   findByCustomerName(term: string): Promise<Order[]> {
-  return this.orderRepo.find({
-    where: [
-      { customer: { name:     ILike(`%${term}%`) } },
-      { customer: { lastName: ILike(`%${term}%`) } },
-    ],
-    relations: [
-      'orderItems', 
-      'orderItems.product',
-      'payments',
-      'customer',
-      'historyOrders', 
-      'historyOrders.event', 
-      'historyOrders.employee',
-    ],
-  });
-}
+    return this.orderRepo.find({
+      where: [
+        { customer: { name:     ILike(`%${term}%`) } },
+        { customer: { lastName: ILike(`%${term}%`) } },
+      ],
+      relations: [
+        'orderItems', 
+        'orderItems.product',
+        'payments',
+        'customer',
+        'historyOrders', 
+        'historyOrders.event', 
+        'historyOrders.employee',
+      ],
+    });
+  }
+
   async create(data: any): Promise<Order> {
     try {
       const order = this.orderRepo.create({
-        numberOrder:     data.numberOrder,
-        total:           data.total,
-        specifications:  data.specifications,
-        date:            data.date ? new Date(data.date) : new Date(),
-        customer:        { uuid: data.customerId } as Customer,
-        orderItems:      (data.orderItems || []).map((i: any) => ({
-                           product:    { uuid: i.productId },
-                           quantity:   i.quantity,
-                           totalPrice: i.totalPrice,
-                         })) as any[],
-        payments:        (data.payments || []).map((p: any) => ({
-                           total:       p.total,
-                           paymentState:p.paymentState,
-                         })) as any[],
-        // state queda por defecto en Pending
+        numberOrder: data.numberOrder,
+        total: data.total,
+        specifications: data.specifications,
+        date: data.date ? new Date(data.date) : new Date(),
+        customer: { uuid: data.customerId } as Customer,
+        orderItems: (data.orderItems || []).map((i: any) => ({
+          product: { uuid: i.productId },
+          quantity: i.quantity,
+          totalPrice: i.totalPrice,
+        })) as any[],
+        payments: (data.payments || []).map((p: any) => ({
+          total: p.total,
+          paymentState: false,
+        })) as any[],
       });
-
       const saved = await this.orderRepo.save(order);
-
-      // Historial inicial: Purchased
       await this.recordHistory(saved, data.employeeId, OrderEventValue.Purchased);
-
-      // Si el pago inicial cubre el total, cambiar a Finished
       await this.updateOrderState(saved, data.employeeId);
-
       return this.findOne(saved.uuid);
     } catch (error) {
       console.error('Error al crear orden:', error);
@@ -137,87 +126,87 @@ export class OrdersService {
   }
 
   async update(id: string, data: any): Promise<Order> {
-    const o = await this.findOne(id);
-
-    if (data.numberOrder)    o.numberOrder    = data.numberOrder;
-    if (data.total)          o.total          = data.total;
-    if (data.specifications) o.specifications = data.specifications;
-
+    const order = await this.findOne(id);
+    const previousTotal = order.total;
+    if (data.numberOrder) order.numberOrder = data.numberOrder;
+    if (data.specifications) order.specifications = data.specifications;
     if (data.orderItems) {
-      await this.itemRepo.remove(o.orderItems);
-      o.orderItems = data.orderItems.map((i: any) =>
+      await this.itemRepo.remove(order.orderItems);
+      order.orderItems = data.orderItems.map((i: { productId: string; quantity: number; totalPrice: number }) =>
         this.itemRepo.create({
-          order:       o,
-          product:     { uuid: i.productId } as any,
-          quantity:    i.quantity,
-          totalPrice:  i.totalPrice,
+            order: order,
+            product: { uuid: i.productId },
+            quantity: i.quantity,
+            totalPrice: i.totalPrice,
         })
       );
+      order.total = data.orderItems.reduce(
+        (sum: number, item: { totalPrice: number }) => sum + item.totalPrice, 
+        0
+      );
+    } else if (data.total) {
+      order.total = data.total;
     }
-
-    // CORRECCIÓN: Si solo se proporcionan payments, agregarlos a los existentes
-    // en lugar de reemplazarlos completamente
-    if (data.payments) {
-      // Si se proporciona replacePayments: true, reemplazar completamente
-      if (data.replacePayments) {
-        await this.payRepo.remove(o.payments);
-        o.payments = data.payments.map((p: any) =>
-          this.payRepo.create({
-            order:        o,
-            total:        p.total,
-            paymentState: p.paymentState,
-          })
-        );
+    await this.orderRepo.save(order);
+    if (data.orderItems && previousTotal !== order.total) {
+    let difference = previousTotal - order.total;
+    if (difference > 0) {
+        const payments = [...order.payments].sort((a, b) => b.total - a.total);
+        for (const payment of payments) {
+          if (difference <= 0) break;
+          if (payment.state === PaymentState.Pending || payment.state === PaymentState.Completed) {
+            const adjustableAmount = Math.min(payment.total, difference);
+            if (adjustableAmount === payment.total) {
+              payment.state = PaymentState.Canceled;
+            } else {
+                const newPayment = this.payRepo.create({
+                  order: order,
+                  total: payment.total - adjustableAmount,
+                  state: payment.state
+                });
+                payment.total = adjustableAmount;
+                payment.state = PaymentState.Adjusted;
+                await this.payRepo.save(newPayment);
+            }
+            await this.payRepo.save(payment);
+            difference -= adjustableAmount;
+          }
+        }
       } else {
-        // Por defecto, agregar los nuevos pagos a los existentes
-        const newPayments = data.payments.map((p: any) =>
-          this.payRepo.create({
-            order:        o,
-            total:        p.total,
-            paymentState: p.paymentState,
-          })
-        );
-        
-        // Guardar los nuevos pagos
-        const savedPayments = await this.payRepo.save(newPayments);
-        
-        // Agregar al array existente
-        o.payments = [...o.payments, ...savedPayments];
+          const newPayment = this.payRepo.create({
+            order: order,
+            total: Math.abs(difference),
+            state: PaymentState.Pending
+          });
+          await this.payRepo.save(newPayment);
       }
     }
-
-    // Guardamos cambios en Order
-    await this.orderRepo.save(o);
-
-    // Historial de actualización
-    await this.recordHistory(o, data.employeeId, OrderEventValue.Updated);
-
-    // Revisar si pasa a Finished - IMPORTANTE: Recargar la orden para obtener los pagos actualizados
-    const reloadedOrder = await this.findOne(id);
-    await this.updateOrderState(reloadedOrder, data.employeeId);
-
+    if (data.employeeId) {
+      await this.recordHistory(order, data.employeeId, OrderEventValue.Updated);
+      await this.updateOrderState(order, data.employeeId);
+    }
     return this.findOne(id);
   }
 
-  // Método auxiliar para agregar un pago específicamente
-  async addPayment(orderId: string, employeeId: string, paymentData: { total: number; paymentState: boolean }): Promise<Order> {
+  async addPayment(
+    orderId: string, 
+    employeeId: string, 
+    paymentData: { 
+      total: number; 
+      state?: PaymentState;
+      date?: Date;
+    }
+  ): Promise<Order> {
     const order = await this.findOne(orderId);
-    
     const newPayment = this.payRepo.create({
       order: order,
       total: paymentData.total,
-      paymentState: paymentData.paymentState,
+      state: paymentData.state || PaymentState.Pending,
+      date: paymentData.date || new Date()
     });
-    
     await this.payRepo.save(newPayment);
-    
-    // Registrar en historial
     await this.recordHistory(order, employeeId, OrderEventValue.Updated);
-    
-    // Verificar si la orden debe cambiar a Finished
-    const updatedOrder = await this.findOne(orderId);
-    await this.updateOrderState(updatedOrder, employeeId);
-    
+    await this.updateOrderState(order, employeeId);
     return this.findOne(orderId);
   }
 

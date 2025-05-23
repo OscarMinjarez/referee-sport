@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-4">
+  <div class="container my-4">
 
     <div class="card mb-4">
       <div class="card-header">
@@ -22,14 +22,18 @@
             <h5>Información de la Orden</h5>
             <p><strong>Fecha:</strong> {{ order.date }}</p>
             <p><strong>Total:</strong> ${{ order.total.toFixed(2) }}</p>
-            <p><strong>Estado:</strong> 
-              <span>
-                <!-- {{ translateStatus(getCurrentStatus()) }} -->
-              </span>
-            </p>
-            <p><strong>Especificaciones:</strong> {{ order.specifications || 'Ninguna' }}</p>
+            <p><strong>Estado:</strong> <span>{{ translateStatus( order.state ) }}</span></p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="card mb-4" v-if="order.specifications">
+      <div class="card-header">
+        <h5 class="mb-0">Descripción de la Orden</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-0">{{ order.specifications }}</p>
       </div>
     </div>
 
@@ -88,21 +92,27 @@
             <thead>
               <tr>
                 <th>Fecha</th>
-                <th>Monto</th>
                 <th>Estado</th>
+                <th>Monto</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="payment in order.payments" :key="payment.uuid">
-                <td>{{ payment.date }}</td>
-                <td>${{ payment.total.toFixed(2) }}</td>
+              <tr v-for="payment in sortedPayments" :key="payment.uuid">
+                <td>{{ formatDate(payment.date) }}</td>
                 <td>
                   <span :class="payment.paymentState ? 'badge bg-success' : 'badge bg-warning'">
-                    {{ payment.paymentState ? 'Completado' : 'Pendiente' }}
+                    {{ payment.paymentState ? 'Pagado' : 'Pendiente' }}
                   </span>
                 </td>
+                <td>${{ payment.total.toFixed(2) }}</td>
               </tr>
             </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" class="text-right"><strong>Total:</strong></td>
+                <td><strong>${{ order.total.toFixed(2) }}</strong></td>
+              </tr>
+            </tfoot>
           </Table>
         </div>
       </div>
@@ -165,10 +175,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Table from '../../components/Table.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 const order = ref({
   numberOrder: 0,
@@ -192,6 +203,10 @@ const order = ref({
   },
   historyOrders: []
 });
+
+function goBack() {
+  router.back();
+}
 
 function canEdit() {
   const currentStatus = this.getCurrentStatus();
@@ -220,6 +235,13 @@ const sortedHistory = computed(() => {
   if (!order.value.historyOrders) return [];
   return [...order.value.historyOrders].sort((a, b) => 
     new Date(b.date) - new Date(a.date)
+  );
+});
+
+const sortedPayments = computed(() => {
+  if (!order.value.payments) return [];
+  return [...order.value.payments].sort((a, b) => 
+    new Date(a.date) - new Date(b.date)
   );
 });
 
