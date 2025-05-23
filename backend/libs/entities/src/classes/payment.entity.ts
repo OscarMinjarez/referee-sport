@@ -12,7 +12,7 @@ export enum PaymentState {
 
 @Entity({ name: "payments" })
 export default class Payment extends Generic {
-    @ManyToOne(() => Order, order => order.payments, { nullable: false })
+    @ManyToOne(() => Order, order => order.payments, { nullable: false, onDelete: "CASCADE" })
     @JoinColumn({ name: "order_id" })
     order: Order;
 

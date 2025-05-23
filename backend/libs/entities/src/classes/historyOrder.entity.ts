@@ -6,7 +6,7 @@ import Order from "./order.entity";
 
 @Entity({ name: "histories_orders" })
 export default class HistoryOrder extends Generic {
-  @ManyToOne(() => Order, order => order.historyOrders, { nullable: false })
+  @ManyToOne(() => Order, order => order.historyOrders, { nullable: false, onDelete: "CASCADE" })
   @JoinColumn({ name: "order_id" })
   order: Order;
 

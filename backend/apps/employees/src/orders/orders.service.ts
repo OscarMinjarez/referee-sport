@@ -263,12 +263,13 @@ export class OrdersService {
     return this.findOne(id);
   }
 
-  async delete(id: string): Promise<{ message: string }> {
-    const o = await this.findOne(id);
-    await this.histRepo.remove(o.historyOrders);
-    await this.itemRepo.remove(o.orderItems);
-    await this.payRepo.remove(o.payments);
-    await this.orderRepo.delete(id);
+  async delete(uuid: string): Promise<{ message: string }> {
+    const order = await this.orderRepo.findOne({
+      where: { uuid },
+      relations: ['orderItems', 'payments', 'historyOrders'],
+    });
+    if (!order) throw new Error('Orden no encontrada');
+    await this.orderRepo.remove(order);
     return { message: 'Orden eliminada correctamente' };
   }
 }

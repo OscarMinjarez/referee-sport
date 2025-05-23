@@ -470,8 +470,7 @@ async function submitOrder() {
                 totalPrice: item.totalPrice
             })),
             payments: [{
-                total: calculateTotal(),
-                paymentState: true
+                total: calculateTotal()
             }]
         };
         const response = await fetch("http://localhost:3001/api/orders", {
@@ -575,8 +574,7 @@ async function updateOrder() {
         totalPrice: item.totalPrice
       })),
       payments: [{
-        total: calculateTotal(),
-        paymentState: true
+        total: calculateTotal()
       }]
     };
     const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`, {

@@ -58,7 +58,12 @@
                         <td>{{ order.customer.name }} {{ order.customer.lastName }}</td>
                         <td>
                             <span>
-                                {{ order.state }}
+                                {{
+                                    order.state === 'pending' ? 'Pendiente' :
+                                    order.state === 'canceled' ? 'Cancelada' :
+                                    order.state === 'finished' ? 'Finalizada' :
+                                    order.state
+                                }}
                             </span>
                         </td>
                         <td class="text-center align-middle d-flex gap-1 justify-content-center">

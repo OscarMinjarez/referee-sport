@@ -20,9 +20,17 @@
           </div>
           <div class="col-md-6">
             <h5>Información de la Orden</h5>
-            <p><strong>Fecha:</strong> {{ order.date }}</p>
+            <p><strong>Fecha:</strong> {{ formatDate(order.date) }}</p>
             <p><strong>Total:</strong> ${{ order.total.toFixed(2) }}</p>
-            <p><strong>Estado:</strong> <span>{{ translateStatus( order.state ) }}</span></p>
+            <p><strong>Estado:</strong> <span>
+                {{
+                  order.state === 'pending' ? 'Pendiente' :
+                  order.state === 'canceled' ? 'Cancelada' :
+                  order.state === 'finished' ? 'Finalizada' :
+                  order.state
+                }}
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -102,12 +110,14 @@
               <tr v-for="payment in sortedPayments" :key="payment.uuid">
                 <td>{{ formatDate(payment.date) }}</td>
                 <td>
-                  {{ payment.state === 'completed' ? 'Pagado' : 
-                     payment.state === 'partial' ? 'Parcial' : 
-                     payment.state === 'canceled' ? 'Cancelado' : 'Pendiente' }}
+                  {{
+                    payment.state === 'completed' ? 'Pagado' :
+                    payment.state === 'partial' ? 'Parcial' :
+                    payment.state === 'canceled' ? 'Cancelado' : 'Pendiente'
+                  }}
                 </td>
-                <td>${{ payment.total }}</td>
-                <td>${{ payment.amountPaid || '0.00' }}</td>
+                <td>${{ Number(payment.total).toFixed(2) }}</td>
+                <td>${{ Number(payment.amountPaid || 0).toFixed(2) }}</td>
                 <td class="d-flex justify-content-center">
                   <button 
                     @click="openPaymentModal(payment)"
@@ -121,7 +131,7 @@
             <tfoot>
               <tr>
                 <td colspan="4" class="text-right"><strong>Total:</strong></td>
-                <td><strong>${{ order.total.toFixed(2) }}</strong></td>
+                <td><strong>${{ Number(order.total).toFixed(2) }}</strong></td>
               </tr>
             </tfoot>
           </Table>
