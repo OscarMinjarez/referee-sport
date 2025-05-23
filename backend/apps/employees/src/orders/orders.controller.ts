@@ -46,7 +46,11 @@ export class OrdersController {
   addPayment(
     @Param('id') id: string,
     @Param('employeeId') employeeId: string,
-    @Body() paymentData: { total: number; paymentState: boolean }
+    @Body() paymentData: { 
+      amount: number;
+      total?: number;
+      date?: Date;
+    }
   ): Promise<Order> {
     return this.service.addPayment(id, employeeId, paymentData);
   }
