@@ -17,7 +17,7 @@ export class AuthController {
     username: string;
     email: string;
     password: string;
-    type: 'sales' | 'store' | 'clerk';
+    type: 'sales' | 'store' | 'admin';
   }): Promise<{ message: string; employee: Omit<Employee, 'password'> }> {
     return this.service.register(body);
   }
@@ -26,7 +26,7 @@ export class AuthController {
   async login(@Body() body: {
     email: string;
     password: string;
-  }): Promise<{ message: string; employee: Omit<Employee, 'password'> }> {
+  }): Promise<{ message: string; employee: Omit<Employee, 'password'>, token: string }> {
     return this.service.login(body);
   }
 }

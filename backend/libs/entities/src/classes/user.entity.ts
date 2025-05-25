@@ -11,4 +11,7 @@ export default class User extends Generic {
 
     @Column({ type: "varchar", length: 255, nullable: false })
     password: string;
+
+    @Column({ type: "varchar", nullable: true })
+    uid: string;
 }

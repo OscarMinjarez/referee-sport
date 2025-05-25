@@ -21,14 +21,14 @@ export class EntitiesService implements TypeOrmOptionsFactory {
         return {
             type: 'postgres',
             host: 'localhost',
-            port: 3000,
+            port: 5432,
             username: 'postgres',
             password: '1234',
             database: 'referee_sport',
             synchronize: true,
             entities: [
                 Product, Address, Customer, Employee, Order,
-                Payment, Variant,Size, User, OrderItem, HistoryOrder,
+                Payment, Variant, Size, User, OrderItem, HistoryOrder,
                 OrderEvent,Tag,
             ],
         };

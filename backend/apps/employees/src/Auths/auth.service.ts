@@ -4,44 +4,37 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import Employee from '@app/entities/classes/employee.entity';
 import { EmployeeTypeValue } from '@app/entities/classes/employeeType.entity';
+import { FirebaseService } from '@app/firebase';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Employee)
     private employeeRepo: Repository<Employee>,
+    private firebaseService: FirebaseService,
   ) {}
 
   async register(data: {
     username: string;
     email: string;
     password: string;
-    type: 'sales' | 'store' | 'clerk';
+    type: 'sales' | 'store' | 'admin';
   }): Promise<{ message: string; employee: Omit<Employee, 'password'> }> {
     try {
-      // Verificar si el email ya existe
       const existingEmployee = await this.employeeRepo.findOne({
         where: { email: data.email }
       });
-
       if (existingEmployee) {
         throw new HttpException('El email ya está registrado', HttpStatus.CONFLICT);
       }
-
-      // Verificar si el username ya existe
       const existingUsername = await this.employeeRepo.findOne({
         where: { username: data.username }
       });
-
       if (existingUsername) {
         throw new HttpException('El username ya está en uso', HttpStatus.CONFLICT);
       }
-
-      // Hashear la contraseña
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
-      // Mapear el tipo string al enum
       let employeeType: EmployeeTypeValue;
       switch (data.type) {
         case 'sales':
@@ -50,26 +43,26 @@ export class AuthService {
         case 'store':
           employeeType = EmployeeTypeValue.Store;
           break;
-        case 'clerk':
-          employeeType = EmployeeTypeValue.Clerk;
+        case 'admin':
+          employeeType = EmployeeTypeValue.Admin;
           break;
         default:
           throw new HttpException('Tipo de empleado inválido', HttpStatus.BAD_REQUEST);
       }
-
-      // Crear el empleado
+      const userRecord = await this.firebaseService.register(
+        data.email,
+        data.password,
+        data.username
+      );
       const employee = this.employeeRepo.create({
         username: data.username,
         email: data.email,
         password: hashedPassword,
         type: employeeType,
+        uid: userRecord.uid,
       });
-
       const savedEmployee = await this.employeeRepo.save(employee);
-
-      // Retornar sin la contraseña
       const { password, ...employeeWithoutPassword } = savedEmployee;
-
       return {
         message: 'Empleado registrado exitosamente',
         employee: employeeWithoutPassword,
@@ -86,30 +79,24 @@ export class AuthService {
   async login(data: {
     email: string;
     password: string;
-  }): Promise<{ message: string; employee: Omit<Employee, 'password'> }> {
+  }): Promise<{ message: string; employee: Omit<Employee, 'password'>, token: string }> {
     try {
-      // Buscar el empleado por email
       const employee = await this.employeeRepo.findOne({
         where: { email: data.email }
       });
-
       if (!employee) {
         throw new HttpException('Credenciales inválidas', HttpStatus.UNAUTHORIZED);
       }
-
-      // Verificar la contraseña
       const isPasswordValid = await bcrypt.compare(data.password, employee.password);
-
       if (!isPasswordValid) {
         throw new HttpException('Credenciales inválidas', HttpStatus.UNAUTHORIZED);
       }
-
-      // Retornar sin la contraseña
       const { password, ...employeeWithoutPassword } = employee;
-
+      const customToken = await this.firebaseService.createCustomToken(employee.uid);
       return {
         message: 'Inicio de sesión exitoso',
         employee: employeeWithoutPassword,
+        token: customToken,
       };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -126,11 +113,9 @@ export class AuthService {
 
   async findById(id: string): Promise<Employee | null> {
     const employee = await this.employeeRepo.findOne({ where: { uuid: id } });
-    
     if (!employee) {
       return null;
     }
-
     const { password, ...employeeWithoutPassword } = employee;
     return employeeWithoutPassword as Employee;
   }

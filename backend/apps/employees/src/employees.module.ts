@@ -10,13 +10,14 @@ import {EntitiesService} from "@app/entities";
 import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './costumers/costumer.module';
 import { PaymentsModule } from './payments/payments.module';
+import { AuthModule } from './auths/auth.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
             useClass: EntitiesService,
         }),
-        ProductsModule, UserModule, Employees, SizeModule, OrdersModule, CustomersModule, PaymentsModule
+        ProductsModule, UserModule, Employees, SizeModule, OrdersModule, CustomersModule, PaymentsModule, AuthModule
     ],
     controllers: [EmployeesController],
     providers: [EmployeesService],

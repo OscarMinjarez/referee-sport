@@ -4,6 +4,7 @@ import Employee from '@app/entities/classes/employee.entity';
 import EmployeeType from '@app/entities/classes/employeeType.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { FirebaseModule } from '@app/firebase';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AuthController } from './auth.controller';
       Employee,
       EmployeeType,
     ]),
+    FirebaseModule
   ],
   providers: [AuthService],
   controllers: [AuthController],

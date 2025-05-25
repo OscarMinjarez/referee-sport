@@ -9,6 +9,7 @@ import App from "./App.vue";
 import SaleView from "./views/sales/SaleView.vue";
 import CreateOrderView from "./views/sales/CreateOrderView.vue";
 import OrderDetails from "./views/sales/OrderDetails.vue";
+import LoginView from "./views/auths/LoginView.vue";
 
 const routes = [
     {
@@ -54,6 +55,11 @@ const routes = [
                 name: "create",
                 component: CreateOrderView
             },
+            {
+                path: "login",
+                name: "login",
+                component: LoginView
+            }
         ],
     },
 ];
