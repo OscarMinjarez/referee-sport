@@ -88,7 +88,7 @@ describe('AuthService (Integration)', () => {
 
     const result = await service.register(storeEmployeeData);
 
-    expect(result.employee.type).toBe(EmployeeTypeValue.Store);
+    expect(result.employee.type).toBe(EmployeeTypeValue.Storage);
     expect(result.employee.username).toBe('almacenista1');
   });
 
@@ -176,7 +176,7 @@ describe('AuthService (Integration)', () => {
   it('validar todos los tipos de empleado', async () => {
     const employees = [
       { username: 'test1', email: 'test1@test.com', type: 'sales' as const, expected: EmployeeTypeValue.Sales },
-      { username: 'test2', email: 'test2@test.com', type: 'store' as const, expected: EmployeeTypeValue.Store },
+      { username: 'test2', email: 'test2@test.com', type: 'store' as const, expected: EmployeeTypeValue.Storage },
       { username: 'test3', email: 'test3@test.com', type: 'clerk' as const, expected: EmployeeTypeValue.Clerk },
     ];
 

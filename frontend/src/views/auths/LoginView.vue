@@ -40,12 +40,33 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const email = ref("");
 const password = ref("");
 
 const wasValidated = ref(false);
 const loading = ref(false);
+
+const router = useRouter();
+
+function saveUserData(data) {
+    window.localStorage.setItem("token", data.token);
+    window.localStorage.setItem("user", JSON.stringify(data.employee));
+}
+
+function redirectByRole(role) {
+    switch (role) {
+        case 'admin':
+            return '/app/admin';
+        case 'store':
+            return '/app/storage';
+        case 'sales':
+            return '/app/sales';
+        default:
+            return '/app/catalog';
+    }
+}
 
 async function login() {
     wasValidated.value = false;
@@ -67,6 +88,11 @@ async function login() {
         if (!response.ok) {
             throw new Error("Ocurrió un error desconocido");
         }
+        const data = await response.json();
+        saveUserData(data);
+        const role = data.employee.type;
+        const redirectPath = redirectByRole(role);
+        router.push(redirectPath);
     } catch (e) {
         console.error(e);
     } finally {
