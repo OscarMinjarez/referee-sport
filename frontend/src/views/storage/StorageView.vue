@@ -23,7 +23,7 @@
 
       <div>
         <ListGroup>
-          <ListGroupItem label="Cerrar sesión" icon="fa-solid fa-right-from-bracket" />
+          <ListGroupItem @click="logout" label="Cerrar sesión" icon="fa-solid fa-right-from-bracket" />
         </ListGroup>
       </div>
     </Sidebar>
@@ -157,7 +157,6 @@ import { onMounted, ref } from "vue";
 const router = useRouter();
 
 const products = ref([]);
-const stockQuantity = ref(0);
 
 const showOrdersModal = ref(false);
 const orders = ref([]);
@@ -179,6 +178,12 @@ function closeOrdersModal() {
 
 function toggleOrderDetails(idx) {
   expandedOrder.value = expandedOrder.value === idx ? null : idx;
+}
+
+function logout() {
+  window.localStorage.clear("token");
+  window.localStorage.clear("user");
+  router.push("/app/login");
 }
 
 async function fetchOrders() {

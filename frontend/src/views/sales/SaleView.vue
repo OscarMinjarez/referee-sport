@@ -14,17 +14,17 @@
                 </div>
 
                 <div class="mt-5">
-                <ListGroup>
-                    <ListGroupItem label="Órdenes" icon="fa-solid fa-bag-shopping" />
-                    <ListGroupItem label="Clientes" icon="fa-solid fa-user-tag" />
-                    <ListGroupItem label="Productos" icon="fa-solid fa-box" />
-                </ListGroup>
+                    <ListGroup>
+                        <ListGroupItem label="Órdenes" icon="fa-solid fa-bag-shopping" />
+                        <ListGroupItem label="Clientes" icon="fa-solid fa-user-tag" />
+                        <ListGroupItem label="Productos" icon="fa-solid fa-box" />
+                    </ListGroup>
                 </div>
             </div>
 
             <div>
                 <ListGroup>
-                <ListGroupItem label="Cerrar sesión" icon="fa-solid fa-right-from-bracket" />
+                    <ListGroupItem @click="logout" label="Cerrar sesión" icon="fa-solid fa-right-from-bracket" />
                 </ListGroup>
             </div>
         </Sidebar>
@@ -98,6 +98,12 @@ async function goToUpdateOrder(orderUuid) {
 
 async function goToOrderDetails(orderUuid) {
   await router.push(`sales/order/${orderUuid}`);
+}
+
+function logout() {
+  window.localStorage.clear("token");
+  window.localStorage.clear("user");
+  router.push("/app/login");
 }
 
 onMounted(async function() {

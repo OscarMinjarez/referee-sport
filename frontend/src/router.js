@@ -11,6 +11,8 @@ import CreateOrderView from "./views/sales/CreateOrderView.vue";
 import OrderDetails from "./views/sales/OrderDetails.vue";
 import LoginView from "./views/auths/LoginView.vue";
 
+import UnauthorizedView from "./views/auths/UnauthorizedView.vue";
+
 const routes = [
     {
         path: "/",
@@ -71,6 +73,12 @@ const routes = [
                 name: "create",
                 component: CreateOrderView,
                 meta: { requiresAuth: true, roles: ['sales'] }
+            },
+
+            {
+                path: "unauthorized",
+                name: "unauthorized",
+                component: UnauthorizedView
             }
         ],
     },

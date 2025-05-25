@@ -1,5 +1,5 @@
 <template>
-  <li class="list-group-item list-group-item-action d-flex align-items-center gap-2 justify-content-center">
+  <li role="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 justify-content-center">
     <i :class="icon"></i>
     <a>{{ label }}</a>
   </li>
