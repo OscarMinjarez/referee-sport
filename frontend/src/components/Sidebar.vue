@@ -18,6 +18,7 @@
               v-if="role === 'admin'" 
               label="Panel" 
               icon="fa-solid fa-chart-line"
+              @click="goToDashboard"
             />
             
             <ListGroupItem 
@@ -72,6 +73,10 @@ function logout() {
 
 function goToStorage() {
   router.push("/app/storage");
+}
+
+function goToDashboard() {
+  router.push("/app/dashboard");
 }
 
 function goToSales() {

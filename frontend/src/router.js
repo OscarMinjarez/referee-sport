@@ -12,6 +12,7 @@ import OrderDetails from "./views/sales/OrderDetails.vue";
 import LoginView from "./views/auths/LoginView.vue";
 
 import UnauthorizedView from "./views/auths/UnauthorizedView.vue";
+import DashboardView from "./views/admin/DashboardView.vue";
 
 const routes = [
     {
@@ -42,6 +43,7 @@ const routes = [
                 component: ProductDetailsView,
                 meta: { for: 'client' }
             },
+
             // Rutas para personal de almacén
             {
                 path: "storage",
@@ -55,6 +57,7 @@ const routes = [
                 component: UploadProductView,
                 meta: { requiresAuth: true, roles: ['store'] }
             },
+
             // Rutas para personal de ventas
             {
                 path: "sales",
@@ -75,6 +78,13 @@ const routes = [
                 meta: { requiresAuth: true, roles: ['sales'] }
             },
 
+            // Rutas para administradores
+            {
+                path: "dashboard",
+                name: "dashboard",
+                component: DashboardView,
+                meta: { requiresAuth: true, roles: ['sales'] }
+            },
             {
                 path: "unauthorized",
                 name: "unauthorized",
@@ -112,7 +122,7 @@ router.beforeEach((to, from, next) => {
 function redirectByRole(role) {
     switch (role) {
         case 'admin':
-            return { path: '/app/admin' };
+            return { path: '/app/dashboard' };
         case 'store':
             return { path: '/app/storage' };
         case 'sales':

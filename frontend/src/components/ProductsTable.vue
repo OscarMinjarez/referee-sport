@@ -30,10 +30,10 @@
                     <td>{{ getStockQuantity(product) }}</td>
                     <td>{{ product.price }}</td>
                     <td>
-                        <button type="button" class="btn btn-danger mx-1" @click="deleteProduct(product.uuid)">
+                        <button v-if="canChange" type="button" class="btn btn-danger mx-1" @click="deleteProduct(product.uuid)">
                             <i class="fa-solid fa-trash"></i>
                         </button>
-                        <button type="button" class="btn btn-success mx-1" @click="goToUpdateProduct(product.uuid)">
+                        <button v-if="canChange" type="button" class="btn btn-success mx-1" @click="goToUpdateProduct(product.uuid)">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                     </td>
@@ -47,9 +47,15 @@
 import { useRouter } from 'vue-router';
 import Table from './Table.vue';
 import { ref, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const router = useRouter();
 const products = ref([]);
+const userRole = ref('');
+
+const canChange = computed(() => {
+  return ['admin', 'storage'].includes(userRole.value);
+});
 
 function goToUploadProduct() {
   try {
@@ -114,6 +120,10 @@ async function deleteProduct(productUuid) {
 }
 
 onMounted(async function() {
+  const user = JSON.parse(window.localStorage.getItem("user"));
+  if (user && user.type) {
+    userRole.value = user.type;
+  }
   products.value = await fetchProducts();
 });
 </script>

@@ -2,7 +2,7 @@
     <div class="main-content d-flex">
         <Sidebar />
 
-        <div class="content-wrapper">
+        <div class="content-wrapper m-5">
             <OrdersTable class="orders-content" />
         </div>
     </div>
@@ -28,17 +28,14 @@ import OrdersTable from '../../components/OrdersTable.vue';
 
 .content-wrapper {
     flex: 1;
-    padding: 20px;
     padding-bottom: 40px;
     overflow-y: auto;
 }
 
 .orders-content {
     width: 100%;
-    max-width: 900px;
     margin: 0 auto;
     background-color: white;
     border-radius: 8px;
-    padding: 20px;
 }
 </style>
