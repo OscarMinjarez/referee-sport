@@ -55,7 +55,7 @@ const routes = [
                 path: "upload/:id?",
                 name: "upload",
                 component: UploadProductView,
-                meta: { requiresAuth: true, roles: ['store'] }
+                meta: { requiresAuth: true, roles: ['store', 'admin'] }
             },
 
             // Rutas para personal de ventas
@@ -63,13 +63,13 @@ const routes = [
                 path: "sales",
                 name: "sales",
                 component: SaleView,
-                meta: { requiresAuth: true, roles: ['sales', 'store'] }
+                meta: { requiresAuth: true, roles: ['sales', 'store', 'admin'] }
             },
             {
                 path: "sales/order/:id",
                 name: "order",
                 component: OrderDetails,
-                meta: { requiresAuth: true, roles: ['sales', 'store'] }
+                meta: { requiresAuth: true, roles: ['sales', 'store', 'admin'] }
             },
             {
                 path: "create/:id?",
@@ -83,7 +83,7 @@ const routes = [
                 path: "dashboard",
                 name: "dashboard",
                 component: DashboardView,
-                meta: { requiresAuth: true, roles: ['sales'] }
+                meta: { requiresAuth: true, roles: ['admin'] }
             },
             {
                 path: "unauthorized",

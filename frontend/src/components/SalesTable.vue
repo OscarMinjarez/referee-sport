@@ -216,7 +216,7 @@ function viewSaleDetails(saleUuid) {
 }
 
 function editSale(saleUuid) {
-    router.push(`/app/upload/${saleUuid}`);
+    router.push(`/app/create/${saleUuid}`);
 }
 
 function goToCreateSale() {
