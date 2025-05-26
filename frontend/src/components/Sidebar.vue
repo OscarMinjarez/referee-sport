@@ -1,5 +1,5 @@
 <template>
-  <nav>
+  <nav class="sidebar p-3 d-flex h-full flex-column gap-2 border justify-content-between">
     <div>
         <div class="card p-2">
           <div class="img-circle-container">

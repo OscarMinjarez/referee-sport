@@ -1,5 +1,5 @@
 <template>
-    <div class="products-content d-flex flex-column mx-auto mt-5 border rounded p-3">
+    <div class="d-flex flex-column mx-auto mt-5 border rounded p-3">
         <div class="d-flex justify-content-between gap-3">
             <div class="input-group mb-3 w-50">
                 <span class="input-group-text" id="basic-addon1">
