@@ -1,7 +1,6 @@
 import { Column, Entity } from "typeorm";
 import Generic from "./generic.entity";
 
-@Entity({ name: "users" })
 export default class User extends Generic {
     @Column({ type: "varchar", length: 50, nullable: false })
     username: string;
@@ -14,4 +13,7 @@ export default class User extends Generic {
 
     @Column({ type: "varchar", nullable: true })
     uid: string;
+
+    @Column({ type: "varchar", nullable: true })
+    imagePath: string;
 }

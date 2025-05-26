@@ -1,32 +1,6 @@
 <template>
   <div class="main-content d-flex">
-    <Sidebar class="sidebar p-3 d-flex h-full flex-column gap-2 border justify-content-between">
-      <div>
-        <div class="card p-2">
-          <div class="img-circle-container">
-            <img
-                class="img-circle"
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/TWICE_Jeongyeon_VETERAN_2_September_2024.jpg/640px-TWICE_Jeongyeon_VETERAN_2_September_2024.jpg"/>
-          </div>
-          <div class="card-body text-center fw-bold">
-            <p class="card-text">Oscar Minjarez</p>
-          </div>
-        </div>
-
-        <div class="mt-5">
-          <ListGroup>
-            <ListGroupItem label="Órdenes" icon="fa-solid fa-bag-shopping" @click="openOrdersModal" />
-            <ListGroupItem label="Productos" icon="fa-solid fa-box" @click="goToStorage" />
-          </ListGroup>
-        </div>
-      </div>
-
-      <div>
-        <ListGroup>
-          <ListGroupItem @click="logout" label="Cerrar sesión" icon="fa-solid fa-right-from-bracket" />
-        </ListGroup>
-      </div>
-    </Sidebar>
+    <Sidebar class="sidebar p-3 d-flex h-full flex-column gap-2 border justify-content-between" />
 
     <div class="products-content d-flex flex-column mx-auto mt-5 border rounded p-3">
       <div class="d-flex justify-content-between gap-3">
@@ -148,8 +122,6 @@
 
 <script setup>
 import Sidebar from "../../components/Sidebar.vue";
-import ListGroup from "../../components/ListGroup.vue";
-import ListGroupItem from "../../components/ListGroupItem.vue";
 import Table from "../../components/Table.vue";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
@@ -161,10 +133,6 @@ const products = ref([]);
 const showOrdersModal = ref(false);
 const orders = ref([]);
 const expandedOrder = ref(null);
-
-function goToStorage() {
-  router.push("/app/storage");
-}
 
 function openOrdersModal() {
   showOrdersModal.value = true;
@@ -178,12 +146,6 @@ function closeOrdersModal() {
 
 function toggleOrderDetails(idx) {
   expandedOrder.value = expandedOrder.value === idx ? null : idx;
-}
-
-function logout() {
-  window.localStorage.clear("token");
-  window.localStorage.clear("user");
-  router.push("/app/login");
 }
 
 async function fetchOrders() {
@@ -278,20 +240,6 @@ async function deleteProduct(productUuid) {
 
 .sidebar {
   width: 250px;
-}
-
-.img-circle-container {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin: 0 auto;
-}
-
-.img-circle {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .products-content {
