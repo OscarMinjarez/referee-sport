@@ -13,6 +13,8 @@ import LoginView from "./views/auths/LoginView.vue";
 
 import UnauthorizedView from "./views/auths/UnauthorizedView.vue";
 import DashboardView from "./views/admin/DashboardView.vue";
+import EmployeesView from "./views/employees/EmployeesView.vue";
+import CreateEmployee from "./views/employees/CreateEmployee.vue";
 
 const routes = [
     {
@@ -84,6 +86,18 @@ const routes = [
                 name: "dashboard",
                 component: DashboardView,
                 meta: { requiresAuth: true, roles: ['admin'] }
+            },
+            {
+                path: "employees",
+                name: "employees",
+                component: EmployeesView,
+                meta: { requiresAuth: true, roles: ["admin"] }
+            },
+            {
+                path: "create-employee/:id?",
+                name: "create-employee",
+                component: CreateEmployee,
+                meta: { requiresAuth: true, roles: ["admin"] }
             },
             {
                 path: "unauthorized",

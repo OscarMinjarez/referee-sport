@@ -40,6 +40,13 @@
               label="Clientes" 
               icon="fa-solid fa-user-tag" 
             />
+            
+            <ListGroupItem 
+              v-if="['admin'].includes(role)" 
+              label="Empleados" 
+              icon="fa-solid fa-user-tie" 
+              @click="goToEmployees"
+            />
           </ListGroup>
         </div>
       </div>
@@ -81,6 +88,10 @@ function goToDashboard() {
 
 function goToSales() {
   router.push("/app/sales");
+}
+
+function goToEmployees() {
+  router.push("/app/employees");
 }
 
 onMounted(function() {

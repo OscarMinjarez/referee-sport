@@ -35,8 +35,7 @@ export class AuthService {
       }
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-      let employeeType: EmployeeTypeValue;
-      switch (data.type) {
+      let employeeType: EmployeeTypeValue;      switch (data.type) {
         case 'sales':
           employeeType = EmployeeTypeValue.Sales;
           break;
