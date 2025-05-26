@@ -103,7 +103,7 @@
                 <th>Estado</th>
                 <th>Total</th>
                 <th>Pagado</th>
-                <th class="text-center">Acciones</th>
+                <th class="text-center" v-if="userRole !== 'store'">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +118,7 @@
                 </td>
                 <td>${{ Number(payment.total).toFixed(2) }}</td>
                 <td>${{ Number(payment.amountPaid || 0).toFixed(2) }}</td>
-                <td class="d-flex justify-content-center">
+                <td class="d-flex justify-content-center" v-if="userRole !== 'store'">
                   <button 
                     @click="openPaymentModal(payment)"
                     class="btn btn-sm btn-primary"
@@ -129,8 +129,8 @@
               </tr>
             </tbody>
             <tfoot>
-              <tr>
-                <td colspan="4" class="text-right"><strong>Total:</strong></td>
+              <tr class="w-100">
+                <td class="text-right"><strong>Total:</strong></td>
                 <td><strong>${{ Number(order.total).toFixed(2) }}</strong></td>
               </tr>
             </tfoot>
@@ -221,7 +221,7 @@
       <button class="btn btn-outline-secondary me-2" @click="goBack">
         <i class="bi bi-arrow-left"></i> Volver
       </button>
-      <div>
+      <div v-if="userRole !== 'store'">
         <button v-if="canEdit" class="btn btn-primary me-2" @click="editOrder">
           <i class="bi bi-pencil"></i> Editar
         </button>
@@ -241,6 +241,8 @@ import BaseModal from '../../components/BaseModal.vue';
 
 const route = useRoute();
 const router = useRouter();
+
+const userRole = ref('');
 
 const showPaymentModal = ref(false);
 const editingPayment = ref({
@@ -399,6 +401,10 @@ function getEventIcon(event) {
 }
 
 onMounted(async function() {
+  const user = JSON.parse(window.localStorage.getItem("user"));
+  if (user && user.type) {
+    userRole.value = user.type;
+  }
   await fetchOrder();
 });
 </script>

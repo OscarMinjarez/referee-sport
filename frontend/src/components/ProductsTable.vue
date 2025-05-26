@@ -8,7 +8,7 @@
                 <input type="text" class="form-control" placeholder="Buscar producto">
             </div>
 
-            <div>
+            <div v-if="canChange">
                 <button type="button" class="btn btn-primary" @click="goToUploadProduct">Registrar producto</button>
             </div>
         </div>
@@ -17,23 +17,32 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
+                    <th scope="col">Imagen</th>
                     <th scope="col">Nombre del producto</th>
                     <th scope="col">Stock</th>
                     <th scope="col">Precio</th>
-                    <th scope="col">Acción</th>
+                    <th v-if="canChange" scope="col">Acción</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="align-middle" v-for="(product, index) in products" :key="product.uuid">
                     <td scope="1">{{ index + 1 }}</td>
+                    <td>
+                      <img 
+                        :src="product.imageUrl || defaultImage" 
+                        alt="Producto" 
+                        class="img-thumbnail" 
+                        style="width: 60px; height: 60px; object-fit: cover;"
+                      />
+                    </td>
                     <td>{{ product.name }}</td>
                     <td>{{ getStockQuantity(product) }}</td>
                     <td>{{ product.price }}</td>
-                    <td>
-                        <button v-if="canChange" type="button" class="btn btn-danger mx-1" @click="deleteProduct(product.uuid)">
+                    <td v-if="canChange">
+                        <button type="button" class="btn btn-danger mx-1" @click="deleteProduct(product.uuid)">
                             <i class="fa-solid fa-trash"></i>
                         </button>
-                        <button v-if="canChange" type="button" class="btn btn-success mx-1" @click="goToUpdateProduct(product.uuid)">
+                        <button type="button" class="btn btn-success mx-1" @click="goToUpdateProduct(product.uuid)">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                     </td>
@@ -54,7 +63,7 @@ const products = ref([]);
 const userRole = ref('');
 
 const canChange = computed(() => {
-  return ['admin', 'storage'].includes(userRole.value);
+  return ['admin', 'store'].includes(userRole.value);
 });
 
 function goToUploadProduct() {
@@ -111,7 +120,7 @@ async function deleteProduct(productUuid) {
       const errorData = await response.json();
       throw new Error(errorData.message || 'No se pudo eliminar el producto');
     }
-    products.value = await getProducts();
+    products.value = await fetchProducts();
     alert('Producto eliminado correctamente');
   } catch (e) {
     console.error(e);

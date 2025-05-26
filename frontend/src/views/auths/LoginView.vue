@@ -58,7 +58,7 @@ function saveUserData(data) {
 function redirectByRole(role) {
     switch (role) {
         case 'admin':
-            return '/app/admin';
+            return '/app/dashboard';
         case 'store':
             return '/app/storage';
         case 'sales':

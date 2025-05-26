@@ -7,15 +7,6 @@
                         <h6 class="card-subtitle mb-2 text-muted">Bienvenido de nuevo,</h6>
                         <h2 class="card-title mb-0">{{ userName }} 👋</h2>
                     </div>
-
-                    <div class="vr"></div>
-
-                    <div>
-                        <span class="badge bg-light text-dark fs-6 p-2">
-                        <i class="fas fa-user-shield me-1 text-primary"></i>
-                            Panel de administrador activo
-                        </span>
-                    </div>
                 </div>
 
                 <div class="icon-container">

@@ -8,7 +8,7 @@
                 <input type="text" class="form-control" placeholder="Buscar orden">
             </div>
 
-            <div>
+            <div v-if="userRole !== 'store'">
                 <button type="button" class="btn btn-primary" @click="goToCreateOrder">Registrar nueva orden</button>
             </div>
         </div>
@@ -37,11 +37,23 @@
                         </span>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-success mx-1" @click="goToUpdateOrder(order.uuid)">
-                        <i class="fa-solid fa-pen-to-square"></i>
+                        <button 
+                            v-if="userRole !== 'store'" 
+                            type="button" 
+                            class="btn btn-success mx-1" 
+                            @click="goToUpdateOrder(order.uuid)"
+                            title="Editar orden"
+                        >
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button type="button" class="btn btn-secondary mx-1" @click="goToOrderDetails(order.uuid)">
-                        <i class="fa-solid fa-eye"></i>
+
+                        <button 
+                            type="button" 
+                            class="btn btn-secondary mx-1" 
+                            @click="goToOrderDetails(order.uuid)"
+                            title="Ver detalles"
+                        >
+                            <i class="fa-solid fa-eye"></i>
                         </button>
                     </td>
                 </tr>
@@ -58,6 +70,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const orders = ref([]);
 
+const userRole = ref('');
+
 async function goToUpdateOrder(orderUuid) {
   await router.push(`create/${orderUuid}`);
 }
@@ -66,13 +80,11 @@ async function goToOrderDetails(orderUuid) {
   await router.push(`sales/order/${orderUuid}`);
 }
 
-function logout() {
-  window.localStorage.clear("token");
-  window.localStorage.clear("user");
-  router.push("/app/login");
-}
-
 onMounted(async function() {
+    const user = JSON.parse(window.localStorage.getItem("user"));
+    if (user && user.type) {
+        userRole.value = user.type;
+    }
     orders.value = await getOrders();
 });
 

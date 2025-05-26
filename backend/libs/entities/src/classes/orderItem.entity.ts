@@ -9,7 +9,7 @@ export default class OrderItem extends Generic {
   @JoinColumn({ name: "order_id" })
   order: Order;
 
-  @ManyToOne(() => Product, { nullable: false })
+  @ManyToOne(() => Product, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: "product_id" })
   product: Product;
 

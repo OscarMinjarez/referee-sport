@@ -1,126 +1,146 @@
 <template>
-    <div class="order-form p-4">
-        <h2>{{ isEditMode ? 'Editar orden' : 'Registrar nueva orden' }}</h2>
-    
-        <h4 class="mt-4">Información del cliente</h4>
-        <form class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Nombre del cliente</label>
-                <input v-model="customer.name" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Apellido</label>
-                <input v-model="customer.lastName" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
-                <input v-model="customer.phoneNumber" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Calle</label>
-                <input v-model="customer.address.streetName" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Número</label>
-                <input v-model="customer.address.number" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Código postal</label>
-                <input v-model="customer.address.zipCode" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Colonia</label>
-                <input v-model="customer.address.neighborhood" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Ciudad</label>
-                <input v-model="customer.address.city" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Estado</label>
-                <input v-model="customer.address.state" class="form-control" />
-            </div>
-    
-            <div class="col-12">
-                <button type="button" class="btn btn-primary me-2" @click="openCustomerModal">
-                    Buscar cliente
-                </button>
-                <button type="button" class="btn btn-secondary" @click="registerCustomer(customer)">
-                    Registrar cliente
-                </button>
-            </div>
-        </form>
+    <div class="container my-4">
 
-        <h4 class="mt-5">Especificaciones</h4>
-        <div class="mb-3">
-            <label class="form-label">Notas adicionales</label>
-            <textarea 
-                v-model="specifications" 
-                class="form-control" 
-                rows="3"
-                placeholder="Ingrese cualquier especificación especial para la orden..."
-            ></textarea>
+        <div class="mb-4">
+            <h2>{{ isEditMode ? 'Editar orden' : 'Registrar nueva orden' }}</h2>
         </div>
-    
-        <h4 class="mt-5">Productos</h4>
-        <Table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>Cantidad</th>
-                    <th>Producto</th>
-                    <th>Detalle</th>
-                    <th>Costo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item, index) in orderItems" :key="index">
-                    <td>
-                        <input 
-                            v-model="item.quantity" 
-                            type="number" 
-                            min="1" 
-                            :max="getMaxQuantity(item.product)"
-                            @input="updateQuantity(item)"
-                            class="form-control form-control-sm"
-                        />
-                    </td>
-                    <td>{{ item.product.name }}</td>
-                    <td>{{ item.product.description }}</td>
-                    <td>${{ item.totalPrice.toFixed(2) }}</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger" @click="removeItem(index)">Eliminar</button> <!-- Botón para eliminar -->
-                    </td>
-                </tr>
-            </tbody>
-        </Table>
-        <button class="btn btn-outline-primary mt-2" @click="openProductModal">
-            Agregar producto
-        </button>
-    
-        <h4 class="mt-5">Empleado</h4>
-        <div class="row">
-            <div class="col-md-6">
-                <input v-model="employee.username" class="form-control" placeholder="Nombre de usuario" />
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Información del Cliente</h5>
             </div>
-            <div class="col-md-6">
-                <input v-model="employee.email" class="form-control" placeholder="Correo" />
-            </div>
-            <div class="col-12 mt-2">
-                <button type="button" class="btn btn-secondary" @click="openEmployeeModal">
-                    Buscar empleado
-                </button>
+            <div class="card-body">
+                <form class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre del cliente</label>
+                        <input v-model="customer.name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellido</label>
+                        <input v-model="customer.lastName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono</label>
+                        <input v-model="customer.phoneNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Calle</label>
+                        <input v-model="customer.address.streetName" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Número</label>
+                        <input v-model="customer.address.number" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Código postal</label>
+                        <input v-model="customer.address.zipCode" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Colonia</label>
+                        <input v-model="customer.address.neighborhood" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ciudad</label>
+                        <input v-model="customer.address.city" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <input v-model="customer.address.state" class="form-control" />
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="button" class="btn btn-primary me-2" @click="openCustomerModal">
+                        Buscar cliente
+                        </button>
+                        <button type="button" class="btn btn-secondary" @click="registerCustomer(customer)">
+                        Registrar cliente
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    
-        <div class="mt-4 d-flex justify-content-between">
-          <button type="button" class="btn btn-outline-secondary" @click="goBack">
-            Volver
-          </button>
 
-          <button class="btn btn-success" @click="isEditMode ? updateOrder() : submitOrder()">
-              {{ isEditMode ? 'Actualizar orden' : 'Registrar orden' }}
-          </button>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Especificaciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Notas adicionales</label>
+                    <textarea 
+                        v-model="specifications" 
+                        class="form-control" 
+                        rows="3"
+                        placeholder="Ingrese cualquier especificación especial para la orden...">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Productos</h5>
+            </div>
+            <div class="card-body">
+                <Table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Producto</th>
+                            <th>Detalle</th>
+                            <th>Costo</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in orderItems" :key="index">
+                            <td>
+                                <input 
+                                    v-model="item.quantity" 
+                                    type="number" 
+                                    min="1" 
+                                    :max="getMaxQuantity(item.product)"
+                                    @input="updateQuantity(item)"
+                                    class="form-control form-control-sm"
+                                />
+                            </td>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.product.description }}</td>
+                            <td>${{ item.totalPrice.toFixed(2) }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" @click="removeItem(index)">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <button class="btn btn-outline-primary mt-3" @click="openProductModal">
+                    Agregar producto
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Empleado</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input v-model="employee.username" class="form-control" disabled placeholder="Nombre de usuario" />
+                    </div>
+                    <div class="col-md-6">
+                        <input v-model="employee.email" class="form-control" disabled placeholder="Correo" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-outline-secondary" @click="goBack">
+                Volver
+            </button>
+            <button class="btn btn-success" @click="isEditMode ? updateOrder() : submitOrder()">
+                {{ isEditMode ? 'Actualizar orden' : 'Registrar orden' }}
+            </button>
         </div>
     </div>
 
@@ -208,33 +228,8 @@
             </tbody>
         </Table>
     </BaseModal>
-
-    <BaseModal :show="showEmployeeModal" @close="showEmployeeModal = false">
-        <h5>Buscar Empleado</h5>
-        <Table>
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Correo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="employee in employees" :key="employee.uuid">
-                    <td>{{ employee.username }}</td>
-                    <td>{{ employee.email }}</td>
-                    <td>
-                        <button
-                            class="btn btn-sm btn-primary"
-                            @click="handleEmployeeSelect(employee)">
-                            Seleccionar
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </Table>
-    </BaseModal>
 </template>
+
 
 <script setup>
 import { onMounted, ref } from 'vue';
@@ -547,53 +542,53 @@ async function loadOrderData() {
 }
 
 async function updateOrder() {
-  try {
-    if (!customer.value.uuid) {
-      alert('Por favor selecciona un cliente');
-      return;
+    try {
+        if (!customer.value.uuid) {
+            alert('Por favor selecciona un cliente');
+            return;
+        }
+        if (orderItems.value.length === 0) {
+            alert('Debes agregar al menos un producto a la orden');
+            return;
+        }
+        if (!employee.value.uuid) {
+            alert('Por favor selecciona un empleado');
+            return;
+        }
+        const orderPayload = {
+            numberOrder: generateOrderNumber(),
+            total: calculateTotal(),
+            specifications: specifications.value,
+            date: new Date().toISOString(),
+            customerId: customer.value.uuid,
+            employeeId: employee.value.uuid,
+            orderItems: orderItems.value.map(item => ({
+                productId: item.product.uuid,
+                variantId: item.variant?.uuid || null,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            })),
+            payments: [{
+                total: calculateTotal()
+            }]
+        };
+        const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderPayload)
+            });
+        if (response.ok) {
+            alert('Orden actualizada exitosamente');
+            goToSales();
+        } else {
+            throw new Error("Error al actualizar la orden");
+        }
+    } catch (error) {
+        console.error('Error al actualizar la orden:', error);
+        alert('Ocurrió un error al actualizar la orden');
     }
-    if (orderItems.value.length === 0) {
-      alert('Debes agregar al menos un producto a la orden');
-      return;
-    }
-    if (!employee.value.uuid) {
-      alert('Por favor selecciona un empleado');
-      return;
-    }
-    const orderPayload = {
-      numberOrder: generateOrderNumber(),
-      total: calculateTotal(),
-      specifications: specifications.value,
-      date: new Date().toISOString(),
-      customerId: customer.value.uuid,
-      employeeId: employee.value.uuid,
-      orderItems: orderItems.value.map(item => ({
-        productId: item.product.uuid,
-        variantId: item.variant?.uuid || null,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice
-      })),
-      payments: [{
-        total: calculateTotal()
-      }]
-    };
-    const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(orderPayload)
-    });
-    if (response.ok) {
-      alert('Orden actualizada exitosamente');
-      goToSales();
-    } else {
-      throw new Error("Error al actualizar la orden");
-    }
-  } catch (error) {
-    console.error('Error al actualizar la orden:', error);
-    alert('Ocurrió un error al actualizar la orden');
-  }
 }
 
 function goBack() {
@@ -601,10 +596,16 @@ function goBack() {
 }
 
 onMounted(async function() {
-  if (route.params.id) {
-    isEditMode.value = true;
-    orderUuid.value = route.params.id;
-    await loadOrderData();
-  }
+    const user = JSON.parse(window.localStorage.getItem("user"));
+    if (user) {
+        employee.value.username = user.username;
+        employee.value.email = user.email;
+        employee.value.uuid = user.uuid;
+    }
+    if (route.params.id) {
+        isEditMode.value = true;
+        orderUuid.value = route.params.id;
+        await loadOrderData();
+    }
 });
 </script>

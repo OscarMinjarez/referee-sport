@@ -146,6 +146,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Table from './Table.vue';
 
+const emit = defineEmits(['updateMetrics']);
+
 const router = useRouter();
 const sales = ref([]);
 const searchQuery = ref('');
@@ -228,6 +230,23 @@ onMounted(async () => {
         sales.value = await response.json();
         const user = JSON.parse(localStorage.getItem('user'));
         if (user) userRole.value = user.type;
+        const today = new Date().toISOString().slice(0, 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const salesToday = sales.value.filter(sale =>
+            sale.date.startsWith(today)
+        );
+        const salesYesterday = sales.value.filter(sale =>
+            sale.date.startsWith(yesterday)
+        );
+        const totalToday = salesToday.reduce((sum, s) => sum + s.total, 0);
+        const totalYesterday = salesYesterday.reduce((sum, s) => sum + s.total, 0);
+        const percentageChange = totalYesterday === 0
+            ? 100
+            : ((totalToday - totalYesterday) / totalYesterday) * 100;
+        emit('updateMetrics', {
+            todaySalesTotal: totalToday,
+            percentageChange: Math.round(percentageChange),
+        });
     } catch (error) {
         console.error("Error al cargar ventas:", error);
         alert("Error al cargar las ventas");
