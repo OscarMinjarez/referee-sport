@@ -14,10 +14,31 @@
 
         <div class="mt-5">
           <ListGroup>
-            <ListGroupItem label="Panel" icon="fa-solid fa-chart-line"/>
-            <ListGroupItem label="Órdenes" icon="fa-solid fa-bag-shopping"/>
-            <ListGroupItem label="Productos" icon="fa-solid fa-box" @click="goToStorage" />
-            <ListGroupItem label="Clientes" icon="fa-solid fa-user-tag" />
+            <ListGroupItem 
+              v-if="role === 'admin'" 
+              label="Panel" 
+              icon="fa-solid fa-chart-line"
+            />
+            
+            <ListGroupItem 
+              v-if="['admin', 'sales', 'store'].includes(role)" 
+              label="Órdenes" 
+              icon="fa-solid fa-bag-shopping"
+              @click="goToSales"
+            />
+            
+            <ListGroupItem 
+              v-if="['admin', 'sales', 'store'].includes(role)" 
+              label="Productos" 
+              icon="fa-solid fa-box" 
+              @click="goToStorage" 
+            />
+            
+            <ListGroupItem 
+              v-if="['admin', 'sales'].includes(role)" 
+              label="Clientes" 
+              icon="fa-solid fa-user-tag" 
+            />
           </ListGroup>
         </div>
       </div>
@@ -39,6 +60,7 @@ import { ref } from 'vue';
 
 const router = useRouter();
 const username = ref("");
+const role = ref("");
 
 const imgPath = ref("");
 
@@ -52,10 +74,15 @@ function goToStorage() {
   router.push("/app/storage");
 }
 
+function goToSales() {
+  router.push("/app/sales");
+}
+
 onMounted(function() {
   const parseUser = JSON.parse(window.localStorage.getItem("user"));
   username.value = parseUser.username;
   imgPath.value = parseUser.imagePath ?? "../../public/defaultIcon.jpg";
+  role.value = parseUser.type;
 });
 </script>
 

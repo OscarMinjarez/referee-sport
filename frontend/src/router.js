@@ -47,7 +47,7 @@ const routes = [
                 path: "storage",
                 name: "storage",
                 component: StorageView,
-                meta: { requiresAuth: true, roles: ['store'] }
+                meta: { requiresAuth: true, roles: ['store', 'sales'] }
             },
             {
                 path: "upload/:id?",
@@ -60,13 +60,13 @@ const routes = [
                 path: "sales",
                 name: "sales",
                 component: SaleView,
-                meta: { requiresAuth: true, roles: ['sales'] }
+                meta: { requiresAuth: true, roles: ['sales', 'store'] }
             },
             {
                 path: "sales/order/:id",
                 name: "order",
                 component: OrderDetails,
-                meta: { requiresAuth: true, roles: ['sales'] }
+                meta: { requiresAuth: true, roles: ['sales', 'store'] }
             },
             {
                 path: "create/:id?",
