@@ -1,27 +1,26 @@
 <template>
   <Navbar class="navbar-fixed" @searchProduct="search"/>
 
-  <!-- Filtros por tag -->
-  <div class="d-flex flex-wrap gap-2 justify-content-center my-3">
-    <button
-      @click="resetFilter"
-      class="btn"
-      :class="activeTag === null ? 'btn-primary' : 'btn-outline-primary'"
-    >
-      Todas
-    </button>
-    <button
-      v-for="tag in uniqueTags"
-      :key="tag"
-      @click="filterByTag(tag)"
-      class="btn"
-      :class="activeTag === tag ? 'btn-primary' : 'btn-outline-primary'"
-    >
-      {{ tag }}
-    </button>
-  </div>
+  <main class="d-flex flex-column">
+    <div class="d-flex flex-wrap gap-2 justify-content-center my-3">
+      <button
+        @click="resetFilter"
+        class="btn"
+        :class="activeTag === null ? 'btn-primary' : 'btn-outline-primary'"
+      >
+        Todas
+      </button>
+      <button
+        v-for="tag in uniqueTags"
+        :key="tag"
+        @click="filterByTag(tag)"
+        class="btn"
+        :class="activeTag === tag ? 'btn-primary' : 'btn-outline-primary'"
+      >
+        {{ tag }}
+      </button>
+    </div>
 
-  <main class="d-flex">
     <div class="container-fluid d-flex flex-wrap gap-3 justify-content-center my-4">
       <ProductCard
         v-for="product in products"
@@ -40,21 +39,16 @@
 import { ref, onMounted, computed } from 'vue';
 import Navbar from '../../components/Navbar.vue';
 import ProductCard from '../../components/ProductCard.vue';
+import { EMPLOYEES_API } from "../../constants";
 
 const products = ref([]);
 const allProducts = ref([]);
 const activeTag = ref(null);
 
-// Función para extraer tags únicos de los productos
 const uniqueTags = computed(() => {
-  // Creamos un conjunto para almacenar nombres de tags únicos
   const tagSet = new Set();
-  
-  // Recorremos todos los productos
-  allProducts.value.forEach(product => {
-    // Si el producto tiene tags, los procesamos
+    allProducts.value.forEach(product => {
     if (product.tags && Array.isArray(product.tags)) {
-      // Agregamos cada nombre de tag al conjunto
       product.tags.forEach(tag => {
         if (tag.name) {
           tagSet.add(tag.name);
@@ -62,23 +56,20 @@ const uniqueTags = computed(() => {
       });
     }
   });
-  
-  // Convertimos el conjunto a un array y lo ordenamos alfabéticamente
   return Array.from(tagSet).sort();
 });
 
-// Función helper para calcular el stock total del producto
 function getProductStock(product) {
   if (!product.variants || !Array.isArray(product.variants)) {
     return 0;
   }
-  
   return product.variants.reduce((total, variant) => total + (variant.quantity || 0), 0);
 }
 
 async function getProducts() {
   try {
-    const res = await fetch('http://localhost:3001/api/products');
+    console.log(EMPLOYEES_API);
+    const res = await fetch(`${EMPLOYEES_API}/products`);
     if (!res.ok) throw new Error('Error al obtener productos');
     return res.json();
   } catch (error) {
@@ -87,7 +78,6 @@ async function getProducts() {
   }
 }
 
-// Filtrar productos por tag directamente en el front
 function filterByTag(tagName) {
   activeTag.value = tagName;
   
@@ -110,7 +100,7 @@ async function search(name) {
       return;
     }
     
-    const res = await fetch(`http://localhost:3001/api/products/search/${name}`);
+    const res = await fetch(`${EMPLOYEES_API}/products/search/${name}`);
     if (!res.ok) throw new Error('Error en búsqueda');
     products.value = await res.json();
     activeTag.value = null; // Resetear tag activo al buscar
@@ -124,18 +114,8 @@ onMounted(async () => {
     const productList = await getProducts();
     allProducts.value = productList;
     products.value = productList;
-    
-    console.log('Productos cargados:', productList.length);
-    console.log('Tags únicos detectados:', uniqueTags.value);
   } catch (err) {
     console.error('Error al cargar datos:', err);
   }
 });
 </script>
-
-<style scoped>
-/* Estilos adicionales */
-.btn {
-  transition: all 0.3s ease;
-}
-</style>
