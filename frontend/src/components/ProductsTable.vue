@@ -57,6 +57,7 @@ import { useRouter } from 'vue-router';
 import Table from './Table.vue';
 import { ref, onMounted } from 'vue';
 import { computed } from 'vue';
+import { EMPLOYEES_API } from '../constants';
 
 const router = useRouter();
 const products = ref([]);
@@ -95,7 +96,7 @@ function getStockQuantity(product) {
 
 async function fetchProducts() {
   try {
-    const response = await fetch("http://localhost:3001/api/products");
+    const response = await fetch(`${EMPLOYEES_API}/products`);
     if (!response.ok) {
       throw Error("Tuvismos problemas para conectarnos al server.");
     }
@@ -110,7 +111,7 @@ async function deleteProduct(productUuid) {
     if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       return;
     }
-    const response = await fetch(`http://localhost:3001/api/products/${productUuid}`, {
+    const response = await fetch(`${EMPLOYEES_API}/products/${productUuid}`, {
       method: "DELETE",
       headers: {
         'Content-Type': 'application/json',

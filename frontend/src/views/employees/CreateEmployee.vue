@@ -76,6 +76,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { EMPLOYEES_API } from '../../constants';
 
 const router = useRouter();
 
@@ -98,7 +99,7 @@ async function submitForm() {
             type: employee.value.type,
             password: employee.value.password
         };
-        const response = await fetch('http://localhost:3001/api/auth/register', {
+        const response = await fetch(`${EMPLOYEES_API}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -41,6 +41,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { EMPLOYEES_API } from "../../constants";
 
 const email = ref("");
 const password = ref("");
@@ -75,7 +76,7 @@ async function login() {
     }
     try {
         loading.value = true;
-        const response = await fetch("http://localhost:3001/api/auth/login", {
+        const response = await fetch(`${EMPLOYEES_API}/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

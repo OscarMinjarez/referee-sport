@@ -8,7 +8,7 @@
                         <h2 class="card-title mb-0">${{ todaySales.toFixed(2) }}</h2>
                     </div>
 
-                    <!-- <div class="vr"></div>
+                    <div class="vr"></div>
 
                     <div class="text-center">
                         <span 
@@ -24,7 +24,7 @@
                         ></i>
                             {{ Math.abs(percentageChange) }}% vs ayer
                         </span>
-                    </div> -->
+                    </div>
                 </div>
 
                 <div class="icon-container">

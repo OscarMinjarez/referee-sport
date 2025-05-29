@@ -236,10 +236,10 @@ import { onMounted, ref } from 'vue';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
 import { useRouter, useRoute } from 'vue-router';
+import { EMPLOYEES_API } from '../../constants';
 
 const showCustomerModal = ref(false);
 const showProductModal = ref(false);
-const showEmployeeModal = ref(false);
 
 const selectedVariants = ref({});
 const selectedQuantities = ref({});
@@ -302,15 +302,6 @@ function handleCustomerSelect(selectedCustomer) {
     showCustomerModal.value = false;
 }
 
-function handleEmployeeSelect(selectedEmployee) {
-    employee.value = {
-        uuid: selectedEmployee.uuid,
-        username: selectedEmployee.username,
-        email: selectedEmployee.email
-    };
-    showEmployeeModal.value = false;
-}
-
 function updateQuantity(item) {
     if (item.quantity < 1) item.quantity = 1;
     item.totalPrice = item.quantity * (item.variant?.price || item.product.price);
@@ -341,7 +332,6 @@ const employee = ref({
 });
 
 const products = ref([]);
-const employees = ref([]);
 const customers = ref([]);
 
 const orderItems = ref([]);
@@ -366,14 +356,9 @@ async function openProductModal() {
     showProductModal.value = true;
 }
 
-async function openEmployeeModal() {
-    showEmployeeModal.value = true;
-    await getEmployees();
-}
-
 async function registerCustomer(customer) {
     try {
-        const response = await fetch("http://localhost:3001/api/customers", {
+        const response = await fetch(`${EMPLOYEES_API}/customers`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -391,7 +376,7 @@ async function registerCustomer(customer) {
 
 async function getProducts() {
     try {
-        const response = await fetch("http://localhost:3001/api/products");
+        const response = await fetch(`${EMPLOYEES_API}/products`);
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
@@ -401,21 +386,9 @@ async function getProducts() {
     }
 }
 
-async function getEmployees() {
-    try {
-        const response = await fetch("http://localhost:3001/api/employees");
-        if (!response.ok) {
-            throw new Error("Error en el servidor");
-        }
-        employees.value = await response.json();
-    } catch (e) {
-        console.error(e);
-    }
-}
-
 async function getCustomers() {
     try {
-        const response = await fetch("http://localhost:3001/api/customers");
+        const response = await fetch(`${EMPLOYEES_API}/customers`);
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
@@ -468,7 +441,7 @@ async function submitOrder() {
                 total: calculateTotal()
             }]
         };
-        const response = await fetch("http://localhost:3001/api/orders", {
+        const response = await fetch(`${EMPLOYEES_API}/orders`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -487,7 +460,7 @@ async function submitOrder() {
 
 async function loadOrderData() {
   try {
-    const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`);
+    const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`);
     if (!response.ok) {
       throw new Error("Error al cargar la orden");
     }
@@ -572,7 +545,7 @@ async function updateOrder() {
                 total: calculateTotal()
             }]
         };
-        const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`, {
+        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"

@@ -238,6 +238,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
+import { EMPLOYEES_API } from '../../constants';
 
 const route = useRoute();
 const router = useRouter();
@@ -274,7 +275,7 @@ async function savePayment() {
     } else {
       editingPayment.value.state = 'pending';
     }
-    const response = await fetch(`http://localhost:3001/api/payments/${editingPayment.value.uuid}`, {
+    const response = await fetch(`${EMPLOYEES_API}/payments/${editingPayment.value.uuid}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -375,7 +376,7 @@ async function fetchOrder() {
   const id = route.params.id;
   try {
     loading.value = true;
-    const response = await fetch(`http://localhost:3001/api/orders/${id}`);
+    const response = await fetch(`${EMPLOYEES_API}/orders/${id}`);
     if (!response.ok) {
       throw new Error('Orden no encontrada');
     }
@@ -449,24 +450,5 @@ onMounted(async function() {
   position: relative;
   border-radius: 8px;
   border: 1px solid #dee2e6;
-}
-
-.bg-primary-subtle {
-  background-color: rgba(13, 110, 253, 0.1);
-}
-.bg-success-subtle {
-  background-color: rgba(25, 135, 84, 0.1);
-}
-.bg-info-subtle {
-  background-color: rgba(13, 202, 240, 0.1);
-}
-.bg-warning-subtle {
-  background-color: rgba(255, 193, 7, 0.1);
-}
-.bg-danger-subtle {
-  background-color: rgba(220, 53, 69, 0.1);
-}
-.bg-secondary-subtle {
-  background-color: rgba(108, 117, 125, 0.1);
 }
 </style>

@@ -68,7 +68,6 @@ function getProductStock(product) {
 
 async function getProducts() {
   try {
-    console.log(EMPLOYEES_API);
     const res = await fetch(`${EMPLOYEES_API}/products`);
     if (!res.ok) throw new Error('Error al obtener productos');
     return res.json();

@@ -50,6 +50,7 @@ import { useRouter } from 'vue-router';
 import Table from './Table.vue';
 import { ref, onMounted } from 'vue';
 import { computed } from 'vue';
+import { EMPLOYEES_API } from '../constants';
 
 const router = useRouter();
 const employees = ref([]);
@@ -91,7 +92,7 @@ function formatDate(dateString) {
 
 async function fetchEmployees() {
     try {
-        const response = await fetch("http://localhost:3001/api/employees");
+        const response = await fetch(`${EMPLOYEES_API}/employees`);
         if (!response.ok) {
         throw Error("Tuvimos problemas para conectarnos al servidor.");
         }
@@ -106,7 +107,7 @@ async function deleteEmployee(employeeUuid) {
         if (!confirm('¿Estás seguro de que deseas eliminar este empleado?')) {
             return;
         }
-            const response = await fetch(`http://localhost:3001/api/employees/${employeeUuid}`, {
+            const response = await fetch(`${EMPLOYEES_API}/employees/${employeeUuid}`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',

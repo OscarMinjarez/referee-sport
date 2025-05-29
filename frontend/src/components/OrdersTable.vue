@@ -66,6 +66,7 @@
 import { onMounted, ref } from 'vue';
 import Table from './Table.vue';
 import { useRouter } from 'vue-router';
+import { EMPLOYEES_API } from '../constants';
 
 const router = useRouter();
 const orders = ref([]);
@@ -90,7 +91,7 @@ onMounted(async function() {
 
 async function getOrders() {
     try {
-        const response = await fetch("http://localhost:3001/api/orders");
+        const response = await fetch(`${EMPLOYEES_API}/orders`);
         if (!response.ok) {
             throw Error("Tuvismos problemas para conectarnos al server.");
         }

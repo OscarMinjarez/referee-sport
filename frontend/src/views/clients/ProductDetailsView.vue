@@ -25,9 +25,6 @@
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Precio:</strong> ${{ product.price }}
               </li>
-<!--              <li class="list-group-item bg-transparent border-0 px-0">-->
-<!--                <strong>Disponibles:</strong> {{ product.stockQuantity }} unidades-->
-<!--              </li>-->
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Tallas disponibles:</strong>
                 <div class="d-flex flex-wrap gap-2 mt-2">
@@ -69,6 +66,7 @@
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import Navbar from "../../components/Navbar.vue";
+import { EMPLOYEES_API } from '../../constants';
 
 const route = useRoute()
 const id = route.params.id
@@ -77,7 +75,7 @@ const product = ref(null)
 
 async function getProduct() {
   try {
-    const response = await fetch(`http://localhost:3001/api/products/${id}`)
+    const response = await fetch(`${EMPLOYEES_API}/products/${id}`)
     if (!response.ok) {
       throw new Error('No hay producto.')
     }

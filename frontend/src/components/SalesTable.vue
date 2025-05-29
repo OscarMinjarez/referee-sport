@@ -145,6 +145,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Table from './Table.vue';
+import { EMPLOYEES_API } from '../constants';
 
 const emit = defineEmits(['updateMetrics']);
 
@@ -225,7 +226,7 @@ function goToCreateSale() {
 
 onMounted(async () => {
     try {
-        const response = await fetch("http://localhost:3001/api/orders");
+        const response = await fetch(`${EMPLOYEES_API}/orders`);
         if (!response.ok) throw new Error("Error al obtener ventas");
         sales.value = await response.json();
         const user = JSON.parse(localStorage.getItem('user'));
