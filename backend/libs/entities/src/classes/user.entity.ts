@@ -1,4 +1,4 @@
-import { Column, Entity } from "typeorm";
+import { Column } from "typeorm";
 import Generic from "./generic.entity";
 
 export default class User extends Generic {

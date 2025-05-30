@@ -84,10 +84,10 @@ function goToUpdateProduct(productId) {
 }
 
 function getStockQuantity(product) {
-  if (!product.variants || !Array.isArray(product.variants) || product.variants.length === 0) {
+  if (!product.productsVariants || !Array.isArray(product.productsVariants) || product.productsVariants.length === 0) {
     return "Sin stock";
   }
-  const totalStock = product.variants.reduce((sum, variant) => {
+  const totalStock = product.productsVariants.reduce((sum, variant) => {
     const quantity = Number(variant.quantity);
     return sum + (isNaN(quantity) ? 0 : quantity);
   }, 0);

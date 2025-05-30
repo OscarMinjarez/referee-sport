@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import Generic from "./generic.entity";
-import Variant from "./variant.entity";
 import Tag from "./tag.entity";
+import ProductVariant from "./productVariant.entity";
 
 @Entity({ name: "products" })
 export default class Product extends Generic {
@@ -25,6 +25,6 @@ export default class Product extends Generic {
     })
     tags: Tag[];
     
-    @OneToMany(() => Variant, (variant) => variant.product, { cascade: true })
-    variants: Variant[];
+    @OneToMany(() => ProductVariant, productVariant => productVariant.product)
+    productsVariants: ProductVariant[];
 }
