@@ -21,14 +21,13 @@ import OrdersTable from '../../components/OrdersTable.vue';
 
 .sidebar {
     width: 250px;
-    min-height: 100vh;
+    max-height: 100vh;
     position: sticky;
     top: 0;
 }
 
 .content-wrapper {
     flex: 1;
-    padding-bottom: 40px;
     overflow-y: auto;
 }
 

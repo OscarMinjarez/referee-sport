@@ -21,7 +21,7 @@ import EmployeesTable from '../../components/EmployeesTable.vue';
 
 .sidebar {
     width: 250px;
-    min-height: 100vh;
+    max-height: 100vh;
     position: sticky;
     top: 0;
 }

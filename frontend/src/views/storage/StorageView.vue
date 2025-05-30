@@ -21,14 +21,13 @@ import Sidebar from "../../components/Sidebar.vue";
 
 .sidebar {
   width: 250px;
-  min-height: 100vh;
+  max-height: 100vh;
   position: sticky;
   top: 0;
 }
 
 .content-wrapper {
   flex: 1;
-  padding-bottom: 40px;
   overflow-y: auto;
 }
 
@@ -36,6 +35,5 @@ import Sidebar from "../../components/Sidebar.vue";
   width: 100%;
   margin: 0 auto;
   border-radius: 8px;
-  padding: 20px;
 }
 </style>
