@@ -60,10 +60,10 @@ const uniqueTags = computed(() => {
 });
 
 function getProductStock(product) {
-  if (!product.variants || !Array.isArray(product.variants)) {
+  if (!product.productsVariants || !Array.isArray(product.productsVariants)) {
     return 0;
   }
-  return product.variants.reduce((total, variant) => total + (variant.quantity || 0), 0);
+  return product.productsVariants.reduce((total, variant) => total + (variant.quantity || 0), 0);
 }
 
 async function getProducts() {

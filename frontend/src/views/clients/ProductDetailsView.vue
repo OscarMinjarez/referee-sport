@@ -29,12 +29,12 @@
                 <strong>Tallas disponibles:</strong>
                 <div class="d-flex flex-wrap gap-2 mt-2">
                   <span
-                    v-for="variant in product.variants"
-                    :key="variant.uuid"
+                    v-for="productVariant in product.productsVariants"
+                    :key="productVariant.uuid"
                     class="badge bg-light text-dark border py-2 px-3"
                   >
-                    <span class="fw-bold">{{ variant.size.size.toUpperCase() }}</span>:
-                    {{ variant.quantity }} unid.
+                    <span class="fw-bold">{{ productVariant.variant.value.toUpperCase() }}</span>:
+                    {{ productVariant.quantity }} unid.
                   </span>
                 </div>
               </li>
