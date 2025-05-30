@@ -35,7 +35,6 @@ import OrdersTable from '../../components/OrdersTable.vue';
 .orders-content {
     width: 100%;
     margin: 0 auto;
-    background-color: white;
     border-radius: 8px;
 }
 </style>

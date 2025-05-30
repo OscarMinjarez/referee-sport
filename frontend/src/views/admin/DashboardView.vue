@@ -56,7 +56,6 @@ function handleMetrics(metrics) {
 
 .sales-content {
     width: 100%;
-    background-color: white;
     border-radius: 8px;
 }
 </style>

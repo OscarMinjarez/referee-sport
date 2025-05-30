@@ -3,7 +3,7 @@
   <div class="container-fluid my-5">
     <div
       v-if="product"
-      class="card mx-auto rounded-4 p-4 bg-white border-0"
+      class="card mx-auto rounded-4 p-4 border-0"
       style="max-width: 1200px;"
     >
       <div class="row g-4">

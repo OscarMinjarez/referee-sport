@@ -35,7 +35,6 @@ import Sidebar from "../../components/Sidebar.vue";
 .products-content {
   width: 100%;
   margin: 0 auto;
-  background-color: white;
   border-radius: 8px;
   padding: 20px;
 }
