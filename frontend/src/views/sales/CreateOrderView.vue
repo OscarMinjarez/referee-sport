@@ -80,39 +80,57 @@
             <div class="card-header">
                 <h5 class="mb-0">Productos</h5>
             </div>
-            <div class="card-body">
-                <Table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Cantidad</th>
-                            <th>Producto</th>
-                            <th>Detalle</th>
-                            <th>Costo</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, index) in orderItems" :key="index">
-                            <td>
-                                <input 
-                                    v-model="item.quantity" 
-                                    type="number" 
-                                    min="1" 
-                                    :max="getMaxQuantity(item.product)"
-                                    @input="updateQuantity(item)"
-                                    class="form-control form-control-sm"
-                                />
-                            </td>
-                            <td>{{ item.product.name }}</td>
-                            <td>{{ item.product.description }}</td>
-                            <td>${{ item.totalPrice.toFixed(2) }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger" @click="removeItem(index)">Eliminar</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </Table>
-                <button class="btn btn-outline-primary mt-3" @click="openProductModal">
+            <div class="card-body py-0">
+                <div class="table-responsive">
+                    <Table class="mb-0">
+                        <thead class="align-middle">
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Cantidad</th>
+                                <th>Producto</th>
+                                <th>Detalle</th>
+                                <th>Costo</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle">
+                            <tr v-for="(item, index) in orderItems" :key="index">
+                                <td class="align-middle p-1" style="width: 80px; max-width: 80px;">
+                                    <div class="ratio ratio-1x1">
+                                        <img 
+                                        v-if="item.product.imageUrl" 
+                                        :src="item.product.imageUrl" 
+                                        alt="Imagen del producto"
+                                        class="img-fluid object-fit-cover"
+                                        >
+                                        <div v-else class="d-flex h-100 w-100 bg-light align-items-center justify-content-center border rounded">
+                                            <span class="text-muted small">Sin imagen</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input 
+                                        v-model="item.quantity" 
+                                        type="number" 
+                                        min="1" 
+                                        :max="getMaxQuantity(item.product)"
+                                        @input="updateQuantity(item)"
+                                        class="form-control form-control-sm"
+                                    />
+                                </td>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.product.description }}</td>
+                                <td>${{ item.totalPrice.toFixed(2) }}</td>
+                                <td>
+                                    <button class="btn btn-danger " @click="removeItem(index)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                </div>
+                <button class="mb-3 btn btn-outline-primary mt-3" @click="openProductModal">
                     Agregar producto
                 </button>
             </div>
@@ -189,7 +207,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="product in products" :key="product.id">
+                <tr v-for="product in products" :key="product.uuid">
                     <td>
                         <img :src="product.imageUrl" alt="Imagen" style="width: 60px; height: 60px; object-fit: cover;" />
                     </td>
@@ -199,12 +217,15 @@
                             v-model="selectedVariants[product.uuid]"
                             class="form-select form-select-sm"
                         >
+                            <option disabled :value="null">
+                                Seleccionar talla
+                            </option>
                             <option
-                                    v-for="variant in product.variants"
-                                    :key="variant.uuid"
-                                    :value="variant.uuid"
-                                >
-                                {{ variant.size.size.toUpperCase() }} ({{ variant.quantity }} disponibles)
+                                v-for="productVariant in product.productsVariants"
+                                :key="productVariant.uuid"
+                                :value="productVariant.uuid"
+                            >
+                                {{ productVariant.variant.value.toUpperCase() }} ({{ productVariant.quantity }} disponibles)
                             </option>
                         </select>
                     </td>
@@ -254,16 +275,18 @@ const specifications = ref("");
 
 function getMaxQuantity(product) {
     const selectedVariantUuid = selectedVariants.value[product.uuid];
-    const selectedVariant = product.variants.find(v => v.uuid === selectedVariantUuid);
+    const selectedVariant = product.productsVariants.find(v => v.uuid === selectedVariantUuid);
     return selectedVariant ? selectedVariant.quantity : 0;
 }
 
 function addProduct(product, variantUuid, quantity) {
-    if (quantity <= 0) return;
-    let selectedPrice = product.price;
+    if (!quantity || quantity <= 0) {
+        quantity = 1;
+    }
     let selectedVariant = null;
-    if (product.variants.length > 0 && variantUuid) {
-        selectedVariant = product.variants.find(v => v.uuid === variantUuid);
+    let selectedPrice = product.price;
+    if (variantUuid && product.productsVariants) {
+        selectedVariant = product.productsVariants.find(v => v.uuid === variantUuid);
         if (selectedVariant) {
             selectedPrice = selectedVariant.price || product.price;
         }
@@ -272,16 +295,22 @@ function addProduct(product, variantUuid, quantity) {
     const item = {
         product,
         variant: selectedVariant,
-        quantity,
+        quantity: parseInt(quantity),
         totalPrice
     };
-    const existingItemIndex = orderItems.value.findIndex(item => item.product.uuid === product.uuid && item.variant?.uuid === variantUuid);
+    const existingItemIndex = orderItems.value.findIndex(
+        existing => existing.product.uuid === product.uuid && 
+                   ((!existing.variant && !selectedVariant) || 
+                    (existing.variant?.uuid === selectedVariant?.uuid))
+    );
     if (existingItemIndex >= 0) {
-        orderItems.value[existingItemIndex].quantity += quantity;
-        orderItems.value[existingItemIndex].totalPrice = orderItems.value[existingItemIndex].quantity * selectedPrice;
+        orderItems.value[existingItemIndex].quantity += parseInt(quantity);
+        orderItems.value[existingItemIndex].totalPrice = 
+        orderItems.value[existingItemIndex].quantity * selectedPrice;
     } else {
         orderItems.value.push(item);
     }
+    showProductModal.value = false;
 }
 
 function handleCustomerSelect(selectedCustomer) {
@@ -345,6 +374,10 @@ async function openProductModal() {
     await getProducts();
     selectedVariants.value = {};
     selectedQuantities.value = {};
+    products.value.forEach(product => {
+        selectedVariants.value[product.uuid] = null;
+        selectedQuantities.value[product.uuid] = 0;
+    });
     if (isEditMode.value) {
         orderItems.value.forEach(item => {
             if (item.variant) {
@@ -489,8 +522,8 @@ async function loadOrderData() {
     }
     orderItems.value = orderData.orderItems.map(item => {
       let variant = null;
-      if (item.variantId && item.product?.variants) {
-        variant = item.product.variants.find(v => v.uuid === item.variantId);
+      if (item.variantId) {
+        variant = item.product?.variants?.find(v => v.uuid === item.variantId) || null;
       }
       return {
         product: {
@@ -499,14 +532,15 @@ async function loadOrderData() {
           description: item.product.description,
           price: item.product.price,
           imageUrl: item.product.imageUrl,
-          variants: item.product.variants || []
+          variants: item.product.variants || [],
+          productsVariants: item.product.productsVariants || [] // Asegúrate de incluir esto
         },
         variant: variant,
         quantity: item.quantity,
         totalPrice: item.totalPrice
       };
     });
-    products.value = [...new Set(orderData.orderItems.map(item => item.product))];
+    await getProducts();
   } catch (error) {
     console.error('Error al cargar la orden:', error);
     alert('No se pudo cargar la orden para edición');

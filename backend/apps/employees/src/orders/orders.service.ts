@@ -9,6 +9,7 @@ import { OrderStateValue }                       from '@app/entities/classes/ord
 import HistoryOrder                              from '@app/entities/classes/historyOrder.entity';
 import Customer                                  from '@app/entities/classes/customer.entity';
 import Employee                                  from '@app/entities/classes/employee.entity';
+import { CreateOrderDto }                        from './dto/CreateOrder.dto';
 
 @Injectable()
 export class OrdersService {
@@ -70,6 +71,8 @@ export class OrdersService {
     relations: [
       'orderItems', 
       'orderItems.product',
+      'orderItems.product.productsVariants',
+      'orderItems.product.productsVariants.variant',
       'payments',
       'customer',
       'customer.addresses',
@@ -100,7 +103,7 @@ export class OrdersService {
     });
   }
 
-  async create(data: any): Promise<Order> {
+  async create(data: CreateOrderDto): Promise<Order> {
     try {
       const order = this.orderRepo.create({
         numberOrder: data.numberOrder,
@@ -108,15 +111,15 @@ export class OrdersService {
         specifications: data.specifications,
         date: data.date ? new Date(data.date) : new Date(),
         customer: { uuid: data.customerId } as Customer,
-        orderItems: (data.orderItems || []).map((i: any) => ({
+        orderItems: (data.orderItems || []).map((i) => ({
           product: { uuid: i.productId },
           quantity: i.quantity,
           totalPrice: i.totalPrice,
-        })) as any[],
-        payments: (data.payments || []).map((p: any) => ({
+        })),
+        payments: (data.payments || []).map((p) => ({
           total: p.total,
           paymentState: false,
-        })) as any[],
+        })),
       });
       const saved = await this.orderRepo.save(order);
       await this.recordHistory(saved, data.employeeId, OrderEventValue.Purchased);
