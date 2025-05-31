@@ -6,14 +6,14 @@
             <div class="d-flex justify-content-between gap-4">
                 <Greetings class="w-100"/>
                 <StatsOverview
-                    :percentageChange="percentageChange"
-                    :todaySales="todaySalesTotal"                    
+                    :percentage-change="percentageChange"
+                    :today-sales="todaySalesTotal"                    
                     class="w-100"/>
             </div>
 
             <div class="d-flex flex-row">
                 <div class="content-wrapper">
-                    <DashboardView @updateMetrics="handleMetrics" class="sales-content" />
+                    <SalesTable @update-metrics="handleMetrics" class="sales-content" />
                 </div>
             </div>
         </div>
@@ -23,14 +23,15 @@
 <script setup>
 import Sidebar from '../../components/Sidebar.vue';
 import StatsOverview from '../../components/StatsOverview.vue';
-import DashboardView from "../../components/SalesTable.vue";
+import SalesTable from "../../components/SalesTable.vue";
 import Greetings from '../../components/Greetings.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const todaySalesTotal = ref(0);
 const percentageChange = ref(0);
 
 function handleMetrics(metrics) {
+    console.log('Métricas recibidas:', metrics); // Para depuración
     todaySalesTotal.value = metrics.todaySalesTotal;
     percentageChange.value = metrics.percentageChange;
 }

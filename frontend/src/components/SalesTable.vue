@@ -160,7 +160,7 @@ const canCreate = computed(() => ['admin', 'sales'].includes(userRole.value));
 const canEdit = computed(() => ['admin', 'sales'].includes(userRole.value));
 
 const filteredSales = computed(() => {
-    let result = sales.value;
+    let result = sales.value.filter(sale => sale.state !== 'canceled');
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
         result = result.filter(sale => 
@@ -233,19 +233,25 @@ onMounted(async () => {
         if (user) userRole.value = user.type;
         const today = new Date().toISOString().slice(0, 10);
         const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-        const salesToday = sales.value.filter(sale =>
-            sale.date.startsWith(today)
+        const salesToday = sales.value.filter(sale => 
+            new Date(sale.date).toISOString().slice(0, 10) === today && 
+            sale.state !== 'canceled'
         );
-        const salesYesterday = sales.value.filter(sale =>
-            sale.date.startsWith(yesterday)
+        const totalPaidToday = salesToday.reduce((sum, sale) => {
+            return sum + sale.payments.reduce((paidSum, payment) => paidSum + payment.amountPaid, 0);
+        }, 0);
+        const salesYesterday = sales.value.filter(sale => 
+            new Date(sale.date).toISOString().slice(0, 10) === yesterday && 
+            sale.state !== 'canceled'
         );
-        const totalToday = salesToday.reduce((sum, s) => sum + s.total, 0);
-        const totalYesterday = salesYesterday.reduce((sum, s) => sum + s.total, 0);
-        const percentageChange = totalYesterday === 0
+        const totalPaidYesterday = salesYesterday.reduce((sum, sale) => {
+            return sum + sale.payments.reduce((paidSum, payment) => paidSum + payment.amountPaid, 0);
+        }, 0);
+        const percentageChange = totalPaidYesterday === 0
             ? 100
-            : ((totalToday - totalYesterday) / totalYesterday) * 100;
+            : ((totalPaidToday - totalPaidYesterday) / totalPaidYesterday) * 100;
         emit('updateMetrics', {
-            todaySalesTotal: totalToday,
+            todaySalesTotal: totalPaidToday,
             percentageChange: Math.round(percentageChange),
         });
     } catch (error) {

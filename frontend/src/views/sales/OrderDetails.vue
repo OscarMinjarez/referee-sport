@@ -55,6 +55,7 @@
             <thead>
               <tr>
                 <th>Producto</th>
+                <th>Talla</th>
                 <th>Precio Unitario</th>
                 <th>Cantidad</th>
                 <th>Total</th>
@@ -65,14 +66,20 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <img :src="item.product.imageUrl" 
-                         :alt="item.product.name" 
-                         class="img-thumbnail mr-3" 
-                         style="width: 60px; height: 60px; object-fit: cover;">
+                        :alt="item.product.name" 
+                        class="img-thumbnail mr-3" 
+                        style="width: 60px; height: 60px; object-fit: cover;">
                     <div class="mx-2">
                       <h6 class="mb-0">{{ item.product.name }}</h6>
                       <small class="text-muted">{{ item.product.description }}</small>
                     </div>
                   </div>
+                </td>
+                <td>
+                  <span v-if="item.productVariant?.variant?.value">
+                    {{ item.productVariant.variant.value.toUpperCase() }}
+                  </span>
+                  <span v-else class="text-muted">N/A</span>
                 </td>
                 <td>${{ (item.totalPrice / item.quantity).toFixed(2) }}</td>
                 <td>{{ item.quantity }}</td>
@@ -81,7 +88,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td colspan="4" class="text-right"><strong>Total:</strong></td>
                 <td><strong>${{ order.total.toFixed(2) }}</strong></td>
               </tr>
             </tfoot>
@@ -380,9 +387,15 @@ async function fetchOrder() {
     if (!response.ok) {
       throw new Error('Orden no encontrada');
     }
-    order.value = await response.json();
+    const orderData = await response.json();
+    orderData.orderItems = orderData.orderItems.map(item => ({
+      ...item,
+      productVariant: item.productVariant || null
+    }));
+    order.value = orderData;
   } catch (e) {
     console.error('Error fetching order:', e);
+    error.value = 'No se pudo cargar la orden';
   } finally {
     loading.value = false;
   }

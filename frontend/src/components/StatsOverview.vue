@@ -35,19 +35,10 @@
     </div>
 </template>
 
-
 <script setup>
 defineProps({
-    todaySales: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    percentageChange: {
-        type: Number,
-        required: true,
-        default: 0
-    }
+    todaySales: Number,
+    percentageChange: Number
 });
 </script>
 
