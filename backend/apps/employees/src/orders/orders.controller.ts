@@ -8,9 +8,12 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  ValidationPipe,
 } from '@nestjs/common';
 import Order from '@app/entities/classes/order.entity';
 import { OrdersService } from './orders.service';
+import { UpdateOrderDto } from './dto/UpdateOrder.dto';
+import { CreateOrderDto } from './dto/CreateOrder.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -32,12 +35,12 @@ export class OrdersController {
   }
 
   @Post()
-  create(@Body() body: any): Promise<Order> {
+  create(@Body(new ValidationPipe()) body: CreateOrderDto): Promise<Order> {
     return this.service.create(body);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any): Promise<Order> {
+  update(@Param('id') id: string, @Body(new ValidationPipe()) body: UpdateOrderDto): Promise<Order> {
     return this.service.update(id, body);
   }
 

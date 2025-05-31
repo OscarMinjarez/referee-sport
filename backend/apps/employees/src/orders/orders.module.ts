@@ -9,6 +9,7 @@ import Customer     from '@app/entities/classes/customer.entity';
 import Employee     from '@app/entities/classes/employee.entity';
 import { OrdersService }    from './orders.service';
 import { OrdersController } from './orders.controller';
+import ProductVariant from '@app/entities/classes/productVariant.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OrdersController } from './orders.controller';
       HistoryOrder,
       Customer,
       Employee,
+      ProductVariant
     ]),
   ],
   providers: [OrdersService],

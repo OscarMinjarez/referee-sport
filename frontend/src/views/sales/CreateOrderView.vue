@@ -88,6 +88,7 @@
                                 <th>Imagen</th>
                                 <th>Cantidad</th>
                                 <th>Producto</th>
+                                <th>Talla</th>
                                 <th>Detalle</th>
                                 <th>Costo</th>
                                 <th>Acción</th>
@@ -119,6 +120,7 @@
                                     />
                                 </td>
                                 <td>{{ item.product.name }}</td>
+                                <td>{{ item.variant ? item.variant.variant.value.toUpperCase() : 'N/A' }}</td>
                                 <td>{{ item.product.description }}</td>
                                 <td>${{ item.totalPrice.toFixed(2) }}</td>
                                 <td>
@@ -216,16 +218,19 @@
                         <select
                             v-model="selectedVariants[product.uuid]"
                             class="form-select form-select-sm"
+                            :disabled="!product.productsVariants?.length"
                         >
                             <option disabled :value="null">
-                                Seleccionar talla
+                                {{ product.productsVariants?.length ? 'Seleccionar talla' : 'Sin tallas disponibles' }}
                             </option>
                             <option
-                                v-for="productVariant in product.productsVariants"
-                                :key="productVariant.uuid"
-                                :value="productVariant.uuid"
+                                v-for="variant in product.productsVariants"
+                                :key="variant.uuid"
+                                :value="variant.uuid"
+                                :disabled="variant.quantity <= 0"
                             >
-                                {{ productVariant.variant.value.toUpperCase() }} ({{ productVariant.quantity }} disponibles)
+                                {{ variant.variant.value.toUpperCase() }} 
+                                ({{ variant.quantity }} disponibles)
                             </option>
                         </select>
                     </td>
@@ -279,37 +284,57 @@ function getMaxQuantity(product) {
     return selectedVariant ? selectedVariant.quantity : 0;
 }
 
-function addProduct(product, variantUuid, quantity) {
-    if (!quantity || quantity <= 0) {
-        quantity = 1;
-    }
+function addProduct(product, variantUuid, quantity = 1) {
+    quantity = Math.max(1, parseInt(quantity) || 1);
+    console.log("Iniciando addProduct con:", {
+        product: product.name,
+        variantUuid,
+        quantity,
+        hasVariants: product.productsVariants?.length > 0
+    });
     let selectedVariant = null;
     let selectedPrice = product.price;
-    if (variantUuid && product.productsVariants) {
-        selectedVariant = product.productsVariants.find(v => v.uuid === variantUuid);
-        if (selectedVariant) {
-            selectedPrice = selectedVariant.price || product.price;
+    if (variantUuid && product.productsVariants?.length) {
+        const foundVariant = product.productsVariants.find(v => v.uuid === variantUuid);
+        if (foundVariant) {
+            selectedVariant = {
+                uuid: foundVariant.uuid,
+                variant: {
+                    uuid: foundVariant.variant?.uuid || '',
+                    value: foundVariant.variant?.value || ''
+                },
+                price: foundVariant.price || product.price
+            };
+            selectedPrice = selectedVariant.price;
         }
     }
-    const totalPrice = selectedPrice * quantity;
     const item = {
-        product,
+        product: {
+            uuid: product.uuid,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            productsVariants: product.productsVariants || []
+        },
         variant: selectedVariant,
-        quantity: parseInt(quantity),
-        totalPrice
+        quantity,
+        totalPrice: selectedPrice * quantity
     };
-    const existingItemIndex = orderItems.value.findIndex(
-        existing => existing.product.uuid === product.uuid && 
-                   ((!existing.variant && !selectedVariant) || 
-                    (existing.variant?.uuid === selectedVariant?.uuid))
+    console.log(item);
+    const existingIndex = orderItems.value.findIndex(existing => 
+        existing.product.uuid === item.product.uuid && 
+        ((!existing.variant && !item.variant) || 
+         (existing.variant?.uuid === item.variant?.uuid))
     );
-    if (existingItemIndex >= 0) {
-        orderItems.value[existingItemIndex].quantity += parseInt(quantity);
-        orderItems.value[existingItemIndex].totalPrice = 
-        orderItems.value[existingItemIndex].quantity * selectedPrice;
+    if (existingIndex >= 0) {
+        orderItems.value[existingIndex].quantity += item.quantity;
+        orderItems.value[existingIndex].totalPrice += item.totalPrice;
     } else {
         orderItems.value.push(item);
     }
+    selectedVariants.value[product.uuid] = null;
+    selectedQuantities.value[product.uuid] = 1;
     showProductModal.value = false;
 }
 
@@ -413,7 +438,13 @@ async function getProducts() {
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
-        products.value = await response.json();
+        products.value = (await response.json()).map(product => ({
+            ...product,
+            productsVariants: product.productsVariants?.map(variant => ({
+                ...variant,
+                variant: variant.variant || { uuid: '', value: '' }
+            })) || []
+        }));
     } catch (e) {
         console.error(e);
     }
@@ -457,6 +488,18 @@ async function submitOrder() {
             alert('Por favor selecciona un empleado');
             return;
         }
+        const preparedOrderItems = orderItems.value.map(item => {
+            const orderItem = {
+                productId: item.product.uuid,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            };
+            if (item.variant && item.variant.uuid) {
+                orderItem.productVariantId = item.variant.uuid;
+            }
+
+            return orderItem;
+        });
         const orderPayload = {
             numberOrder: generateOrderNumber(),
             total: calculateTotal(),
@@ -466,7 +509,7 @@ async function submitOrder() {
             employeeId: employee.value.uuid,
             orderItems: orderItems.value.map(item => ({
                 productId: item.product.uuid,
-                variantId: item.variant?.uuid || null,
+                productVariantId: item.variant?.uuid || null,
                 quantity: item.quantity,
                 totalPrice: item.totalPrice
             })),
@@ -474,6 +517,7 @@ async function submitOrder() {
                 total: calculateTotal()
             }]
         };
+        console.log(orderPayload)
         const response = await fetch(`${EMPLOYEES_API}/orders`, {
             method: "POST",
             headers: {
@@ -481,71 +525,83 @@ async function submitOrder() {
             },
             body: JSON.stringify(orderPayload)
         });
-        if (response) {
-            alert('Orden registrada exitosamente');
-            goToSales();
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error del servidor:", errorData);
+            throw new Error(errorData.message || "Error al registrar la orden");
         }
+        const result = await response.json();
+        console.log("Orden creada:", result);
+        alert('Orden registrada exitosamente');
+        goToSales();
     } catch (error) {
-        console.error('Error al registrar la orden:', error);
-        alert('Ocurrió un error al registrar la orden');
+        console.error('Error completo:', error);
+        alert(`Error al registrar la orden: ${error.message}`);
     }
 }
 
 async function loadOrderData() {
-  try {
-    const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`);
-    if (!response.ok) {
-      throw new Error("Error al cargar la orden");
+    try {
+        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`);
+        if (!response.ok) {
+            throw new Error("Error al cargar la orden");
+        }
+        const orderData = await response.json();
+        specifications.value = orderData.specifications || "";
+        customer.value = {
+            uuid: orderData.customer.uuid,
+            name: orderData.customer.name,
+            lastName: orderData.customer.lastName,
+            phoneNumber: orderData.customer.phoneNumber,
+            address: {
+                streetName: orderData.customer.addresses?.streetName || '',
+                number: orderData.customer.addresses?.number || '',
+                zipCode: orderData.customer.addresses?.zipCode || '',
+                neighborhood: orderData.customer.addresses?.neighborhood || '',
+                city: orderData.customer.addresses?.city || '',
+                state: orderData.customer.addresses?.state || ''
+            }
+        };
+        if (orderData.historyOrders?.length > 0) {
+            employee.value = {
+                uuid: orderData.historyOrders[0].employee.uuid,
+                username: orderData.historyOrders[0].employee.username,
+                email: orderData.historyOrders[0].employee.email
+            };
+        }
+        orderItems.value = orderData.orderItems.map(item => {
+            let variant = null;
+            if (item.productVariant) {
+                variant = {
+                    uuid: item.productVariant.uuid,
+                    variant: {
+                        uuid: item.productVariant.variant?.uuid,
+                        value: item.productVariant.variant?.value
+                    },
+                    price: item.productVariant.price || item.product.price
+                };
+            }
+            return {
+                uuid: item.uuid,
+                product: {
+                    uuid: item.product.uuid,
+                    name: item.product.name,
+                    description: item.product.description,
+                    price: item.product.price,
+                    imageUrl: item.product.imageUrl,
+                    productsVariants: item.product.productsVariants || []
+                },
+                variant: variant,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            };
+        });
+        await getProducts();
+    } catch (error) {
+        console.error('Error al cargar la orden:', error);
+        alert('No se pudo cargar la orden para edición');
+        router.push({ name: 'sales' });
     }
-    const orderData = await response.json();
-    specifications.value = orderData.specifications;
-    customer.value = {
-      uuid: orderData.customer.uuid,
-      name: orderData.customer.name,
-      lastName: orderData.customer.lastName,
-      phoneNumber: orderData.customer.phoneNumber,
-      address: {
-        streetName: orderData.customer.addresses?.streetName || '',
-        number: orderData.customer.addresses?.number || '',
-        zipCode: orderData.customer.addresses?.zipCode || '',
-        neighborhood: orderData.customer.addresses?.neighborhood || '',
-        city: orderData.customer.addresses?.city || '',
-        state: orderData.customer.addresses?.state || ''
-      }
-    };
-    if (orderData.historyOrders?.length > 0) {
-      employee.value = {
-        uuid: orderData.historyOrders[0].employee.uuid,
-        username: orderData.historyOrders[0].employee.username,
-        email: orderData.historyOrders[0].employee.email
-      };
-    }
-    orderItems.value = orderData.orderItems.map(item => {
-      let variant = null;
-      if (item.variantId) {
-        variant = item.product?.variants?.find(v => v.uuid === item.variantId) || null;
-      }
-      return {
-        product: {
-          uuid: item.product.uuid,
-          name: item.product.name,
-          description: item.product.description,
-          price: item.product.price,
-          imageUrl: item.product.imageUrl,
-          variants: item.product.variants || [],
-          productsVariants: item.product.productsVariants || [] // Asegúrate de incluir esto
-        },
-        variant: variant,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice
-      };
-    });
-    await getProducts();
-  } catch (error) {
-    console.error('Error al cargar la orden:', error);
-    alert('No se pudo cargar la orden para edición');
-    router.push({ name: 'sales' });
-  }
 }
 
 async function updateOrder() {
@@ -562,22 +618,24 @@ async function updateOrder() {
             alert('Por favor selecciona un empleado');
             return;
         }
-        const orderPayload = {
-            numberOrder: generateOrderNumber(),
-            total: calculateTotal(),
-            specifications: specifications.value,
-            date: new Date().toISOString(),
-            customerId: customer.value.uuid,
-            employeeId: employee.value.uuid,
-            orderItems: orderItems.value.map(item => ({
+        const preparedOrderItems = orderItems.value.map(item => {
+            const orderItem = {
+                uuid: item.uuid,
                 productId: item.product.uuid,
-                variantId: item.variant?.uuid || null,
                 quantity: item.quantity,
                 totalPrice: item.totalPrice
-            })),
-            payments: [{
-                total: calculateTotal()
-            }]
+            };
+            if (item.variant?.uuid) {
+                orderItem.productVariantId = item.variant.uuid;
+            }
+            return orderItem;
+        });
+        const orderPayload = {
+            specifications: specifications.value || "Sin especificaciones",
+            customerId: customer.value.uuid,
+            employeeId: employee.value.uuid,
+            orderItems: preparedOrderItems,
+            total: calculateTotal()
         };
         const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
             method: "PUT",
@@ -585,16 +643,18 @@ async function updateOrder() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(orderPayload)
-            });
-        if (response.ok) {
-            alert('Orden actualizada exitosamente');
-            goToSales();
-        } else {
-            throw new Error("Error al actualizar la orden");
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error del servidor:", errorData);
+            throw new Error(errorData.message || "Error al actualizar la orden");
         }
+        const result = await response.json();
+        alert('Orden actualizada exitosamente');
+        goToSales();
     } catch (error) {
         console.error('Error al actualizar la orden:', error);
-        alert('Ocurrió un error al actualizar la orden');
+        alert(`Error al actualizar la orden: ${error.message}`);
     }
 }
 
