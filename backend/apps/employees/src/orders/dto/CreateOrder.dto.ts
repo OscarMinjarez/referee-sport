@@ -4,9 +4,9 @@ import { CreateOrderItemDto } from "./CreateOrderItem.dto";
 import { CreatePaymentDto } from "./CreatePayment.dto";
 
 export class CreateOrderDto {
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    numberOrder: number;
+    numberOrder: string;
   
     @IsNumber()
     @IsNotEmpty()

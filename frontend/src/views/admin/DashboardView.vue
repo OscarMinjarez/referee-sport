@@ -25,13 +25,12 @@ import Sidebar from '../../components/Sidebar.vue';
 import StatsOverview from '../../components/StatsOverview.vue';
 import SalesTable from "../../components/SalesTable.vue";
 import Greetings from '../../components/Greetings.vue';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
 const todaySalesTotal = ref(0);
 const percentageChange = ref(0);
 
 function handleMetrics(metrics) {
-    console.log('Métricas recibidas:', metrics); // Para depuración
     todaySalesTotal.value = metrics.todaySalesTotal;
     percentageChange.value = metrics.percentageChange;
 }

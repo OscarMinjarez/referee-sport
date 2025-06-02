@@ -231,25 +231,28 @@ onMounted(async () => {
         sales.value = await response.json();
         const user = JSON.parse(localStorage.getItem('user'));
         if (user) userRole.value = user.type;
-        const today = new Date().toISOString().slice(0, 10);
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-        const salesToday = sales.value.filter(sale => 
-            new Date(sale.date).toISOString().slice(0, 10) === today && 
+        const today = new Date().toLocaleDateString('en-CA');
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+        const salesToday = sales.value.filter(sale =>
+            new Date(sale.date).toLocaleDateString('en-CA') === today &&
             sale.state !== 'canceled'
         );
         const totalPaidToday = salesToday.reduce((sum, sale) => {
             return sum + sale.payments.reduce((paidSum, payment) => paidSum + payment.amountPaid, 0);
         }, 0);
-        const salesYesterday = sales.value.filter(sale => 
-            new Date(sale.date).toISOString().slice(0, 10) === yesterday && 
+
+        const salesYesterday = sales.value.filter(sale =>
+            new Date(sale.date).toLocaleDateString('en-CA') === yesterday &&
             sale.state !== 'canceled'
         );
         const totalPaidYesterday = salesYesterday.reduce((sum, sale) => {
             return sum + sale.payments.reduce((paidSum, payment) => paidSum + payment.amountPaid, 0);
         }, 0);
+
         const percentageChange = totalPaidYesterday === 0
             ? 100
             : ((totalPaidToday - totalPaidYesterday) / totalPaidYesterday) * 100;
+
         emit('updateMetrics', {
             todaySalesTotal: totalPaidToday,
             percentageChange: Math.round(percentageChange),
