@@ -16,9 +16,7 @@ export class CreateProductDto {
     @IsNumber()
     price: number;
 
-    @IsOptional()
-    @IsString()
-    imagePath?: string;
+    imagePath?: any;
 
     @IsOptional()
     @IsArray()

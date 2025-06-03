@@ -131,10 +131,10 @@ export class ProductsService {
             }
             if (createProductDto.imagePath) {
                 const uploadResult = await this.cloudinaryService.uploadImage(
-                    createProductDto.imagePath,
+                    createProductDto.imagePath.buffer,
                     `product_${createProductDto.name.replace(/\s+/g, '_')}_${Date.now()}`
                 );
-                product.imageUrl = uploadResult.url;
+                product.imageUrl = (uploadResult as { url: string }).url;
             }
             const savedProduct = await this.productRepository.save(product);
             if (createProductDto.variants && createProductDto.variants.length > 0) {
@@ -201,10 +201,10 @@ export class ProductsService {
                 if (!isUrl) {
                     const publicId = `product_${product.name}_${Date.now()}`.replace(/\s+/g, '_');
                     const uploadResult = await this.cloudinaryService.uploadImage(
-                        updateProductDto.imagePath,
+                        updateProductDto.imagePath.buffer,
                         publicId
                     );
-                    product.imageUrl = uploadResult.url || uploadResult.publicId;
+                    product.imageUrl = (uploadResult as { url: string }).url;
                 } else {
                     product.imageUrl = updateProductDto.imagePath;
                 }

@@ -191,6 +191,8 @@ function removeVariant(index) {
   calculateTotalStock();
 }
 
+const uploadedImage = ref(null);
+
 function handleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -200,11 +202,7 @@ function handleImageUpload(event) {
   }
   errorMessage.value = '';
   imagePreview.value = URL.createObjectURL(file);
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    productData.value.imagePath = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  uploadedImage.value = file;
 }
 
 function addTag() {
@@ -242,21 +240,20 @@ async function submitForm() {
   errorMessage.value = '';
   successMessage.value = '';
   try {
-    const payload = {
-      name: productData.value.name,
-      description: productData.value.description,
-      price: parseFloat(productData.value.price),
-      stockQuantity: productData.value.stockQuantity,
-      variants: productData.value.variants.map(variant => ({
-        variantUuid: variant.variantUuid,
-        type: 'talla',
-        value: variant.value,
-        quantity: parseInt(variant.quantity) || 0
-      })),
-      tagNames: productData.value.tagNames
-    };
-    if (productData.value.imagePath) {
-      payload.imagePath = productData.value.imagePath;
+    const formData = new FormData();
+    formData.append('name', productData.value.name);
+    formData.append('description', productData.value.description);
+    formData.append('price', parseFloat(productData.value.price));
+    formData.append('stockQuantity', productData.value.stockQuantity);
+    formData.append('variants', JSON.stringify(productData.value.variants.map(variant => ({
+      variantUuid: variant.variantUuid,
+      type: 'talla',
+      value: variant.value,
+      quantity: parseInt(variant.quantity) || 0
+    }))));
+    formData.append('tagNames', JSON.stringify(productData.value.tagNames || []));
+    if (uploadedImage.value) {
+      formData.append('file', uploadedImage.value);
     }
     const url = isEditing.value
       ? `${EMPLOYEES_API}/products/${productData.value.uuid}`
@@ -264,10 +261,7 @@ async function submitForm() {
     const method = isEditing.value ? 'PUT' : 'POST';
     const response = await fetch(url, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+      body: formData
     });
     const data = await response.json();
     if (!response.ok) {
@@ -278,7 +272,7 @@ async function submitForm() {
       : 'Producto creado exitosamente!';
     if (!isEditing.value) {
       setTimeout(() => {
-        router.push({ name: 'products' });
+        router.push({ name: '/app/products' });
       }, 1500);
     }
   } catch (error) {

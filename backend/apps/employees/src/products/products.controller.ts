@@ -6,13 +6,16 @@ import {
   Put,
   Delete,
   Body,
-  Param, ValidationPipe
+  Param, ValidationPipe,
+  UseInterceptors,
+  UploadedFile
 } from '@nestjs/common';
 import Product from '@app/entities/classes/product.entity';
 import { ProductsService } from "./products.service";
 import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import Tag from '@app/entities/classes/tag.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
@@ -60,8 +63,20 @@ export class ProductsController {
  
 
   @Post()
-  async create(@Body(new ValidationPipe()) createProductDto: CreateProductDto): Promise<Product> {
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @UploadedFile() file: any,
+    @Body() body: any
+  ): Promise<Product> {
     try {
+      const createProductDto: CreateProductDto = {
+        name: body.name,
+        description: body.description,
+        price: parseFloat(body.price),
+        tagNames: body.tagNames ? JSON.parse(body.tagNames) : [],
+        variants: body.variants ? JSON.parse(body.variants) : [],
+        imagePath: file || null
+      };
      return this.productsService.create(createProductDto);
     } catch (error: any) {
       throw error;
