@@ -11,9 +11,9 @@
                     <div class="vr"></div>
 
                     <div class="text-center">
-                        <span 
+                        <span
                             class="badge fs-6 p-2"
-                            :class="percentageChange >= 0 ? 'bg-light text-success' : 'bg-light text-danger'"
+                            :class="percentageChange > 0 ? 'bg-light text-success' : 'bg-light text-danger'"
                         >
                         <i 
                             :class="{

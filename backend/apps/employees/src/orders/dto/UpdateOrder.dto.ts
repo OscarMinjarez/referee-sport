@@ -5,8 +5,8 @@ import { UpdatePaymentDto } from "./UpdatePayment.dto";
 
 export class UpdateOrderDto {
     @IsNumber()
-    @IsOptional()
-    numberOrder?: number;
+    @IsString()
+    numberOrder?: string;
   
     @IsNumber()
     @IsOptional()

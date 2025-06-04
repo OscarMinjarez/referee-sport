@@ -250,9 +250,8 @@ onMounted(async () => {
         }, 0);
 
         const percentageChange = totalPaidYesterday === 0
-            ? 100
+            ? (totalPaidToday > 0 ? 100 : 0)
             : ((totalPaidToday - totalPaidYesterday) / totalPaidYesterday) * 100;
-
         emit('updateMetrics', {
             todaySalesTotal: totalPaidToday,
             percentageChange: Math.round(percentageChange),

@@ -97,7 +97,7 @@ function goToEmployees() {
 onMounted(function() {
   const parseUser = JSON.parse(window.localStorage.getItem("user"));
   username.value = parseUser.username;
-  imgPath.value = parseUser.imagePath ?? "../../public/defaultIcon.jpg";
+  imgPath.value = parseUser.imagePath ?? "/defaultIcon.jpg";
   role.value = parseUser.type;
 });
 </script>
