@@ -10,6 +10,7 @@ import Employee     from '@app/entities/classes/employee.entity';
 import { OrdersService }    from './orders.service';
 import { OrdersController } from './orders.controller';
 import ProductVariant from '@app/entities/classes/productVariant.entity';
+import { FirebaseModule } from '@app/firebase';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import ProductVariant from '@app/entities/classes/productVariant.entity';
       Employee,
       ProductVariant
     ]),
+    FirebaseModule
   ],
   providers: [OrdersService],
   controllers: [OrdersController],

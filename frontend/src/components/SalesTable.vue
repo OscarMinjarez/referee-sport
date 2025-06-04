@@ -83,32 +83,25 @@
                         </span>
                     </td>
                     <td>
-                        <button 
-                            type="button" 
-                            class="btn btn-info mx-1" 
-                            @click="viewSaleDetails(sale.uuid)"
-                            title="Ver detalles"
-                        >
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-warning mx-1" 
-                            @click="editSale(sale.uuid)"
-                            title="Editar"
-                            v-if="canEdit"
-                        >
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button 
-                            type="button" 
-                            class="btn btn-danger mx-1" 
-                            @click="cancelSale(sale.uuid)"
-                            title="Cancelar"
-                            v-if="canCancel(sale)"
-                        >
-                            <i class="fa-solid fa-ban"></i>
-                        </button>
+                        <div class="d-flex flex-row h-100">
+                            <button 
+                                type="button" 
+                                class="btn btn-info mx-1" 
+                                @click="viewSaleDetails(sale.uuid)"
+                                title="Ver detalles"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button 
+                                type="button" 
+                                class="btn btn-warning mx-1" 
+                                @click="editSale(sale.uuid)"
+                                title="Editar"
+                                v-if="canEdit"
+                            >
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -226,7 +219,12 @@ function goToCreateSale() {
 
 onMounted(async () => {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/orders`);
+        const response = await fetch(`${EMPLOYEES_API}/orders`, {
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) throw new Error("Error al obtener ventas");
         sales.value = await response.json();
         const user = JSON.parse(localStorage.getItem('user'));

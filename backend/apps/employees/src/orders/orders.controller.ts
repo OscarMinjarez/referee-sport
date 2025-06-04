@@ -6,16 +6,17 @@ import {
   Delete,
   Param,
   Body,
-  HttpException,
-  HttpStatus,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import Order from '@app/entities/classes/order.entity';
 import { OrdersService } from './orders.service';
 import { UpdateOrderDto } from './dto/UpdateOrder.dto';
 import { CreateOrderDto } from './dto/CreateOrder.dto';
+import { FirebaseAuthGuard } from '../auths/guards/firebase-auth.guard';
 
 @Controller('orders')
+@UseGuards(FirebaseAuthGuard)
 export class OrdersController {
   constructor(private readonly service: OrdersService) {}
 

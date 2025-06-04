@@ -113,12 +113,34 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
-    const isAuthenticated = !!localStorage.getItem('token');
-    const userData = JSON.parse(localStorage.getItem('user')) || {};
+router.beforeEach(async (to, from, next) => {
+    const token = localStorage.getItem('token');
+    const isAuthenticated = !!token;
+    let userData = {};
+    try {
+        const user = localStorage.getItem('user');
+        userData = user ? JSON.parse(user) : {};
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('user');
+    }
     const userRole = userData.type;
     if (to.name === 'login' && isAuthenticated) {
         return next(redirectByRole(userRole));
+    }
+    if (isAuthenticated) {
+        try {
+        const isTokenValid = await verifyTokenExpiration(token);        
+        if (!isTokenValid) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            return next({ name: 'login', query: { redirect: to.fullPath } });
+        }
+        } catch (error) {
+        console.error('Error verifying token:', error);
+        localStorage.clear();
+        return next({ name: 'login' });
+        }
     }
     if (to.meta.requiresAuth) {
         if (!isAuthenticated) {
@@ -144,6 +166,17 @@ function redirectByRole(role) {
         default:
             return { path: '/app/catalog' };
     }
+}
+
+async function verifyTokenExpiration(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp > currentTime;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return false;
+  }
 }
 
 export default router;

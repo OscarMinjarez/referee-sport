@@ -16,6 +16,6 @@ import { FirebaseModule } from '@app/firebase';
   ],
   providers: [AuthService],
   controllers: [AuthController],
-  exports: [AuthService], // Por si necesitas usar el servicio en otros módulos
+  exports: [AuthService],
 })
 export class AuthModule {}

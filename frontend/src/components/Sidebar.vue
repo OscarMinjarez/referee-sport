@@ -65,6 +65,7 @@ import ListGroupItem from './ListGroupItem.vue';
 import ListGroup from './ListGroup.vue';
 import { onMounted } from 'vue';
 import { ref } from 'vue';
+import { getAuth } from 'firebase/auth';
 
 const router = useRouter();
 const username = ref("");
@@ -72,10 +73,16 @@ const role = ref("");
 
 const imgPath = ref("");
 
-function logout() {
+async function logout() {
   window.localStorage.clear("token");
   window.localStorage.clear("user");
-  router.push("/app/login");
+  try {
+    const auth = getAuth();
+    await auth.signOut();
+    router.push("/app/login");
+  } catch (e) {
+    console.error("Error signing out:", e);
+  }
 }
 
 function goToStorage() {

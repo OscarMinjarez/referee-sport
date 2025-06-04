@@ -55,4 +55,15 @@ export class FirebaseService {
             throw new Error("An error occurred while creating the custom token... " + e);
         }
     }
+
+    async verifyIdToken(idToken: string): Promise<admin.auth.DecodedIdToken> {
+        try {
+            if (!idToken || idToken.split('.').length !== 3) {
+                throw new Error('Token is not valid');
+            }
+            return await this._auth.verifyIdToken(idToken);
+        } catch (e: unknown) {
+            throw new Error("An error occurred while verifying the ID token... " + e);
+        }
+    }
 }

@@ -18,4 +18,18 @@ export class EmployeesService {
       throw new HttpException('Error al obtener los empleados', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async findByUid(uid: string): Promise<Employee> {
+    try {
+      const employee = await this.employeeRepository.findOne({
+        where: { uid },
+      });
+      if (!employee) {
+        throw new HttpException('Empleado no encontrado', HttpStatus.NOT_FOUND);
+      }
+      return employee;
+    } catch (error: any) {
+      throw new HttpException('Error al obtener el empleado', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

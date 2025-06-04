@@ -42,6 +42,8 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { EMPLOYEES_API } from "../../constants";
+import { auth } from "../../firebase_auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const email = ref("");
 const password = ref("");
@@ -76,24 +78,23 @@ async function login() {
     }
     try {
         loading.value = true;
-        const response = await fetch(`${EMPLOYEES_API}/auth/login`, {
-            method: "POST",
+        const authResponse = await signInWithEmailAndPassword(auth, email.value, password.value);
+        const token = await authResponse.user.accessToken;
+        console.log(authResponse.user.uid);
+        const response = await fetch(`${EMPLOYEES_API}/employees/${authResponse.user.uid}`, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email.value,
-                password: password.value
-            })
+                "Content-Type": "application/json",
+                "aUthorization": `Bearer ${token}`
+            }
         });
         if (!response.ok) {
-            throw new Error("Ocurrió un error desconocido");
+            throw new Error("Error al obtener los datos del empleado");
         }
         const data = await response.json();
-        saveUserData(data);
-        const role = data.employee.type;
-        const redirectPath = redirectByRole(role);
-        router.push(redirectPath);
+        window.localStorage.setItem("token", token);
+        window.localStorage.setItem("user", JSON.stringify(data));
+        router.push(redirectByRole(data.type));
     } catch (e) {
         console.error(e);
     } finally {
