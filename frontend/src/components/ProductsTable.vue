@@ -96,7 +96,14 @@ function getStockQuantity(product) {
 
 async function fetchProducts() {
   try {
-    const response = await fetch(`${EMPLOYEES_API}/products`);
+    const response = await fetch(`${EMPLOYEES_API}/products`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`,
+        "role": JSON.parse(window.localStorage.getItem('user')).type
+      }
+    });
     if (!response.ok) {
       throw Error("Tuvismos problemas para conectarnos al server.");
     }
@@ -114,8 +121,10 @@ async function deleteProduct(productUuid) {
     const response = await fetch(`${EMPLOYEES_API}/products/${productUuid}`, {
       method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
-      },
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`,
+        "role": JSON.parse(window.localStorage.getItem('user')).type
+      }
     });
     if (!response.ok) {
       const errorData = await response.json();

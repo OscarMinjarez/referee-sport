@@ -222,7 +222,8 @@ onMounted(async () => {
         const response = await fetch(`${EMPLOYEES_API}/orders`, {
             headers: {
                 "Content-Type": "application/json",
-                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`,
+                "role": JSON.parse(window.localStorage.getItem('user')).type
             }
         });
         if (!response.ok) throw new Error("Error al obtener ventas");

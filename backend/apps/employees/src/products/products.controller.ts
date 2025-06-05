@@ -16,6 +16,8 @@ import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import Tag from '@app/entities/classes/tag.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from '../auths/decorators/roles.decorator';
+import { EmployeeTypeValue } from '@app/entities';
 
 @Controller('products')
 export class ProductsController {
@@ -24,11 +26,13 @@ export class ProductsController {
   ) {}
 
   @Get()
+  @Roles(EmployeeTypeValue.Sales, EmployeeTypeValue.Admin, EmployeeTypeValue.Store)
   async findAll(): Promise<Product[]> {
     return this.productsService.findAll();
   }
 
   @Get(':id')
+  @Roles(EmployeeTypeValue.Sales, EmployeeTypeValue.Admin, EmployeeTypeValue.Store)
   async findOne(@Param('id') id: string): Promise<Product> {
     try {
       return this.productsService.findOne(id);
@@ -64,6 +68,7 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
+  @Roles(EmployeeTypeValue.Admin, EmployeeTypeValue.Store)
   async create(
     @UploadedFile() file: any,
     @Body() body: any
@@ -84,6 +89,7 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @Roles(EmployeeTypeValue.Admin, EmployeeTypeValue.Store)
   async update(
     @Param('id') id: string,
     @Body(new ValidationPipe()) updateProductDto: UpdateProductDto
@@ -96,6 +102,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @Roles(EmployeeTypeValue.Admin, EmployeeTypeValue.Store)
   async delete(@Param('id') id: string): Promise<{ message: string }> {
     try {
       return await this.productsService.delete(id);

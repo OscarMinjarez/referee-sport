@@ -419,7 +419,8 @@ async function registerCustomer(customer) {
         const response = await fetch(`${EMPLOYEES_API}/customers`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
             },
             body: JSON.stringify(customer)
         });
@@ -434,7 +435,13 @@ async function registerCustomer(customer) {
 
 async function getProducts() {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/products`);
+        const response = await fetch(`${EMPLOYEES_API}/products`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
@@ -452,7 +459,13 @@ async function getProducts() {
 
 async function getCustomers() {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/customers`);
+        const response = await fetch(`${EMPLOYEES_API}/customers`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
@@ -521,7 +534,8 @@ async function submitOrder() {
         const response = await fetch(`${EMPLOYEES_API}/orders`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
             },
             body: JSON.stringify(orderPayload)
         });
@@ -542,7 +556,13 @@ async function submitOrder() {
 
 async function loadOrderData() {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`);
+        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Error al cargar la orden");
         }
@@ -640,7 +660,8 @@ async function updateOrder() {
         const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
             },
             body: JSON.stringify(orderPayload)
         });

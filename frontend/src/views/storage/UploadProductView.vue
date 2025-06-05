@@ -261,7 +261,11 @@ async function submitForm() {
     const method = isEditing.value ? 'PUT' : 'POST';
     const response = await fetch(url, {
       method,
-      body: formData
+      body: formData,
+      headers: {
+        'authorization': `Bearer ${window.localStorage.getItem('token')}`,
+        'role': JSON.parse(window.localStorage.getItem('user')).type
+      }
     });
     const data = await response.json();
     if (!response.ok) {
@@ -285,7 +289,14 @@ async function submitForm() {
 
 async function getProduct() {
   try {
-    const response = await fetch(`${EMPLOYEES_API}/products/${productId.value}`);
+    const response = await fetch(`${EMPLOYEES_API}/products/${productId.value}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem("token")}`,
+        "role": JSON.parse(window.localStorage.getItem("user")).type
+      }
+    });
     if (!response.ok) {
       throw Error("El producto no existe.");
     }

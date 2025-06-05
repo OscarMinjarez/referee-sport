@@ -92,9 +92,16 @@ function formatDate(dateString) {
 
 async function fetchEmployees() {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/employees`);
+        const response = await fetch(`${EMPLOYEES_API}/employees`, {
+            method: "GET",
+            headers: {
+                "Conent-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`,
+                "role": JSON.parse(window.localStorage.getItem('user')).type
+            }
+        });
         if (!response.ok) {
-        throw Error("Tuvimos problemas para conectarnos al servidor.");
+            throw Error("Tuvimos problemas para conectarnos al servidor.");
         }
         return await response.json();
     } catch (e) {
@@ -111,6 +118,8 @@ async function deleteEmployee(employeeUuid) {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`,
+                "role": JSON.parse(window.localStorage.getItem('user')).type
             },
         });
         if (!response.ok) {

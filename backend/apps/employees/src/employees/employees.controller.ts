@@ -1,10 +1,8 @@
 import { Controller, Get, Post, Body, HttpException, HttpStatus, UseGuards, Param } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import Employee from '@app/entities/classes/employee.entity';
-import { FirebaseAuthGuard } from '../auths/guards/firebase-auth.guard';
 
 @Controller('employees')
-@UseGuards(FirebaseAuthGuard)
 export class EmployeesController {
 
   constructor(private readonly employeesService: EmployeesService) {}

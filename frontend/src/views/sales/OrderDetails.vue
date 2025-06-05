@@ -286,6 +286,7 @@ async function savePayment() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`
       },
       body: JSON.stringify({
         amountPaid: editingPayment.value.amountPaid,
@@ -383,7 +384,13 @@ async function fetchOrder() {
   const id = route.params.id;
   try {
     loading.value = true;
-    const response = await fetch(`${EMPLOYEES_API}/orders/${id}`);
+    const response = await fetch(`${EMPLOYEES_API}/orders/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`
+      }
+    });
     if (!response.ok) {
       throw new Error('Orden no encontrada');
     }

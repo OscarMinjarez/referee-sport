@@ -91,7 +91,13 @@ onMounted(async function() {
 
 async function getOrders() {
     try {
-        const response = await fetch(`${EMPLOYEES_API}/orders`);
+        const response = await fetch(`${EMPLOYEES_API}/orders`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw Error("Tuvismos problemas para conectarnos al server.");
         }
