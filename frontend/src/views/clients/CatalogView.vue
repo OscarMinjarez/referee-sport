@@ -39,7 +39,7 @@
 import { ref, onMounted, computed } from 'vue';
 import Navbar from '../../components/Navbar.vue';
 import ProductCard from '../../components/ProductCard.vue';
-import { EMPLOYEES_API } from "../../constants";
+import { CLIENTS_API, EMPLOYEES_API } from "../../constants";
 
 const products = ref([]);
 const allProducts = ref([]);
@@ -68,7 +68,7 @@ function getProductStock(product) {
 
 async function getProducts() {
   try {
-    const res = await fetch(`${EMPLOYEES_API}/products`);
+    const res = await fetch(`${CLIENTS_API}/products`);
     if (!res.ok) throw new Error('Error al obtener productos');
     return res.json();
   } catch (error) {
@@ -111,8 +111,8 @@ async function search(name) {
 onMounted(async () => {
   try {
     const productList = await getProducts();
-    allProducts.value = productList;
-    products.value = productList;
+    allProducts.value = productList?.data;
+    products.value = productList?.data;
   } catch (err) {
     console.error('Error al cargar datos:', err);
   }

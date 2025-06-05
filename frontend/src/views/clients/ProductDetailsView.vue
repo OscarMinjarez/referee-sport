@@ -66,7 +66,7 @@
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import Navbar from "../../components/Navbar.vue";
-import { EMPLOYEES_API } from '../../constants';
+import { CLIENTS_API, EMPLOYEES_API } from '../../constants';
 
 const route = useRoute()
 const id = route.params.id
@@ -75,7 +75,7 @@ const product = ref(null)
 
 async function getProduct() {
   try {
-    const response = await fetch(`${EMPLOYEES_API}/products/${id}`)
+    const response = await fetch(`${CLIENTS_API}/products/${id}`)
     if (!response.ok) {
       throw new Error('No hay producto.')
     }
