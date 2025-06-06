@@ -33,15 +33,12 @@
       />
     </div>
 
-    <div class="mt-4 d-flex justify-content-center gap-2">
-      <button class="btn btn-outline-primary" @click="previousPage" :disabled="page <= 1">
-        Anterior
-      </button>
-      <span class="align-self-center">Página {{ page }}</span>
-      <button class="btn btn-outline-primary" @click="nextPage" :disabled="page >= lastPage">
-        Siguiente
-      </button>
-    </div>
+    <PaginationButtons
+      :page="page"
+      :lastPage="lastPage"
+      @nextPage="nextPage"
+      @previousPage="previousPage"
+    />
   </main>
 </template>
 
@@ -50,6 +47,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import Navbar from '../../components/Navbar.vue';
 import ProductCard from '../../components/ProductCard.vue';
 import { CLIENTS_API, EMPLOYEES_API } from "../../constants";
+import PaginationButtons from '../../components/PaginationButtons.vue';
 
 const products = ref([]);
 const allProducts = ref([]);

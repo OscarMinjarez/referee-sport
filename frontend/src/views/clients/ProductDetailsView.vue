@@ -1,11 +1,14 @@
 <template>
   <Navbar />
-  <div class="container-fluid my-5">
+  <div class="container-fluid">
     <div
       v-if="product"
       class="card mx-auto rounded-4 p-4 border-0"
       style="max-width: 1200px;"
     >
+      <button class="btn btn-outline-secondary position-absolute top-0 end-0 m-3" @click="goBack">
+          <i class="fa-solid fa-arrow-left"></i>
+      </button>
       <div class="row g-4">
         <div class="col-md-6 d-flex align-items-center justify-content-center">
           <img
@@ -63,23 +66,28 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import Navbar from "../../components/Navbar.vue";
-import { CLIENTS_API, EMPLOYEES_API } from '../../constants';
+import { CLIENTS_API } from '../../constants';
 
-const route = useRoute()
+const route = useRoute();
+const router = useRouter();
 const id = route.params.id
 
-const product = ref(null)
+const product = ref(null);
+
+async function goBack() {
+  await router.back()
+}
 
 async function getProduct() {
   try {
-    const response = await fetch(`${CLIENTS_API}/products/${id}`)
+    const response = await fetch(`${CLIENTS_API}/products/${id}`);
     if (!response.ok) {
-      throw new Error('No hay producto.')
+      throw new Error('No hay producto.');
     }
-    return await response.json()
+    return await response.json();
   } catch (e) {
     console.error(e)
   }
