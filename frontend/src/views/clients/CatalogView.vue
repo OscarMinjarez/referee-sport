@@ -32,11 +32,21 @@
         :productImage="product.imageUrl"
       />
     </div>
+
+    <div class="mt-4 d-flex justify-content-center gap-2">
+      <button class="btn btn-outline-primary" @click="previousPage" :disabled="page <= 1">
+        Anterior
+      </button>
+      <span class="align-self-center">Página {{ page }}</span>
+      <button class="btn btn-outline-primary" @click="nextPage" :disabled="page >= lastPage">
+        Siguiente
+      </button>
+    </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import Navbar from '../../components/Navbar.vue';
 import ProductCard from '../../components/ProductCard.vue';
 import { CLIENTS_API, EMPLOYEES_API } from "../../constants";
@@ -44,6 +54,21 @@ import { CLIENTS_API, EMPLOYEES_API } from "../../constants";
 const products = ref([]);
 const allProducts = ref([]);
 const activeTag = ref(null);
+
+const page = ref(1);
+const lastPage = ref(1);
+
+function nextPage() {
+  if (page.value < lastPage.value) {
+    page.value++;
+  }
+}
+
+function previousPage() {
+  if (page.value > 1) {
+    page.value--;
+  }
+}
 
 const uniqueTags = computed(() => {
   const tagSet = new Set();
@@ -66,11 +91,11 @@ function getProductStock(product) {
   return product.productsVariants.reduce((total, variant) => total + (variant.quantity || 0), 0);
 }
 
-async function getProducts() {
+async function getProducts(page, limit = 5) {
   try {
-    const res = await fetch(`${CLIENTS_API}/products`);
+    const res = await fetch(`${CLIENTS_API}/products?page=${page || 1}&limit=${limit}`);
     if (!res.ok) throw new Error('Error al obtener productos');
-    return res.json();
+    return await res.json();
   } catch (error) {
     console.error('Error al cargar productos:', error);
     return [];
@@ -102,7 +127,7 @@ async function search(name) {
     const res = await fetch(`${EMPLOYEES_API}/products/search/${name}`);
     if (!res.ok) throw new Error('Error en búsqueda');
     products.value = await res.json();
-    activeTag.value = null; // Resetear tag activo al buscar
+    activeTag.value = null;
   } catch (error) {
     console.error('Error en la búsqueda:', error);
   }
@@ -113,8 +138,20 @@ onMounted(async () => {
     const productList = await getProducts();
     allProducts.value = productList?.data;
     products.value = productList?.data;
+    lastPage.value = productList?.meta.lastPage;
   } catch (err) {
     console.error('Error al cargar datos:', err);
+  }
+});
+
+watch(page, async function(page) {
+  try {
+    const productList = await getProducts(page);
+    allProducts.value = productList?.data;
+    products.value = productList?.data;
+    lastPage.value = productList?.meta.lastPage;
+  } catch (err) {
+    console.error('Error al actualizar productos por página:', err);
   }
 });
 </script>

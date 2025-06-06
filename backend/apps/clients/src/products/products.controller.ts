@@ -10,7 +10,7 @@ export class ProductsController {
 
     @Get()
     async findAll(
-        @Query("page") paginationDto: PaginationDto
+        @Query() paginationDto: PaginationDto
     ) {
         return this.productsService.findAll(paginationDto);
     }
