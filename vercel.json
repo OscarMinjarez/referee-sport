@@ -1,7 +1,4 @@
 {
-  "projects": {
-    "name": "referee-sport-app"
-  },
   "rootDirectory": "frontend",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
