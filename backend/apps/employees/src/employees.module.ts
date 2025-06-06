@@ -13,14 +13,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { FirebaseAuthGuard } from './authentication/guards/firebase-auth.guard';
 import { FirebaseModule } from '@app/firebase';
 import { RolesGuard } from './authentication/guards/roles.guard';
-import { StaticModule } from './static/static.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
             useClass: EntitiesService,
         }),
-        ProductsModule, Employees, OrdersModule, CustomersModule, PaymentsModule, AuthModule, FirebaseModule, StaticModule
+        ProductsModule, Employees, OrdersModule, CustomersModule, PaymentsModule, AuthModule, FirebaseModule
     ],
     controllers: [EmployeesController],
     providers: [

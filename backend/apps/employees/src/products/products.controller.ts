@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -16,7 +15,7 @@ import {CreateProductDto} from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import Tag from '@app/entities/classes/tag.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Roles } from '../auths/decorators/roles.decorator';
+import { Roles } from '../authentication/decorators/roles.decorator';
 import { EmployeeTypeValue } from '@app/entities';
 
 @Controller('products')

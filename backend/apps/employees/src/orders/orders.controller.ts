@@ -12,7 +12,7 @@ import Order from '@app/entities/classes/order.entity';
 import { OrdersService } from './orders.service';
 import { UpdateOrderDto } from './dto/UpdateOrder.dto';
 import { CreateOrderDto } from './dto/CreateOrder.dto';
-import { Roles } from '../auths/decorators/roles.decorator';
+import { Roles } from '../authentication/decorators/roles.decorator';
 import { EmployeeTypeValue } from '@app/entities';
 
 @Controller('orders')
