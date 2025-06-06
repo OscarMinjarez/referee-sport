@@ -8,11 +8,11 @@ import {EntitiesService} from "@app/entities";
 import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './costumers/costumer.module';
 import { PaymentsModule } from './payments/payments.module';
-import { AuthModule } from './auths/auth.module';
+import { AuthModule } from './authentication/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { FirebaseAuthGuard } from './auths/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from './authentication/guards/firebase-auth.guard';
 import { FirebaseModule } from '@app/firebase';
-import { RolesGuard } from './auths/guards/roles.guard';
+import { RolesGuard } from './authentication/guards/roles.guard';
 import { StaticModule } from './static/static.module';
 
 @Module({
