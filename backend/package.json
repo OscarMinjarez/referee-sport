@@ -9,7 +9,7 @@
     "build": "npx nest build",
     "build:clients": "npx nest build clients",
     "build:employees": "npx nest build employees",
-    "build:all": "npm run build:clients && npm run build:employees",
+    "build:all": "npm install && npm run build:clients && npm run build:employees",
     "start": "npx nest start",
     "start:clients": "npx nest start clients",
     "start:employees": "npx nest start employees",
