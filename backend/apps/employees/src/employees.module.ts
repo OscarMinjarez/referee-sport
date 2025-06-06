@@ -2,23 +2,37 @@ import { Module } from '@nestjs/common';
 import { EmployeesController } from './employees.controller';
 import { EmployeesService } from './employees.service';
 import {ProductsModule} from "./products/products.module";
-import {UserModule} from "./user/user.module";
 import {EmployeesModule as Employees} from "./employees/employees.module";
-import {SizeModule} from "./size/size.module";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {EntitiesService} from "@app/entities";
 import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './costumers/costumer.module';
 import { PaymentsModule } from './payments/payments.module';
+import { AuthModule } from './auths/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { FirebaseAuthGuard } from './auths/guards/firebase-auth.guard';
+import { FirebaseModule } from '@app/firebase';
+import { RolesGuard } from './auths/guards/roles.guard';
+import { StaticModule } from './static/static.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
             useClass: EntitiesService,
         }),
-        ProductsModule, UserModule, Employees, SizeModule, OrdersModule, CustomersModule, PaymentsModule
+        ProductsModule, Employees, OrdersModule, CustomersModule, PaymentsModule, AuthModule, FirebaseModule, StaticModule
     ],
     controllers: [EmployeesController],
-    providers: [EmployeesService],
+    providers: [
+        EmployeesService,
+        {
+            provide: APP_GUARD,
+            useClass: FirebaseAuthGuard
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard
+        }
+    ],
 })
 export class EmployeesModule {}

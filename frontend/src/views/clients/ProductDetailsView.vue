@@ -3,7 +3,7 @@
   <div class="container-fluid my-5">
     <div
       v-if="product"
-      class="card mx-auto rounded-4 p-4 bg-white border-0"
+      class="card mx-auto rounded-4 p-4 border-0"
       style="max-width: 1200px;"
     >
       <div class="row g-4">
@@ -25,19 +25,16 @@
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Precio:</strong> ${{ product.price }}
               </li>
-<!--              <li class="list-group-item bg-transparent border-0 px-0">-->
-<!--                <strong>Disponibles:</strong> {{ product.stockQuantity }} unidades-->
-<!--              </li>-->
               <li class="list-group-item bg-transparent border-0 px-0">
                 <strong>Tallas disponibles:</strong>
                 <div class="d-flex flex-wrap gap-2 mt-2">
                   <span
-                    v-for="variant in product.variants"
-                    :key="variant.uuid"
+                    v-for="productVariant in product.productsVariants"
+                    :key="productVariant.uuid"
                     class="badge bg-light text-dark border py-2 px-3"
                   >
-                    <span class="fw-bold">{{ variant.size.size.toUpperCase() }}</span>:
-                    {{ variant.quantity }} unid.
+                    <span class="fw-bold">{{ productVariant.variant.value.toUpperCase() }}</span>:
+                    {{ productVariant.quantity }} unid.
                   </span>
                 </div>
               </li>
@@ -69,6 +66,7 @@
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import Navbar from "../../components/Navbar.vue";
+import { CLIENTS_API, EMPLOYEES_API } from '../../constants';
 
 const route = useRoute()
 const id = route.params.id
@@ -77,7 +75,7 @@ const product = ref(null)
 
 async function getProduct() {
   try {
-    const response = await fetch(`http://localhost:3001/api/products/${id}`)
+    const response = await fetch(`${CLIENTS_API}/products/${id}`)
     if (!response.ok) {
       throw new Error('No hay producto.')
     }

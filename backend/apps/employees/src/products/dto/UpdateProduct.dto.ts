@@ -1,6 +1,6 @@
 import { IsArray, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { VariantDto } from './variant.dto';
+import { VariantDto } from './CreateVariant.dto';
 
 export class UpdateProductDto {
     @IsOptional()
@@ -15,9 +15,7 @@ export class UpdateProductDto {
     @IsNumber()
     price?: number;
 
-    @IsOptional()
-    @IsString()
-    imagePath?: string;
+    imagePath?: any;
 
     @IsOptional()
     @IsArray()

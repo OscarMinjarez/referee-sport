@@ -11,5 +11,5 @@ export * from "./classes/orderEvent.entity";
 export * from "./classes/orderItem.entity";
 export * from "./classes/payment.entity";
 export * from "./classes/product.entity";
-export * from "./classes/size.entity";
 export * from "./classes/user.entity";
+export * from "./classes/productVariant.entity";

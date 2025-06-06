@@ -1,126 +1,166 @@
 <template>
-    <div class="order-form p-4">
-        <h2>{{ isEditMode ? 'Editar orden' : 'Registrar nueva orden' }}</h2>
-    
-        <h4 class="mt-4">Información del cliente</h4>
-        <form class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Nombre del cliente</label>
-                <input v-model="customer.name" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Apellido</label>
-                <input v-model="customer.lastName" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
-                <input v-model="customer.phoneNumber" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Calle</label>
-                <input v-model="customer.address.streetName" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Número</label>
-                <input v-model="customer.address.number" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Código postal</label>
-                <input v-model="customer.address.zipCode" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Colonia</label>
-                <input v-model="customer.address.neighborhood" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Ciudad</label>
-                <input v-model="customer.address.city" class="form-control" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Estado</label>
-                <input v-model="customer.address.state" class="form-control" />
-            </div>
-    
-            <div class="col-12">
-                <button type="button" class="btn btn-primary me-2" @click="openCustomerModal">
-                    Buscar cliente
-                </button>
-                <button type="button" class="btn btn-secondary" @click="registerCustomer(customer)">
-                    Registrar cliente
-                </button>
-            </div>
-        </form>
+    <div class="container my-4">
 
-        <h4 class="mt-5">Especificaciones</h4>
-        <div class="mb-3">
-            <label class="form-label">Notas adicionales</label>
-            <textarea 
-                v-model="specifications" 
-                class="form-control" 
-                rows="3"
-                placeholder="Ingrese cualquier especificación especial para la orden..."
-            ></textarea>
+        <div class="mb-4">
+            <h2>{{ isEditMode ? 'Editar orden' : 'Registrar nueva orden' }}</h2>
         </div>
-    
-        <h4 class="mt-5">Productos</h4>
-        <Table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>Cantidad</th>
-                    <th>Producto</th>
-                    <th>Detalle</th>
-                    <th>Costo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item, index) in orderItems" :key="index">
-                    <td>
-                        <input 
-                            v-model="item.quantity" 
-                            type="number" 
-                            min="1" 
-                            :max="getMaxQuantity(item.product)"
-                            @input="updateQuantity(item)"
-                            class="form-control form-control-sm"
-                        />
-                    </td>
-                    <td>{{ item.product.name }}</td>
-                    <td>{{ item.product.description }}</td>
-                    <td>${{ item.totalPrice.toFixed(2) }}</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger" @click="removeItem(index)">Eliminar</button> <!-- Botón para eliminar -->
-                    </td>
-                </tr>
-            </tbody>
-        </Table>
-        <button class="btn btn-outline-primary mt-2" @click="openProductModal">
-            Agregar producto
-        </button>
-    
-        <h4 class="mt-5">Empleado</h4>
-        <div class="row">
-            <div class="col-md-6">
-                <input v-model="employee.username" class="form-control" placeholder="Nombre de usuario" />
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Información del Cliente</h5>
             </div>
-            <div class="col-md-6">
-                <input v-model="employee.email" class="form-control" placeholder="Correo" />
-            </div>
-            <div class="col-12 mt-2">
-                <button type="button" class="btn btn-secondary" @click="openEmployeeModal">
-                    Buscar empleado
-                </button>
+            <div class="card-body">
+                <form class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre del cliente</label>
+                        <input v-model="customer.name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellido</label>
+                        <input v-model="customer.lastName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono</label>
+                        <input v-model="customer.phoneNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Calle</label>
+                        <input v-model="customer.address.streetName" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Número</label>
+                        <input v-model="customer.address.number" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Código postal</label>
+                        <input v-model="customer.address.zipCode" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Colonia</label>
+                        <input v-model="customer.address.neighborhood" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ciudad</label>
+                        <input v-model="customer.address.city" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <input v-model="customer.address.state" class="form-control" />
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="button" class="btn btn-primary me-2" @click="openCustomerModal">
+                        Buscar cliente
+                        </button>
+                        <button type="button" class="btn btn-secondary" @click="registerCustomer(customer)">
+                        Registrar cliente
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    
-        <div class="mt-4 d-flex justify-content-between">
-          <button type="button" class="btn btn-outline-secondary" @click="goBack">
-            Volver
-          </button>
 
-          <button class="btn btn-success" @click="isEditMode ? updateOrder() : submitOrder()">
-              {{ isEditMode ? 'Actualizar orden' : 'Registrar orden' }}
-          </button>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Especificaciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Notas adicionales</label>
+                    <textarea 
+                        v-model="specifications" 
+                        class="form-control" 
+                        rows="3"
+                        placeholder="Ingrese cualquier especificación especial para la orden...">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Productos</h5>
+            </div>
+            <div class="card-body py-0">
+                <div class="table-responsive">
+                    <Table class="mb-0">
+                        <thead class="align-middle">
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Cantidad</th>
+                                <th>Producto</th>
+                                <th>Talla</th>
+                                <th>Detalle</th>
+                                <th>Costo</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle">
+                            <tr v-for="(item, index) in orderItems" :key="index">
+                                <td class="align-middle p-1" style="width: 80px; max-width: 80px;">
+                                    <div class="ratio ratio-1x1">
+                                        <img 
+                                        v-if="item.product.imageUrl" 
+                                        :src="item.product.imageUrl" 
+                                        alt="Imagen del producto"
+                                        class="img-fluid object-fit-cover"
+                                        >
+                                        <div v-else class="d-flex h-100 w-100 bg-light align-items-center justify-content-center border rounded">
+                                            <span class="text-muted small">Sin imagen</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input 
+                                        v-model="item.quantity" 
+                                        type="number" 
+                                        min="1" 
+                                        :max="getMaxQuantity(item.product)"
+                                        @input="updateQuantity(item)"
+                                        class="form-control form-control-sm"
+                                    />
+                                </td>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.variant ? item.variant.variant.value.toUpperCase() : 'N/A' }}</td>
+                                <td>{{ item.product.description }}</td>
+                                <td>${{ item.totalPrice.toFixed(2) }}</td>
+                                <td>
+                                    <button class="btn btn-danger " @click="removeItem(index)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                </div>
+                <button class="mb-3 btn btn-outline-primary mt-3" @click="openProductModal">
+                    Agregar producto
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Empleado</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input v-model="employee.username" class="form-control" disabled placeholder="Nombre de usuario" />
+                    </div>
+                    <div class="col-md-6">
+                        <input v-model="employee.email" class="form-control" disabled placeholder="Correo" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-outline-secondary" @click="goBack">
+                Volver
+            </button>
+            <button class="btn btn-success" @click="isEditMode ? updateOrder() : submitOrder()">
+                {{ isEditMode ? 'Actualizar orden' : 'Registrar orden' }}
+            </button>
         </div>
     </div>
 
@@ -169,7 +209,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="product in products" :key="product.id">
+                <tr v-for="product in products" :key="product.uuid">
                     <td>
                         <img :src="product.imageUrl" alt="Imagen" style="width: 60px; height: 60px; object-fit: cover;" />
                     </td>
@@ -178,13 +218,19 @@
                         <select
                             v-model="selectedVariants[product.uuid]"
                             class="form-select form-select-sm"
+                            :disabled="!product.productsVariants?.length"
                         >
+                            <option disabled :value="null">
+                                {{ product.productsVariants?.length ? 'Seleccionar talla' : 'Sin tallas disponibles' }}
+                            </option>
                             <option
-                                    v-for="variant in product.variants"
-                                    :key="variant.uuid"
-                                    :value="variant.uuid"
-                                >
-                                {{ variant.size.size.toUpperCase() }} ({{ variant.quantity }} disponibles)
+                                v-for="variant in product.productsVariants"
+                                :key="variant.uuid"
+                                :value="variant.uuid"
+                                :disabled="variant.quantity <= 0"
+                            >
+                                {{ variant.variant.value.toUpperCase() }} 
+                                ({{ variant.quantity }} disponibles)
                             </option>
                         </select>
                     </td>
@@ -208,43 +254,18 @@
             </tbody>
         </Table>
     </BaseModal>
-
-    <BaseModal :show="showEmployeeModal" @close="showEmployeeModal = false">
-        <h5>Buscar Empleado</h5>
-        <Table>
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Correo</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="employee in employees" :key="employee.uuid">
-                    <td>{{ employee.username }}</td>
-                    <td>{{ employee.email }}</td>
-                    <td>
-                        <button
-                            class="btn btn-sm btn-primary"
-                            @click="handleEmployeeSelect(employee)">
-                            Seleccionar
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </Table>
-    </BaseModal>
 </template>
+
 
 <script setup>
 import { onMounted, ref } from 'vue';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
 import { useRouter, useRoute } from 'vue-router';
+import { EMPLOYEES_API } from '../../constants';
 
 const showCustomerModal = ref(false);
 const showProductModal = ref(false);
-const showEmployeeModal = ref(false);
 
 const selectedVariants = ref({});
 const selectedQuantities = ref({});
@@ -259,34 +280,62 @@ const specifications = ref("");
 
 function getMaxQuantity(product) {
     const selectedVariantUuid = selectedVariants.value[product.uuid];
-    const selectedVariant = product.variants.find(v => v.uuid === selectedVariantUuid);
+    const selectedVariant = product.productsVariants.find(v => v.uuid === selectedVariantUuid);
     return selectedVariant ? selectedVariant.quantity : 0;
 }
 
-function addProduct(product, variantUuid, quantity) {
-    if (quantity <= 0) return;
-    let selectedPrice = product.price;
+function addProduct(product, variantUuid, quantity = 1) {
+    quantity = Math.max(1, parseInt(quantity) || 1);
+    console.log("Iniciando addProduct con:", {
+        product: product.name,
+        variantUuid,
+        quantity,
+        hasVariants: product.productsVariants?.length > 0
+    });
     let selectedVariant = null;
-    if (product.variants.length > 0 && variantUuid) {
-        selectedVariant = product.variants.find(v => v.uuid === variantUuid);
-        if (selectedVariant) {
-            selectedPrice = selectedVariant.price || product.price;
+    let selectedPrice = product.price;
+    if (variantUuid && product.productsVariants?.length) {
+        const foundVariant = product.productsVariants.find(v => v.uuid === variantUuid);
+        if (foundVariant) {
+            selectedVariant = {
+                uuid: foundVariant.uuid,
+                variant: {
+                    uuid: foundVariant.variant?.uuid || '',
+                    value: foundVariant.variant?.value || ''
+                },
+                price: foundVariant.price || product.price
+            };
+            selectedPrice = selectedVariant.price;
         }
     }
-    const totalPrice = selectedPrice * quantity;
     const item = {
-        product,
+        product: {
+            uuid: product.uuid,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            productsVariants: product.productsVariants || []
+        },
         variant: selectedVariant,
         quantity,
-        totalPrice
+        totalPrice: selectedPrice * quantity
     };
-    const existingItemIndex = orderItems.value.findIndex(item => item.product.uuid === product.uuid && item.variant?.uuid === variantUuid);
-    if (existingItemIndex >= 0) {
-        orderItems.value[existingItemIndex].quantity += quantity;
-        orderItems.value[existingItemIndex].totalPrice = orderItems.value[existingItemIndex].quantity * selectedPrice;
+    console.log(item);
+    const existingIndex = orderItems.value.findIndex(existing => 
+        existing.product.uuid === item.product.uuid && 
+        ((!existing.variant && !item.variant) || 
+         (existing.variant?.uuid === item.variant?.uuid))
+    );
+    if (existingIndex >= 0) {
+        orderItems.value[existingIndex].quantity += item.quantity;
+        orderItems.value[existingIndex].totalPrice += item.totalPrice;
     } else {
         orderItems.value.push(item);
     }
+    selectedVariants.value[product.uuid] = null;
+    selectedQuantities.value[product.uuid] = 1;
+    showProductModal.value = false;
 }
 
 function handleCustomerSelect(selectedCustomer) {
@@ -305,15 +354,6 @@ function handleCustomerSelect(selectedCustomer) {
         }
     };
     showCustomerModal.value = false;
-}
-
-function handleEmployeeSelect(selectedEmployee) {
-    employee.value = {
-        uuid: selectedEmployee.uuid,
-        username: selectedEmployee.username,
-        email: selectedEmployee.email
-    };
-    showEmployeeModal.value = false;
 }
 
 function updateQuantity(item) {
@@ -346,7 +386,6 @@ const employee = ref({
 });
 
 const products = ref([]);
-const employees = ref([]);
 const customers = ref([]);
 
 const orderItems = ref([]);
@@ -360,6 +399,10 @@ async function openProductModal() {
     await getProducts();
     selectedVariants.value = {};
     selectedQuantities.value = {};
+    products.value.forEach(product => {
+        selectedVariants.value[product.uuid] = null;
+        selectedQuantities.value[product.uuid] = 0;
+    });
     if (isEditMode.value) {
         orderItems.value.forEach(item => {
             if (item.variant) {
@@ -371,17 +414,13 @@ async function openProductModal() {
     showProductModal.value = true;
 }
 
-async function openEmployeeModal() {
-    showEmployeeModal.value = true;
-    await getEmployees();
-}
-
 async function registerCustomer(customer) {
     try {
-        const response = await fetch("http://localhost:3001/api/customers", {
+        const response = await fetch(`${EMPLOYEES_API}/customers`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
             },
             body: JSON.stringify(customer)
         });
@@ -396,23 +435,23 @@ async function registerCustomer(customer) {
 
 async function getProducts() {
     try {
-        const response = await fetch("http://localhost:3001/api/products");
+        const response = await fetch(`${EMPLOYEES_API}/products`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
-        products.value = await response.json();
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function getEmployees() {
-    try {
-        const response = await fetch("http://localhost:3001/api/employees");
-        if (!response.ok) {
-            throw new Error("Error en el servidor");
-        }
-        employees.value = await response.json();
+        products.value = (await response.json()).map(product => ({
+            ...product,
+            productsVariants: product.productsVariants?.map(variant => ({
+                ...variant,
+                variant: variant.variant || { uuid: '', value: '' }
+            })) || []
+        }));
     } catch (e) {
         console.error(e);
     }
@@ -420,7 +459,13 @@ async function getEmployees() {
 
 async function getCustomers() {
     try {
-        const response = await fetch("http://localhost:3001/api/customers");
+        const response = await fetch(`${EMPLOYEES_API}/customers`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Error en el servidor");
         }
@@ -456,6 +501,18 @@ async function submitOrder() {
             alert('Por favor selecciona un empleado');
             return;
         }
+        const preparedOrderItems = orderItems.value.map(item => {
+            const orderItem = {
+                productId: item.product.uuid,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            };
+            if (item.variant && item.variant.uuid) {
+                orderItem.productVariantId = item.variant.uuid;
+            }
+
+            return orderItem;
+        });
         const orderPayload = {
             numberOrder: generateOrderNumber(),
             total: calculateTotal(),
@@ -465,7 +522,7 @@ async function submitOrder() {
             employeeId: employee.value.uuid,
             orderItems: orderItems.value.map(item => ({
                 productId: item.product.uuid,
-                variantId: item.variant?.uuid || null,
+                productVariantId: item.variant?.uuid || null,
                 quantity: item.quantity,
                 totalPrice: item.totalPrice
             })),
@@ -473,127 +530,153 @@ async function submitOrder() {
                 total: calculateTotal()
             }]
         };
-        const response = await fetch("http://localhost:3001/api/orders", {
+        console.log(orderPayload)
+        const response = await fetch(`${EMPLOYEES_API}/orders`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
             },
             body: JSON.stringify(orderPayload)
         });
-        if (response) {
-            alert('Orden registrada exitosamente');
-            goToSales();
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error del servidor:", errorData);
+            throw new Error(errorData.message || "Error al registrar la orden");
         }
+        const result = await response.json();
+        console.log("Orden creada:", result);
+        alert('Orden registrada exitosamente');
+        goToSales();
     } catch (error) {
-        console.error('Error al registrar la orden:', error);
-        alert('Ocurrió un error al registrar la orden');
+        console.error('Error completo:', error);
+        alert(`Error al registrar la orden: ${error.message}`);
     }
 }
 
 async function loadOrderData() {
-  try {
-    const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`);
-    if (!response.ok) {
-      throw new Error("Error al cargar la orden");
+    try {
+        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error("Error al cargar la orden");
+        }
+        const orderData = await response.json();
+        specifications.value = orderData.specifications || "";
+        customer.value = {
+            uuid: orderData.customer.uuid,
+            name: orderData.customer.name,
+            lastName: orderData.customer.lastName,
+            phoneNumber: orderData.customer.phoneNumber,
+            address: {
+                streetName: orderData.customer.addresses?.streetName || '',
+                number: orderData.customer.addresses?.number || '',
+                zipCode: orderData.customer.addresses?.zipCode || '',
+                neighborhood: orderData.customer.addresses?.neighborhood || '',
+                city: orderData.customer.addresses?.city || '',
+                state: orderData.customer.addresses?.state || ''
+            }
+        };
+        if (orderData.historyOrders?.length > 0) {
+            employee.value = {
+                uuid: orderData.historyOrders[0].employee.uuid,
+                username: orderData.historyOrders[0].employee.username,
+                email: orderData.historyOrders[0].employee.email
+            };
+        }
+        orderItems.value = orderData.orderItems.map(item => {
+            let variant = null;
+            if (item.productVariant) {
+                variant = {
+                    uuid: item.productVariant.uuid,
+                    variant: {
+                        uuid: item.productVariant.variant?.uuid,
+                        value: item.productVariant.variant?.value
+                    },
+                    price: item.productVariant.price || item.product.price
+                };
+            }
+            return {
+                uuid: item.uuid,
+                product: {
+                    uuid: item.product.uuid,
+                    name: item.product.name,
+                    description: item.product.description,
+                    price: item.product.price,
+                    imageUrl: item.product.imageUrl,
+                    productsVariants: item.product.productsVariants || []
+                },
+                variant: variant,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            };
+        });
+        await getProducts();
+    } catch (error) {
+        console.error('Error al cargar la orden:', error);
+        alert('No se pudo cargar la orden para edición');
+        router.push({ name: 'sales' });
     }
-    const orderData = await response.json();
-    specifications.value = orderData.specifications;
-    customer.value = {
-      uuid: orderData.customer.uuid,
-      name: orderData.customer.name,
-      lastName: orderData.customer.lastName,
-      phoneNumber: orderData.customer.phoneNumber,
-      address: {
-        streetName: orderData.customer.addresses?.streetName || '',
-        number: orderData.customer.addresses?.number || '',
-        zipCode: orderData.customer.addresses?.zipCode || '',
-        neighborhood: orderData.customer.addresses?.neighborhood || '',
-        city: orderData.customer.addresses?.city || '',
-        state: orderData.customer.addresses?.state || ''
-      }
-    };
-    if (orderData.historyOrders?.length > 0) {
-      employee.value = {
-        uuid: orderData.historyOrders[0].employee.uuid,
-        username: orderData.historyOrders[0].employee.username,
-        email: orderData.historyOrders[0].employee.email
-      };
-    }
-    orderItems.value = orderData.orderItems.map(item => {
-      let variant = null;
-      if (item.variantId && item.product?.variants) {
-        variant = item.product.variants.find(v => v.uuid === item.variantId);
-      }
-      return {
-        product: {
-          uuid: item.product.uuid,
-          name: item.product.name,
-          description: item.product.description,
-          price: item.product.price,
-          imageUrl: item.product.imageUrl,
-          variants: item.product.variants || []
-        },
-        variant: variant,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice
-      };
-    });
-    products.value = [...new Set(orderData.orderItems.map(item => item.product))];
-  } catch (error) {
-    console.error('Error al cargar la orden:', error);
-    alert('No se pudo cargar la orden para edición');
-    router.push({ name: 'sales' });
-  }
 }
 
 async function updateOrder() {
-  try {
-    if (!customer.value.uuid) {
-      alert('Por favor selecciona un cliente');
-      return;
+    try {
+        if (!customer.value.uuid) {
+            alert('Por favor selecciona un cliente');
+            return;
+        }
+        if (orderItems.value.length === 0) {
+            alert('Debes agregar al menos un producto a la orden');
+            return;
+        }
+        if (!employee.value.uuid) {
+            alert('Por favor selecciona un empleado');
+            return;
+        }
+        const preparedOrderItems = orderItems.value.map(item => {
+            const orderItem = {
+                uuid: item.uuid,
+                productId: item.product.uuid,
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            };
+            if (item.variant?.uuid) {
+                orderItem.productVariantId = item.variant.uuid;
+            }
+            return orderItem;
+        });
+        const orderPayload = {
+            specifications: specifications.value || "Sin especificaciones",
+            customerId: customer.value.uuid,
+            employeeId: employee.value.uuid,
+            orderItems: preparedOrderItems,
+            total: calculateTotal()
+        };
+        const response = await fetch(`${EMPLOYEES_API}/orders/${orderUuid.value}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${window.localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(orderPayload)
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error del servidor:", errorData);
+            throw new Error(errorData.message || "Error al actualizar la orden");
+        }
+        const result = await response.json();
+        alert('Orden actualizada exitosamente');
+        goToSales();
+    } catch (error) {
+        console.error('Error al actualizar la orden:', error);
+        alert(`Error al actualizar la orden: ${error.message}`);
     }
-    if (orderItems.value.length === 0) {
-      alert('Debes agregar al menos un producto a la orden');
-      return;
-    }
-    if (!employee.value.uuid) {
-      alert('Por favor selecciona un empleado');
-      return;
-    }
-    const orderPayload = {
-      numberOrder: generateOrderNumber(),
-      total: calculateTotal(),
-      specifications: specifications.value,
-      date: new Date().toISOString(),
-      customerId: customer.value.uuid,
-      employeeId: employee.value.uuid,
-      orderItems: orderItems.value.map(item => ({
-        productId: item.product.uuid,
-        variantId: item.variant?.uuid || null,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice
-      })),
-      payments: [{
-        total: calculateTotal()
-      }]
-    };
-    const response = await fetch(`http://localhost:3001/api/orders/${orderUuid.value}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(orderPayload)
-    });
-    if (response.ok) {
-      alert('Orden actualizada exitosamente');
-      goToSales();
-    } else {
-      throw new Error("Error al actualizar la orden");
-    }
-  } catch (error) {
-    console.error('Error al actualizar la orden:', error);
-    alert('Ocurrió un error al actualizar la orden');
-  }
 }
 
 function goBack() {
@@ -601,10 +684,16 @@ function goBack() {
 }
 
 onMounted(async function() {
-  if (route.params.id) {
-    isEditMode.value = true;
-    orderUuid.value = route.params.id;
-    await loadOrderData();
-  }
+    const user = JSON.parse(window.localStorage.getItem("user"));
+    if (user) {
+        employee.value.username = user.username;
+        employee.value.email = user.email;
+        employee.value.uuid = user.uuid;
+    }
+    if (route.params.id) {
+        isEditMode.value = true;
+        orderUuid.value = route.params.id;
+        await loadOrderData();
+    }
 });
 </script>

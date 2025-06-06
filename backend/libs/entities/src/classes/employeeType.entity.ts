@@ -4,7 +4,7 @@ import Generic from "./generic.entity";
 export enum EmployeeTypeValue {
     Sales = "sales",
     Store = "store",
-    Clerk = "clerk"
+    Admin = "admin"
 }
 
 @Entity({ name: "employees_types" })

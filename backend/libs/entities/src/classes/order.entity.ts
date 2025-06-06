@@ -13,8 +13,8 @@ export enum OrderStateValue {
 
 @Entity({ name: "orders" })
 export default class Order extends Generic {
-  @Column({ type: "int", nullable: false, unique: true })
-  numberOrder: number;
+  @Column({ type: "varchar", nullable: true, unique: true })
+  numberOrder: string;
 
   @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true, eager: true })
   orderItems: OrderItem[];

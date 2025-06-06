@@ -50,18 +50,40 @@
       <div class="mb-3">
         <label class="form-label">Tallas y cantidades</label>
         <div class="variant-grid">
-          <div class="variant-row" v-for="(variant, index) in defaultVariants" :key="index">
-            <div class="variant-size">{{ sizeLabels[variant.size] }}</div>
+          <div class="variant-row" v-for="(variant, index) in productData.variants" :key="index">
+            <input
+                type="text"
+                class="form-control variant-size"
+                v-model="variant.value"
+                placeholder="Talla (ej. S, M, L)"
+                required
+            >
             <input
                 type="number"
                 class="form-control variant-quantity"
                 v-model.number="variant.quantity"
                 placeholder="0"
                 min="0"
+                required
                 @input="calculateTotalStock"
             >
+            <button
+                type="button"
+                class="btn btn-outline-danger"
+                @click="removeVariant(index)"
+                v-if="productData.variants.length > 1"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
         </div>
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary mt-2"
+            @click="addVariant"
+        >
+          + Añadir otra talla
+        </button>
         <div class="mt-2">
           <strong>Stock total:</strong> {{ productData.stockQuantity }} unidades
         </div>
@@ -123,23 +145,17 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { EMPLOYEES_API } from "../../constants";
 
 const router = useRouter();
 const route = useRoute();
-
-const sizeLabels = {
-  s: 'S',
-  m: 'M',
-  l: 'L',
-  xl: 'XL'
-};
 
 const productData = ref({
   name: '',
   description: '',
   price: 0,
   stockQuantity: 0,
-  variants: [],
+  variants: [{ value: '', quantity: 0 }],
   imagePath: '',
   tagNames: []
 });
@@ -166,6 +182,17 @@ function calculateTotalStock() {
   );
 }
 
+function addVariant() {
+  productData.value.variants.push({ value: '', quantity: 0 });
+}
+
+function removeVariant(index) {
+  productData.value.variants.splice(index, 1);
+  calculateTotalStock();
+}
+
+const uploadedImage = ref(null);
+
 function handleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -175,11 +202,7 @@ function handleImageUpload(event) {
   }
   errorMessage.value = '';
   imagePreview.value = URL.createObjectURL(file);
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    productData.value.imagePath = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  uploadedImage.value = file;
 }
 
 function addTag() {
@@ -199,6 +222,16 @@ async function submitForm() {
     errorMessage.value = 'Nombre y precio son requeridos';
     return;
   }
+  const hasEmptySize = productData.value.variants.some(v => !v.value.trim());
+  if (hasEmptySize) {
+    errorMessage.value = 'Todas las tallas deben tener un valor';
+    return;
+  }
+  const hasDuplicateSizes = new Set(productData.value.variants.map(v => v.value.toLowerCase())).size !== productData.value.variants.length;
+  if (hasDuplicateSizes) {
+    errorMessage.value = 'No puede haber tallas duplicadas';
+    return;
+  }
   if (productData.value.price <= 0) {
     errorMessage.value = 'El precio debe ser mayor que 0';
     return;
@@ -207,45 +240,43 @@ async function submitForm() {
   errorMessage.value = '';
   successMessage.value = '';
   try {
-    const payload = {
-      name: productData.value.name,
-      description: productData.value.description,
-      price: parseFloat(productData.value.price),
-      stockQuantity: productData.value.stockQuantity,
-      variants: defaultVariants.value
-          .filter(variant => variant.quantity > 0)
-          .map(variant => ({
-            size: variant.size,
-            quantity: parseInt(variant.quantity)
-          })),
-      tagNames: productData.value.tagNames
-    };
-    if (productData.value.imagePath) {
-      payload.imagePath = productData.value.imagePath;
+    const formData = new FormData();
+    formData.append('name', productData.value.name);
+    formData.append('description', productData.value.description);
+    formData.append('price', parseFloat(productData.value.price));
+    formData.append('stockQuantity', productData.value.stockQuantity);
+    formData.append('variants', JSON.stringify(productData.value.variants.map(variant => ({
+      variantUuid: variant.variantUuid,
+      type: 'talla',
+      value: variant.value,
+      quantity: parseInt(variant.quantity) || 0
+    }))));
+    formData.append('tagNames', JSON.stringify(productData.value.tagNames || []));
+    if (uploadedImage.value) {
+      formData.append('file', uploadedImage.value);
     }
     const url = isEditing.value
-        ? `http://localhost:3001/api/products/${productId.value}`
-        : 'http://localhost:3001/api/products';
-
+      ? `${EMPLOYEES_API}/products/${productData.value.uuid}`
+      : `${EMPLOYEES_API}/products`;
     const method = isEditing.value ? 'PUT' : 'POST';
     const response = await fetch(url, {
       method,
+      body: formData,
       headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+        'authorization': `Bearer ${window.localStorage.getItem('token')}`,
+        'role': JSON.parse(window.localStorage.getItem('user')).type
+      }
     });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.message || 'Error al guardar el producto');
     }
     successMessage.value = isEditing.value
-        ? 'Producto actualizado exitosamente!'
-        : 'Producto creado exitosamente!';
-
+      ? 'Producto actualizado exitosamente!'
+      : 'Producto creado exitosamente!';
     if (!isEditing.value) {
       setTimeout(() => {
-        router.push({ name: 'products' });
+        router.push({ name: '/app/products' });
       }, 1500);
     }
   } catch (error) {
@@ -258,34 +289,36 @@ async function submitForm() {
 
 async function getProduct() {
   try {
-    const response = await fetch(`http://localhost:3001/api/products/${productId.value}`);
+    const response = await fetch(`${EMPLOYEES_API}/products/${productId.value}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem("token")}`,
+        "role": JSON.parse(window.localStorage.getItem("user")).type
+      }
+    });
     if (!response.ok) {
       throw Error("El producto no existe.");
     }
     const product = await response.json();
-    defaultVariants.value.forEach(variant => {
-      variant.quantity = 0;
-    });
-    if (product.variants?.length > 0) {
-      product.variants.forEach(productVariant => {
-        const size = productVariant.size?.size || productVariant.size;
-        const foundVariant = defaultVariants.value.find(v => v.size === size);
-        if (foundVariant) {
-          foundVariant.quantity = productVariant.quantity;
-        }
-      });
-    }
+    const variants = product.productsVariants?.map(pv => ({
+      value: pv.variant.value,
+      quantity: pv.quantity,
+      variantUuid: pv.variant.uuid
+    })) || [];
+    const tagNames = product.tags?.map(tag => tag.name) || [];
+    const totalStock = product.productsVariants?.reduce((total, pv) => total + pv.quantity, 0) || 0;
     productData.value = {
       name: product.name,
       description: product.description || '',
       price: product.price,
-      stockQuantity: product.stockQuantity,
-      variants: product.variants || [],
+      stockQuantity: totalStock,
+      variants: variants,
       imagePath: product.imageUrl,
-      tagNames: product.tagNames || product.tags?.map(t => t.name) || []
+      tagNames: tagNames,
+      uuid: product.uuid
     };
     imagePreview.value = product.imageUrl;
-    calculateTotalStock();
   } catch (e) {
     console.error(e);
     errorMessage.value = "Error al cargar el producto";

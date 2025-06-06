@@ -12,44 +12,24 @@ export class CloudinaryService {
         });
     }
 
-    public async uploadImage(imagePath: string, publicId: string) {
-        try {
-            if (imagePath.startsWith('data:')) {
-                if (!imagePath.startsWith('data:image/')) {
-                    throw new Error('Formato de imagen no soportado. Solo se aceptan imágenes');
-                }
-                const correctedImagePath = imagePath.replace('data:image/png:base64', 'data:image/png;base64');
-                const result = await cloudinary.uploader.upload(correctedImagePath, {
+    public async uploadImage(buffer: Buffer, publicId: string) {
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
                     public_id: publicId,
-                    resource_type: 'auto',
+                    resource_type: 'image',
                     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-                    timeout: 30000,
-                });
-                if (!result?.secure_url) {
-                    throw new Error('No se recibió URL de imagen desde Cloudinary');
+                },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
                 }
-                return {
-                    url: result.secure_url,
-                    publicId: result.public_id,
-                    format: result.format,
-                    bytes: result.bytes,
-                };
-            } else {
-                throw new Error('Solo se aceptan imágenes en formato base64');
-            }
-        } catch (error) {
-            console.error('Error detallado en CloudinaryService:', {
-                message: error,
-                imagePath: imagePath?.substring(0, 50) + '...',
-                publicId,
-            });
-
-            throw new HttpException(
-                `Error al subir imagen: ${error}`,
-                HttpStatus.INTERNAL_SERVER_ERROR
             );
-        }
-    }
+            const readable = new stream.PassThrough();
+            readable.end(buffer);
+            readable.pipe(uploadStream);
+        });
+    }      
 
     public async getImage(publicId: string) {
         try {

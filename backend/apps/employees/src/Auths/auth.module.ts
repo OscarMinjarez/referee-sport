@@ -1,0 +1,21 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import Employee from '@app/entities/classes/employee.entity';
+import EmployeeType from '@app/entities/classes/employeeType.entity';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { FirebaseModule } from '@app/firebase';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      Employee,
+      EmployeeType,
+    ]),
+    FirebaseModule
+  ],
+  providers: [AuthService],
+  controllers: [AuthController],
+  exports: [AuthService],
+})
+export class AuthModule {}

@@ -55,6 +55,7 @@
             <thead>
               <tr>
                 <th>Producto</th>
+                <th>Talla</th>
                 <th>Precio Unitario</th>
                 <th>Cantidad</th>
                 <th>Total</th>
@@ -65,14 +66,20 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <img :src="item.product.imageUrl" 
-                         :alt="item.product.name" 
-                         class="img-thumbnail mr-3" 
-                         style="width: 60px; height: 60px; object-fit: cover;">
+                        :alt="item.product.name" 
+                        class="img-thumbnail mr-3" 
+                        style="width: 60px; height: 60px; object-fit: cover;">
                     <div class="mx-2">
                       <h6 class="mb-0">{{ item.product.name }}</h6>
                       <small class="text-muted">{{ item.product.description }}</small>
                     </div>
                   </div>
+                </td>
+                <td>
+                  <span v-if="item.productVariant?.variant?.value">
+                    {{ item.productVariant.variant.value.toUpperCase() }}
+                  </span>
+                  <span v-else class="text-muted">N/A</span>
                 </td>
                 <td>${{ (item.totalPrice / item.quantity).toFixed(2) }}</td>
                 <td>{{ item.quantity }}</td>
@@ -81,7 +88,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td colspan="4" class="text-right"><strong>Total:</strong></td>
                 <td><strong>${{ order.total.toFixed(2) }}</strong></td>
               </tr>
             </tfoot>
@@ -103,7 +110,7 @@
                 <th>Estado</th>
                 <th>Total</th>
                 <th>Pagado</th>
-                <th class="text-center">Acciones</th>
+                <th class="text-center" v-if="userRole !== 'store'">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +125,7 @@
                 </td>
                 <td>${{ Number(payment.total).toFixed(2) }}</td>
                 <td>${{ Number(payment.amountPaid || 0).toFixed(2) }}</td>
-                <td class="d-flex justify-content-center">
+                <td class="d-flex justify-content-center" v-if="userRole !== 'store'">
                   <button 
                     @click="openPaymentModal(payment)"
                     class="btn btn-sm btn-primary"
@@ -129,8 +136,8 @@
               </tr>
             </tbody>
             <tfoot>
-              <tr>
-                <td colspan="4" class="text-right"><strong>Total:</strong></td>
+              <tr class="w-100">
+                <td class="text-right"><strong>Total:</strong></td>
                 <td><strong>${{ Number(order.total).toFixed(2) }}</strong></td>
               </tr>
             </tfoot>
@@ -221,7 +228,7 @@
       <button class="btn btn-outline-secondary me-2" @click="goBack">
         <i class="bi bi-arrow-left"></i> Volver
       </button>
-      <div>
+      <div v-if="userRole !== 'store'">
         <button v-if="canEdit" class="btn btn-primary me-2" @click="editOrder">
           <i class="bi bi-pencil"></i> Editar
         </button>
@@ -238,9 +245,12 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Table from '../../components/Table.vue';
 import BaseModal from '../../components/BaseModal.vue';
+import { EMPLOYEES_API } from '../../constants';
 
 const route = useRoute();
 const router = useRouter();
+
+const userRole = ref('');
 
 const showPaymentModal = ref(false);
 const editingPayment = ref({
@@ -272,10 +282,11 @@ async function savePayment() {
     } else {
       editingPayment.value.state = 'pending';
     }
-    const response = await fetch(`http://localhost:3001/api/payments/${editingPayment.value.uuid}`, {
+    const response = await fetch(`${EMPLOYEES_API}/payments/${editingPayment.value.uuid}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`
       },
       body: JSON.stringify({
         amountPaid: editingPayment.value.amountPaid,
@@ -373,13 +384,25 @@ async function fetchOrder() {
   const id = route.params.id;
   try {
     loading.value = true;
-    const response = await fetch(`http://localhost:3001/api/orders/${id}`);
+    const response = await fetch(`${EMPLOYEES_API}/orders/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${window.localStorage.getItem('token')}`
+      }
+    });
     if (!response.ok) {
       throw new Error('Orden no encontrada');
     }
-    order.value = await response.json();
+    const orderData = await response.json();
+    orderData.orderItems = orderData.orderItems.map(item => ({
+      ...item,
+      productVariant: item.productVariant || null
+    }));
+    order.value = orderData;
   } catch (e) {
     console.error('Error fetching order:', e);
+    error.value = 'No se pudo cargar la orden';
   } finally {
     loading.value = false;
   }
@@ -399,6 +422,10 @@ function getEventIcon(event) {
 }
 
 onMounted(async function() {
+  const user = JSON.parse(window.localStorage.getItem("user"));
+  if (user && user.type) {
+    userRole.value = user.type;
+  }
   await fetchOrder();
 });
 </script>
@@ -443,24 +470,5 @@ onMounted(async function() {
   position: relative;
   border-radius: 8px;
   border: 1px solid #dee2e6;
-}
-
-.bg-primary-subtle {
-  background-color: rgba(13, 110, 253, 0.1);
-}
-.bg-success-subtle {
-  background-color: rgba(25, 135, 84, 0.1);
-}
-.bg-info-subtle {
-  background-color: rgba(13, 202, 240, 0.1);
-}
-.bg-warning-subtle {
-  background-color: rgba(255, 193, 7, 0.1);
-}
-.bg-danger-subtle {
-  background-color: rgba(220, 53, 69, 0.1);
-}
-.bg-secondary-subtle {
-  background-color: rgba(108, 117, 125, 0.1);
 }
 </style>

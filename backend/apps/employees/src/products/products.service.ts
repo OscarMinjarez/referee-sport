@@ -1,25 +1,25 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Product from "@app/entities/classes/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ILike, Repository } from "typeorm";
-import Size from "@app/entities/classes/size.entity";
+import { FindOptionsWhere, ILike, IsNull, Repository } from "typeorm";
 import Variant from "@app/entities/classes/variant.entity";
 import Tag from "@app/entities/classes/tag.entity";
 import { CloudinaryService } from "@app/cloudinary/cloudinary.service";
 import { CreateProductDto } from "./dto/CreateProduct.dto";
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
+import ProductVariant from '@app/entities/classes/productVariant.entity';
 
 @Injectable()
 export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private productRepository: Repository<Product>,
-      
-        @InjectRepository(Size)
-        private sizeRepository: Repository<Size>,
         
         @InjectRepository(Variant)
         private variantRepository: Repository<Variant>,
+
+        @InjectRepository(ProductVariant)
+        private productVariantRepository: Repository<ProductVariant>,
         
         @InjectRepository(Tag)
         private tagRepository: Repository<Tag>,
@@ -29,7 +29,12 @@ export class ProductsService {
 
     async findAll(): Promise<Product[]> {
         return await this.productRepository.find({
-            relations: ['variants', 'variants.size', 'tags'],
+            relations: {
+                productsVariants: {
+                    variant: true
+                },
+                tags: true
+            },
         });
     }
     
@@ -41,7 +46,12 @@ export class ProductsService {
         try {
             const product = await this.productRepository.findOne({
                 where: { uuid: id },
-                relations: ['variants', 'variants.size', 'tags'],
+                relations: {
+                    productsVariants: {
+                        variant: true
+                    },
+                    tags: true
+                },
             });
             if (!product) {
                 throw new HttpException('Producto no encontrado', HttpStatus.NOT_FOUND);
@@ -116,54 +126,29 @@ export class ProductsService {
                 description: createProductDto.description,
                 price: createProductDto.price
             });
-
-            // Manejar tags
             if (createProductDto.tagNames && createProductDto.tagNames.length > 0) {
                 product.tags = await this.getOrCreateTags(createProductDto.tagNames);
             }
-
             if (createProductDto.imagePath) {
                 const uploadResult = await this.cloudinaryService.uploadImage(
-                    createProductDto.imagePath,
+                    createProductDto.imagePath.buffer,
                     `product_${createProductDto.name.replace(/\s+/g, '_')}_${Date.now()}`
                 );
-                product.imageUrl = uploadResult.url;
+                product.imageUrl = (uploadResult as { url: string }).url;
             }
-
-            // Guardar el producto primero para poder relacionar las variantes
             const savedProduct = await this.productRepository.save(product);
-
-            // Crear variantes si existen
             if (createProductDto.variants && createProductDto.variants.length > 0) {
-                const variants = [];
-                
                 for (const variantDto of createProductDto.variants) {
-                    // Encontrar o crear el tamaño
-                    let sizeEntity = await this.sizeRepository.findOne({
-                        where: { size: variantDto.size }
+                    const { type, value, quantity } = variantDto;
+                    const variantEntity = await this.getOrCreateVariant(type, value);
+                    const productVariant = this.productVariantRepository.create({
+                        product: savedProduct,
+                        variant: variantEntity,
+                        quantity,
                     });
-
-                    if (!sizeEntity) {
-                        sizeEntity = this.sizeRepository.create({ size: variantDto.size });
-                        await this.sizeRepository.save(sizeEntity);
-                    }
-
-                    // Crear la variante
-                    const variant = this.variantRepository.create({
-                        quantity: variantDto.quantity,
-                        size: sizeEntity,
-                        product: savedProduct
-                    });
-
-                    variants.push(await this.variantRepository.save(variant));
+                    await this.productVariantRepository.save(productVariant);
                 }
-
-                // Asignar variantes al producto
-                savedProduct.variants = variants;
-                await this.productRepository.save(savedProduct);
             }
-
-            // Retornar el producto completo con variantes
             return await this.findOne(savedProduct.uuid);
         } catch (error) {
             console.error('Error al crear producto:', error);
@@ -177,77 +162,75 @@ export class ProductsService {
         }
     }
 
-    async update(
-        id: string,
-        updateProductDto: UpdateProductDto
-    ): Promise<Product> {
+    private async getOrCreateVariant(type: string | null, value: string): Promise<Variant> {
+        if (!value || typeof value !== 'string') {
+            throw new Error('El valor de la variante debe ser un string no vacío');
+        }
+        const normalizedType = type?.trim().toUpperCase();
+        const normalizedValue = value.trim().toUpperCase();
+        const where: FindOptionsWhere<Variant> = { 
+            value: ILike(normalizedValue) 
+        };
+        if (normalizedType !== null) {
+            where.type = normalizedType;
+        } else {
+            where.type = IsNull();
+        }
+        const existingVariant = await this.variantRepository.findOne({ where });    
+        if (existingVariant) {
+            return existingVariant;
+        }
+        const newVariant = this.variantRepository.create({
+            type: normalizedType,
+            value: normalizedValue
+        });
+        return await this.variantRepository.save(newVariant);
+    }
+
+    async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
         try {
             const product = await this.findOne(id);
-
-            // Actualizar propiedades básicas del producto
             if (updateProductDto.name) product.name = updateProductDto.name;
             if (updateProductDto.description) product.description = updateProductDto.description;
             if (updateProductDto.price) product.price = updateProductDto.price;
-            
-            // Actualizar tags si se proporcionan
             if (updateProductDto.tagNames) {
                 product.tags = await this.getOrCreateTags(updateProductDto.tagNames);
             }
-
-            // Manejar la imagen si se proporciona
             if (updateProductDto.imagePath) {
                 const isUrl = /^https?:\/\//i.test(updateProductDto.imagePath);
                 if (!isUrl) {
                     const publicId = `product_${product.name}_${Date.now()}`.replace(/\s+/g, '_');
                     const uploadResult = await this.cloudinaryService.uploadImage(
-                        updateProductDto.imagePath,
+                        updateProductDto.imagePath.buffer,
                         publicId
                     );
-                    product.imageUrl = uploadResult.url || uploadResult.publicId;
+                    product.imageUrl = (uploadResult as { url: string }).url;
                 } else {
                     product.imageUrl = updateProductDto.imagePath;
                 }
             }
-
-            // Actualizar el producto
             await this.productRepository.save(product);
-
-            // Si se proporcionan variantes, actualizar las existentes
-            if (updateProductDto.variants && updateProductDto.variants.length > 0) {
-                // Eliminar variantes existentes
-                if (product.variants && product.variants.length > 0) {
-                    await this.variantRepository.remove(product.variants);
+            if (updateProductDto.variants && updateProductDto.variants?.length > 0) {
+                const existingProductVariants = await this.productVariantRepository.find({
+                    where: { product: { uuid: product.uuid } },
+                    relations: ['variant']
+                });
+                if (existingProductVariants.length > 0) {
+                    await this.productVariantRepository.remove(existingProductVariants);
                 }
-
-                // Crear nuevas variantes
-                const variants = [];
-                
                 for (const variantDto of updateProductDto.variants) {
-                    // Encontrar o crear el tamaño
-                    let sizeEntity = await this.sizeRepository.findOne({
-                        where: { size: variantDto.size }
+                    const variantEntity = await this.getOrCreateVariant(
+                        variantDto.type, 
+                        variantDto.value
+                    );
+                    const productVariant = this.productVariantRepository.create({
+                        product,
+                        variant: variantEntity,
+                        quantity: variantDto.quantity
                     });
-
-                    if (!sizeEntity) {
-                        sizeEntity = this.sizeRepository.create({ size: variantDto.size });
-                        await this.sizeRepository.save(sizeEntity);
-                    }
-
-                    // Crear la variante
-                    const variant = this.variantRepository.create({
-                        quantity: variantDto.quantity,
-                        size: sizeEntity,
-                        product: product
-                    });
-
-                    variants.push(await this.variantRepository.save(variant));
+                    await this.productVariantRepository.save(productVariant);
                 }
-
-                // Asignar variantes al producto
-                product.variants = variants;
-                await this.productRepository.save(product);
             }
-
             return await this.findOne(id);
         } catch (error) {
             console.error('Error al actualizar producto:', error);
@@ -263,12 +246,12 @@ export class ProductsService {
 
     async delete(id: string): Promise<{ message: string }> {
         const product = await this.findOne(id);
-        
-        // Eliminar variantes asociadas
-        if (product.variants && product.variants.length > 0) {
-            await this.variantRepository.remove(product.variants);
+        const productVariants = await this.productVariantRepository.find({
+            where: { product: { uuid: id } },
+        });
+        if (productVariants.length > 0) {
+            await this.productVariantRepository.remove(productVariants);
         }
-        
         await this.productRepository.delete(id);
         return { message: 'Producto eliminado correctamente' };
     }

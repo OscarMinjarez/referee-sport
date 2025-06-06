@@ -1,22 +1,12 @@
-import { Controller, Get, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpException, HttpStatus, UseGuards, Param } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import Employee from '@app/entities/classes/employee.entity';
 
 @Controller('employees')
 export class EmployeesController {
+
   constructor(private readonly employeesService: EmployeesService) {}
 
-  // Endpoint para crear un empleado
-  @Post()
-  async create(@Body() employeeData: Partial<Employee>): Promise<Employee> {
-    try {
-      return await this.employeesService.create(employeeData);
-    } catch (error: any) {
-      throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  // Endpoint para obtener todos los empleados
   @Get()
   async findAll(): Promise<Employee[]> {
     try {
@@ -26,13 +16,12 @@ export class EmployeesController {
     }
   }
 
-  // Endpoint para iniciar sesión
-  @Post('login')
-  async login(@Body() credentials: { username: string; password: string }): Promise<{ token: string; employee: Employee }> {
+  @Post(':uid')
+  async findByUid(@Param('uid') uid: string): Promise<Employee> {
     try {
-      return await this.employeesService.login(credentials);
+      return await this.employeesService.findByUid(uid);
     } catch (error: any) {
-      throw new HttpException(error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Error al obtener el empleado', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -1,16 +1,17 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import Generic from "./generic.entity";
-import Size from "./size.entity";
-import Product from "./product.entity";
+import ProductVariant from "./productVariant.entity";
 
 @Entity({ name: "variants" })
 export default class Variant extends Generic {
-    @Column({ type: "int", nullable: false, default: 0 })
-    quantity: number;
-    
-    @ManyToOne(() => Size, (size) => size.variants)
-    size: Size;
+    @Column({ type: "varchar", nullable: true })
+    type: string;
 
-    @ManyToOne(() => Product, (product) => product.variants)
-    product: Product;
+    @Column({ type: "varchar", nullable: true })
+    value: string;
+
+    @OneToMany(() => ProductVariant, (productVariant) => productVariant.variant, {
+        cascade: true
+    })
+    productsVariants: ProductVariant[];
 }

@@ -9,6 +9,10 @@ import { OrderStateValue }                       from '@app/entities/classes/ord
 import HistoryOrder                              from '@app/entities/classes/historyOrder.entity';
 import Customer                                  from '@app/entities/classes/customer.entity';
 import Employee                                  from '@app/entities/classes/employee.entity';
+import { CreateOrderDto }                        from './dto/CreateOrder.dto';
+import ProductVariant from '@app/entities/classes/productVariant.entity';
+import { UpdateOrderDto } from './dto/UpdateOrder.dto';
+import Product from '@app/entities/classes/product.entity';
 
 @Injectable()
 export class OrdersService {
@@ -17,9 +21,7 @@ export class OrdersService {
     @InjectRepository(OrderItem)   private itemRepo:  Repository<OrderItem>,
     @InjectRepository(Payment)     private payRepo:   Repository<Payment>,
     @InjectRepository(OrderEvent)  private evRepo:    Repository<OrderEvent>,
-    @InjectRepository(HistoryOrder)private histRepo:  Repository<HistoryOrder>,
-    @InjectRepository(Customer)    private custRepo:  Repository<Customer>,
-    @InjectRepository(Employee)    private empRepo:   Repository<Employee>,
+    @InjectRepository(HistoryOrder) private histRepo:  Repository<HistoryOrder>
   ) {}
 
   private async recordHistory(order: Order, employeeId: string, eventValue: OrderEventValue) {
@@ -70,12 +72,14 @@ export class OrdersService {
     relations: [
       'orderItems', 
       'orderItems.product',
+      'orderItems.productVariant',
+      'orderItems.productVariant.variant',
       'payments',
       'customer',
       'customer.addresses',
       'historyOrders', 
-      'historyOrders.event',     // ✅ Ya estaba
-      'historyOrders.employee',  // ✅ Ya estaba
+      'historyOrders.event',
+      'historyOrders.employee',
     ],
   });
   if (!o) throw new HttpException('Orden no encontrada', HttpStatus.NOT_FOUND);
@@ -100,7 +104,7 @@ export class OrdersService {
     });
   }
 
-  async create(data: any): Promise<Order> {
+  async create(data: CreateOrderDto): Promise<Order> {
     try {
       const order = this.orderRepo.create({
         numberOrder: data.numberOrder,
@@ -108,15 +112,16 @@ export class OrdersService {
         specifications: data.specifications,
         date: data.date ? new Date(data.date) : new Date(),
         customer: { uuid: data.customerId } as Customer,
-        orderItems: (data.orderItems || []).map((i: any) => ({
+        orderItems: (data.orderItems || []).map((i) => ({
           product: { uuid: i.productId },
+          productVariant: { uuid: i.productVariantId },
           quantity: i.quantity,
           totalPrice: i.totalPrice,
-        })) as any[],
-        payments: (data.payments || []).map((p: any) => ({
+        })),
+        payments: (data.payments || []).map((p) => ({
           total: p.total,
           paymentState: false,
-        })) as any[],
+        })),
       });
       const saved = await this.orderRepo.save(order);
       await this.recordHistory(saved, data.employeeId, OrderEventValue.Purchased);
@@ -128,32 +133,78 @@ export class OrdersService {
     }
   }
 
-  async update(id: string, data: any): Promise<Order> {
+  async update(id: string, data: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
     const previousTotal = order.total;
-    if (data.numberOrder) order.numberOrder = data.numberOrder;
-    if (data.specifications) order.specifications = data.specifications;
+    if (data.numberOrder !== undefined) order.numberOrder = data.numberOrder;
+    if (data.specifications !== undefined) order.specifications = data.specifications;
+    if (data.date !== undefined) order.date = new Date(data.date);
+    if (data.customerId !== undefined) order.customer = { uuid: data.customerId } as Customer;
     if (data.orderItems) {
-      await this.itemRepo.remove(order.orderItems);
-      order.orderItems = data.orderItems.map((i: { productId: string; quantity: number; totalPrice: number }) =>
-        this.itemRepo.create({
-            order: order,
-            product: { uuid: i.productId },
-            quantity: i.quantity,
-            totalPrice: i.totalPrice,
-        })
+      const itemsToRemove = order.orderItems.filter(
+        existingItem => !data.orderItems?.some(newItem => newItem.uuid === existingItem.uuid)
       );
+      await this.itemRepo.remove(itemsToRemove);
+      order.orderItems = await Promise.all(data.orderItems.map(async (itemDto) => {
+        if (itemDto.uuid) {
+          const existingItem = order.orderItems.find(i => i.uuid === itemDto.uuid);
+          if (existingItem) {
+            existingItem.quantity = itemDto.quantity;
+            existingItem.totalPrice = itemDto.totalPrice;
+            existingItem.product = { uuid: itemDto.productId } as Product;
+            existingItem.productVariant = { uuid: itemDto.productVariantId } as ProductVariant;
+            return this.itemRepo.save(existingItem);
+          }
+        }
+        const newItem = this.itemRepo.create({
+          order: order,
+          product: { uuid: itemDto.productId },
+          productVariant: { uuid: itemDto.productVariantId },
+          quantity: itemDto.quantity,
+          totalPrice: itemDto.totalPrice
+        });
+        return this.itemRepo.save(newItem);
+      }));
       order.total = data.orderItems.reduce(
-        (sum: number, item: { totalPrice: number }) => sum + item.totalPrice, 
+        (sum, item) => sum + item.totalPrice, 
         0
       );
-    } else if (data.total) {
+    } else if (data.total !== undefined) {
       order.total = data.total;
+    }
+    if (data.payments) {
+      const paymentsToRemove = order.payments.filter(
+        existingPayment => !data.payments?.some(newPayment => newPayment.uuid === existingPayment.uuid)
+      );
+      if (paymentsToRemove.length > 0) {
+        await this.payRepo.remove(paymentsToRemove);
+      }
+      const updatedPayments: Payment[] = [];
+      for (const paymentDto of data.payments) {
+        if (paymentDto.uuid) {
+          const existingPayment = order.payments.find(p => p.uuid === paymentDto.uuid);
+          if (existingPayment) {
+            existingPayment.total = paymentDto.total;
+            if (paymentDto.state) {
+              existingPayment.state = paymentDto.state as PaymentState;
+            }
+            updatedPayments.push(await this.payRepo.save(existingPayment));
+            continue;
+          }
+        }
+        const newPayment = this.payRepo.create({
+          order: order,
+          total: paymentDto.total,
+          state: paymentDto.state as PaymentState || PaymentState.Pending
+        });
+        updatedPayments.push(await this.payRepo.save(newPayment));
+      }
+      order.payments = updatedPayments;
     }
     await this.orderRepo.save(order);
     if (data.orderItems && previousTotal !== order.total) {
-    let difference = previousTotal - order.total;
-    if (difference > 0) {
+      let difference = previousTotal - order.total;
+      if (difference > 0) {
         const payments = [...order.payments].sort((a, b) => b.total - a.total);
         for (const payment of payments) {
           if (difference <= 0) break;

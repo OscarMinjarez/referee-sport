@@ -3,11 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsService } from './products.service';
 import { ProductsModule } from './products.module';
 import { EntitiesService } from '@app/entities/entities.service';
-import Size, { SizeValue } from '@app/entities/classes/size.entity';
 import { DataSource } from 'typeorm';
 import Tag from '@app/entities/classes/tag.entity';
 import { CreateProductDto } from './dto/CreateProduct.dto';
-import { VariantDto } from './dto/variant.dto';
+import { VariantDto } from './dto/CreateVariant.dto';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -58,8 +57,8 @@ describe('ProductsService', () => {
         price: 9.99,
         tagNames: ['ropa', 'algodón', 'básico', 'camiseta', 'blanco'],
         variants: [
-          { size: SizeValue.Medium, quantity: 20 },
-          { size: SizeValue.Large, quantity: 30 }
+          { type: 'talla', name: 'Talla', value: 'm', quantity: 20 },
+          { type: 'talla', name: 'Talla', value: 'l', quantity: 30 }
         ]
       },
       {
@@ -68,9 +67,9 @@ describe('ProductsService', () => {
         price: 19.99,
         tagNames: ['ropa', 'deportivo', 'HUAWEI', 'running'],
         variants: [
-          { size: SizeValue.Medium, quantity: 10 },
-          { size: SizeValue.Large, quantity: 15 },
-          { size: SizeValue.ExtraLarge, quantity: 5 }
+          { type: 'talla', name: 'Talla', value: 'm', quantity: 10 },
+          { type: 'talla', name: 'Talla', value: 'l', quantity: 15 },
+          { type: 'talla', name: 'Talla', value: 'xl', quantity: 5 }
         ]
       },
       {
@@ -79,32 +78,30 @@ describe('ProductsService', () => {
         price: 29.99,
         tagNames: ['ropa', 'invierno', 'sudadera', 'capucha'],
         variants: [
-          { size: SizeValue.Large, quantity: 10 },
-          { size: SizeValue.ExtraLarge, quantity: 10 }
-        ],
-        // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
-      },{
+          { type: 'talla', name: 'Talla', value: 'l', quantity: 10 },
+          { type: 'talla', name: 'Talla', value: 'xl', quantity: 10 }
+        ]
+      },
+      {
         name: 'Chones ajustados',
         description: 'Sudadera gruesa para invierno',
         price: 29.99,
-        tagNames: ['ropa', 'invierno', 'sudadera', 'capucha','sexy'],
+        tagNames: ['ropa', 'invierno', 'sudadera', 'capucha', 'sexy'],
         variants: [
-          { size: SizeValue.Large, quantity: 10 },
-          { size: SizeValue.ExtraLarge, quantity: 10 }
-        ],
-        // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
+          { type: 'talla', name: 'Talla', value: 'l', quantity: 10 },
+          { type: 'talla', name: 'Talla', value: 'xl', quantity: 10 }
+        ]
       },
       {
-        name: 'panties ajustados',
+        name: 'Panties ajustados',
         description: 'Sudadera gruesa para invierno',
         price: 29.99,
-        tagNames: ['ropa', 'invierno', 'sudadera', 'vulgar','sexy'],
+        tagNames: ['ropa', 'invierno', 'sudadera', 'vulgar', 'sexy'],
         variants: [
-          { size: SizeValue.Large, quantity: 10 },
-          { size: SizeValue.ExtraLarge, quantity: 10 }
-        ],
-        // imagePath: 'C:/Users/JORGE/.../futbol.jpg'
-      },
+          { type: 'talla', name: 'Talla', value: 'l', quantity: 10 },
+          { type: 'talla', name: 'Talla', value: 'xl', quantity: 10 }
+        ]
+      }
     ];
 
     console.log('Productos a crear:', JSON.stringify(productos, null, 2));
@@ -149,16 +146,23 @@ describe('ProductsService', () => {
       console.log('Productos:', allProducts.map(p => ({
         uuid: p.uuid,
         name: p.name,
-        variants: p.variants.map(v => ({ size: v.size.size, quantity: v.quantity })),
+        variants: p.productsVariants?.map(pv => ({
+          type: pv.variant.type,
+          name: pv.variant.name,
+          value: pv.variant.value,
+          quantity: pv.quantity
+        })),
         imageUrl: p.imageUrl,
-        tags: p.tags ? p.tags.map(t => t.name) : []
+        tags: p.tags?.map(t => t.name)
       })));
       expect(allProducts.length).toBeGreaterThanOrEqual(3);
       for (const product of allProducts) {
-        expect(product.variants).toBeDefined();
+        expect(product.productsVariants).toBeDefined();
         expect(product.tags).toBeDefined();
-        for (const variant of product.variants) {
-          expect(variant.size).toBeDefined();
+  
+        for (const pv of product.productsVariants) {
+          expect(pv.variant).toBeDefined();
+          expect(pv.quantity).toBeGreaterThanOrEqual(0);
         }
       }
     } catch (error) {
@@ -166,6 +170,7 @@ describe('ProductsService', () => {
       throw error;
     }
   });
+  
 
   it('debería buscar productos por nombre', async () => {
     console.log('Iniciando test de búsqueda por nombre...');
@@ -180,7 +185,7 @@ describe('ProductsService', () => {
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toContain(term);
       for (const p of results) {
-        expect(p.variants).toBeDefined();
+        expect(p.productsVariants).toBeDefined();
         expect(p.tags).toBeDefined();
       }
     } catch (error) {
@@ -200,12 +205,12 @@ describe('ProductsService', () => {
         uuid: p.uuid,
         name: p.name,
         tags: p.tags ? p.tags.map(t => t.name) : [],
-        variants: p.variants.length
+        variants: p.productsVariants.length
       })));
       expect(results.length).toBeGreaterThan(0);
       for (const p of results) {
         expect(p.tags.some(t => t.name.toLowerCase().includes(tagTerm))).toBeTruthy();
-        expect(p.variants).toBeDefined();
+        expect(p.productsVariants).toBeDefined();
       }
     } catch (error) {
       console.error('Error en búsqueda por etiqueta:', error);

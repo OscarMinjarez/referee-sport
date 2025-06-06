@@ -10,7 +10,7 @@ describe('EmployeesService', () => {
 
   const employeeArray = [
     { uuid: '1', username: 'john', email: 'john@example.com', password: '123', type: EmployeeTypeValue.Sales },
-    { uuid: '2', username: 'jane', email: 'jane@example.com', password: '456', type: EmployeeTypeValue.Store },
+    { uuid: '2', username: 'jane', email: 'jane@example.com', password: '456', type: EmployeeTypeValue.Storage },
   ];
 
   beforeEach(async () => {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { credential, initializeApp } from 'firebase-admin';
-import { App, ServiceAccount } from 'firebase-admin/app';
-import { Auth, getAuth } from 'firebase-admin/auth';
+import * as admin from 'firebase-admin';
 import * as path from 'path';
 import * as fs from "fs";
+import { App } from 'firebase-admin/app';
+import { Auth } from 'firebase-admin/lib/auth/auth';
 
 @Injectable()
 export class FirebaseService {
@@ -12,15 +12,58 @@ export class FirebaseService {
     private _auth: Auth;
 
     constructor() {
-        const serviceAccountPath = path.resolve(
-            'libs/firebase/src/configs/firebase.json'
+        const serviceAccountPath = path.join(
+            process.cwd(),
+            'libs',
+            'firebase',
+            'src',
+            'configs',
+            'firebase.json'
         );
+        if (!fs.existsSync(serviceAccountPath)) {
+            throw new Error(`Firebase config file not found at: ${serviceAccountPath}`);
+        }
         const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-        this._app = initializeApp({
-            credential: credential.cert(
-                serviceAccount as ServiceAccount
-            )
-        });
-        this._auth = getAuth(this._app);
+        if (!this._app) {
+            this._app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+        }
+        this._auth = admin.auth(this._app);
+    }
+
+    async register(email: string, password: string, displayName: string) {
+        try {
+            const user = await this._auth.createUser({ email, password, displayName });
+            return {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName
+            }
+        } catch (e: unknown) {
+            throw new Error("An error occurred while registering the user... " + e);
+        }
+    }
+
+    async createCustomToken(uid: string): Promise<string> {
+        try {
+            const token = await this._auth.createCustomToken(uid, {
+                expiresIn: 5 * 60,
+            });
+            return token;
+        } catch (e: unknown) {
+            throw new Error("An error occurred while creating the custom token... " + e);
+        }
+    }
+
+    async verifyIdToken(idToken: string): Promise<admin.auth.DecodedIdToken> {
+        try {
+            if (!idToken || idToken.split('.').length !== 3) {
+                throw new Error('Token is not valid');
+            }
+            return await this._auth.verifyIdToken(idToken);
+        } catch (e: unknown) {
+            throw new Error("An error occurred while verifying the ID token... " + e);
+        }
     }
 }
