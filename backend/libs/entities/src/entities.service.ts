@@ -13,6 +13,9 @@ import OrderEvent from './classes/orderEvent.entity';
 import Variant from './classes/variant.entity';
 import Tag from './classes/tag.entity';
 import ProductVariant from './classes/productVariant.entity';
+import StoreInfo from './classes/store-info';
+import { StorePolicy } from './classes/store-policy.entity';
+import { ContactMessage } from './classes/contact-message.entity';
 
 @Injectable()
 export class EntitiesService implements TypeOrmOptionsFactory {
@@ -29,7 +32,8 @@ export class EntitiesService implements TypeOrmOptionsFactory {
             entities: [
                 Product, Address, Customer, Employee, Order,
                 Payment, Variant, User, OrderItem, HistoryOrder,
-                OrderEvent, Tag, ProductVariant
+                OrderEvent, Tag, ProductVariant, StoreInfo,
+                StorePolicy, ContactMessage
             ],
         };
     }

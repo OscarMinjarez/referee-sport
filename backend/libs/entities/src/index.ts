@@ -13,3 +13,6 @@ export * from "./classes/payment.entity";
 export * from "./classes/product.entity";
 export * from "./classes/user.entity";
 export * from "./classes/productVariant.entity";
+export * from "./classes/store-info";
+export * from "./classes/store-policy.entity";
+export * from "./classes/contact-message.entity";

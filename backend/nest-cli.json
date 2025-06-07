@@ -8,6 +8,15 @@
     "tsConfigPath": "apps/backend/tsconfig.app.json"
   },
   "projects": {
+    "admin": {
+      "type": "application",
+      "root": "apps/admin",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/admin/tsconfig.app.json"
+      }
+    },
     "clients": {
       "type": "application",
       "root": "apps/clients",
