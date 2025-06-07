@@ -1,5 +1,6 @@
 <template>
   <Navbar />
+
   <div class="container-fluid">
     <div
       v-if="product"
@@ -63,6 +64,8 @@
       </div>
     </div>
   </div>
+
+  <Footer />
 </template>
 
 <script setup>
@@ -70,6 +73,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import Navbar from "../../components/Navbar.vue";
 import { CLIENTS_API } from '../../constants';
+import Footer from '../../components/Footer.vue';
 
 const route = useRoute();
 const router = useRouter();

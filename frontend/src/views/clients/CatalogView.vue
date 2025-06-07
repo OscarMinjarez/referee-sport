@@ -40,6 +40,8 @@
       @previousPage="previousPage"
     />
   </main>
+
+  <Footer />
 </template>
 
 <script setup>
@@ -48,6 +50,7 @@ import Navbar from '../../components/Navbar.vue';
 import ProductCard from '../../components/ProductCard.vue';
 import { CLIENTS_API, EMPLOYEES_API } from "../../constants";
 import PaginationButtons from '../../components/PaginationButtons.vue';
+import Footer from '../../components/Footer.vue';
 
 const products = ref([]);
 const allProducts = ref([]);
