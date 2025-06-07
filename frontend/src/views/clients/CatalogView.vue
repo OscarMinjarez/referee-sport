@@ -92,7 +92,7 @@ function getProductStock(product) {
   return product.productsVariants.reduce((total, variant) => total + (variant.quantity || 0), 0);
 }
 
-async function getProducts(page, limit = 5) {
+async function getProducts(page, limit = 20) {
   try {
     const res = await fetch(`${CLIENTS_API}/products?page=${page || 1}&limit=${limit}`);
     if (!res.ok) throw new Error('Error al obtener productos');
